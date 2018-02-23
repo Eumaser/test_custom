@@ -3,7 +3,7 @@
     include_once 'connect.php';
     include_once 'config.php';
     include_once 'include_function.php';
-    include_once 'class/Order.php'; 
+    include_once 'class/Order.php';
     include_once 'class/Partner.php';
     include_once 'class/Project.php';
     include_once 'class/Product.php';
@@ -54,7 +54,7 @@
     $o->order_type = escape($_POST['order_type']);
     $o->order_void_remarks = escape($_POST['order_void_remarks']);
     $o->order_paymentterm_remark = escape($_POST['order_paymentterm_remark']);
-    
+
     // Added by Ivan
     $o->order_delivery_id = escape($_POST['order_delivery_id']);
     $o->order_delivery_remark = escape($_POST['order_delivery_remark']);
@@ -71,13 +71,13 @@
     $o->order_prefix_id = escape($_POST['order_prefix_id']);
     $o->order_remarks_id = escape($_POST['order_remarks_id']);
     $o->order_notes = escape($_POST['order_notes']);
-    
+
     $o->order_attentionto_email = escape($_POST['order_attentionto_email']);
     $o->order_attentionto_name = escape($_POST['order_attentionto_name']);
     $o->order_type_id = escape($_POST['order_type_id']);
     $o->qt_type = escape($_POST['qt_type']);
     $o->order_item_id = escape($_POST['order_item_id']);
-    
+
     $o->order_delivery_date = escape($_POST['order_delivery_date']);
     $o->order_self_correction = escape($_POST['order_self_correction']);
     $o->order_supp_delivery = escape($_POST['order_supp_delivery']);
@@ -87,11 +87,11 @@
     $o->order_verifiedby = escape($_POST['order_verifiedby']);
     $o->order_regards = escape($_POST['order_regards']);
     $o->history_type = escape($_POST['history_type']);
-    
+
     $o->order_discheadertotal = str_replace(",", "",$_POST['order_discheadertotal']);
-    
+
     $o->order_rev = escape($_POST['order_rev']);
-    
+
     $o->order_currency = escape($_POST['order_currency']);
     $o->order_currencyrate = escape($_POST['order_currencyrate']);
     if($o->order_currencyrate <= 1){
@@ -123,7 +123,7 @@
     $o->ordl_product_location = escape($_POST['ordl_product_location']);
 
     $o->generate_document_type = escape($_POST['generate_document_type']);
-    
+
     $o->order_attachment = $_FILES['order_attachment'];
 
     if($o->ordl_seqno == ""){
@@ -144,13 +144,13 @@
     if(!is_numeric($o->order_discheadertotal)){
         $o->order_discheadertotal = 0;
     }
-    
-    
+
+
    //Generate Parameters
    $o->generateordlid = $_POST['generateordlid'];
    $o->generatecheckbox = $_POST['generatecheckbox'];
    $o->generateqty = $_POST['generateqty'];
-   
+
    $o->product_id = escape($_POST['product_id']);
    $o->customer_id = escape($_POST['customer_id']);
 
@@ -176,7 +176,7 @@
                     rediectUrl("$o->document_url?action=edit&order_id=$o->order_id",getSystemMsg(1,'Update data successfully'));
                     break;
                 }
-           
+
                $o->status = 0;
                if($o->order_rev == 1){
                     $old_order_id = $o->order_id;
@@ -190,7 +190,7 @@
                        $o->order_void_remarks = "Revision";
                        $query_line = $o->fetchOrderLineDetail("","","",0);
                        if($o->createOrder()){
-                           
+
                            while($row_line = mysql_fetch_array($query_line)){
                                 $o->generateOrderLine($row_line,$o->order_id);
                             }
@@ -221,8 +221,8 @@
                }
        break;
        case "saveline":
-       case "updateline":    
-            
+       case "updateline":
+
             $o->calculateLineAmount();
            /*
            $pro->fetchProductDetail(" AND p.product_id = '$o->ordl_pro_id'", $orderstring, $wherelimit, 1);
@@ -276,7 +276,7 @@
                     echo json_encode(array('status'=>0,'msg'=>$language[$lang]['addeditline_error']));
                 }
            }
-            
+
             exit();
             break;
        case "deleteline":
@@ -426,8 +426,8 @@
             }
             exit();
             break;
-            
-        case "getItemListJson":      
+
+        case "getItemListJson":
             if ($o->order_type_id == 1 || $o->order_type_id == "product"){
                 $contact_option = $o->select->getProductNameSelectCtrl("","Y","");
                 echo json_encode(array('status'=>1,
@@ -442,7 +442,7 @@
             }
             exit();
             break;
-        case "getItemDescJson":      
+        case "getItemDescJson":
             if ($o->qt_type == "product"){
                 if($pro->fetchProductDetail(" AND product_id = '$o->order_item_id'","","",1)){
                     echo json_encode(array('status'=>1,
@@ -462,22 +462,22 @@
                    echo json_encode(array('status'=>0));
                 }
             }
-            
+
             exit();
             break;
        case "createForm":
             $o->getInputForm('create');
             exit();
-            break;  
-       default:  
+            break;
+       default:
             if($_SESSION['empl_group'] > 1){
                 $wherestring = " AND o.order_outlet = '{$_SESSION['empl_outlet']}'";
             }
             $o->wherestring .= " AND o.order_prefix_type = '$o->document_type' $wherestring";
-
+          
             $o->getListing();
             exit();
-            break; 
+            break;
     }
-    
+
 ?>
