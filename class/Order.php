@@ -14,16 +14,17 @@ class Order {
     public function Order(){
         include_once 'class/SelectControl.php';
         $this->select = new SelectControl();
-        
+
 
     }
     public function createOrder(){
+
         //if($this->document_type != 'PO'){
             if($this->order_rev != 1){
                 $this->order_no = get_prefix_value($this->document_code,true,$this->order_date,$subprefix);
             }
         //}
-        
+
         if($_SESSION['empl_type'] == 'SUBCON'){
             $this->order_subcon = $_SESSION['empl_id'];
             $order_salesperson_prefix = "SUBCON";
@@ -44,7 +45,7 @@ class Order {
                              'order_paymentterm_id','order_delivery_id','order_price_id','order_validity_id',
                              'order_transittime_id','order_freightcharge_id','order_pointofdelivery_id','order_prefix_id',
                              'order_remarks_id','order_country_id','order_attentionto_email','order_attentionto_name',
-                             'order_tnc','order_notes');
+                             'order_tnc','order_notes', 'order_doc_type');
         $table_value = array($this->order_no,format_date_database($this->order_date),$this->order_customer,$this->order_salesperson,
                              $this->order_billaddress,$this->order_attentionto,$this->order_shipterm,$this->order_term,
                              $this->order_shipaddress,$this->order_customerref,$this->order_remark,$this->order_customerpo,
@@ -59,18 +60,61 @@ class Order {
                              $this->order_paymentterm_id, $this->order_delivery_id,$this->order_price_id,$this->order_validity_id,
                              $this->order_transittime_id, $this->order_freightcharge_id,$this->order_pointofdelivery_id,$this->order_prefix_id,
                              $this->order_remarks_id,$this->order_country_id,$this->order_attentionto_email,$this->order_attentionto_name,
-                             $this->order_term_remark,$this->order_notes);
+                             $this->order_term_remark,$this->order_notes,$this->order_doc_type);
         $remark = "Insert $this->document_code.<br> Document No : $this->order_no";
         if(!$this->save->SaveData($table_field,$table_value,'db_order','order_id',$remark)){
            return false;
         }else{
            $this->order_id = $this->save->lastInsert_id;
+
+           //edr insert sql something application akin to the variables above but for orderfork table
+           //Add condition, save only document type, DO, QT, Invoice and Sales order/order confirmationk
+           $fork_field = [
+              'orderfork_order_id',
+              'orderfork_brand',
+              'orderfork_model',
+              'orderfork_capacity',
+              'orderfork_height',
+              'orderfork_mast',
+              'orderfork_length',
+              'orderfork_attachment',
+              'orderfork_acc',
+              'orderfork_serial',
+              'orderfork_battery',
+              'orderfork_bat_charger',
+              'orderfork_snr',
+           ];
+           $fork_value = [
+             $this->order_id,
+             $this->orderfork_brand,
+             $this->orderfork_model,
+             $this->orderfork_capacity,
+             $this->orderfork_height,
+             $this->orderfork_mast,
+             $this->orderfork_length,
+             $this->orderfork_attachment,
+             $this->orderfork_acc,
+             $this->orderfork_serial,
+             $this->orderfork_battery,
+             $this->orderfork_bat_charger,
+            $this->orderfork_snr,
+          ];
+
+
+          if ($this->document_type == 'DO' && $this->order_doc_type == '2') {
+            $remark = "Insert to orderfork $this->document_code.<br> Document No : $this->order_no";
+            $this->save->SaveData($fork_field,$fork_value,'db_orderfork','orderfork_id',$remark);
+          }else{
+            unset($fork_value);
+          }
+
+
            $this->saveAttachment($this->order_id,$this->order_attachment);
            return true;
         }
     }
     public function updateOrder(){
-        
+      //die('test');
         if($_SESSION['empl_type'] == 'SUBCON'){
             $this->order_subcon = $_SESSION['empl_id'];
         }
@@ -78,7 +122,9 @@ class Order {
             $table_field = array('order_shipaddress','order_shipping_id');
             $table_value = array($this->order_shipaddress,$this->order_shipping_id);
         }else{
-            if($this->old_order_status == 1){
+        //    die($this->order_status);
+          //  if($this->old_order_status == 1){
+          if($this->order_status == 1){
                 $table_field = array('order_date','order_customer','order_salesperson',
                                      'order_billaddress','order_attentionto','order_shipterm','order_term',
                                      'order_shipaddress','order_customerref','order_remark','order_customerpo',
@@ -92,7 +138,7 @@ class Order {
                                      'order_paymentterm_id','order_delivery_id','order_price_id','order_validity_id',
                                      'order_transittime_id','order_freightcharge_id','order_pointofdelivery_id','order_prefix_id',
                                      'order_remarks_id','order_country_id','order_attentionto_email','order_attentionto_name',
-                                     'order_tnc','order_notes');
+                                     'order_tnc','order_notes','order_doc_type');
                 $table_value = array(format_date_database($this->order_date),$this->order_customer,$this->order_salesperson,
                                      $this->order_billaddress,$this->order_attentionto,$this->order_shipterm,$this->order_term,
                                      $this->order_shipaddress,$this->order_customerref,$this->order_remark,$this->order_customerpo,
@@ -106,26 +152,69 @@ class Order {
                                      $this->order_paymentterm_id, $this->order_delivery_id,$this->order_price_id,$this->order_validity_id,
                                      $this->order_transittime_id, $this->order_freightcharge_id,$this->order_pointofdelivery_id,$this->order_prefix_id,
                                      $this->order_remarks_id,$this->order_country_id,$this->order_attentionto_email,$this->order_attentionto_name,
-                                     $this->order_term_remark,$this->order_notes);
+                                     $this->order_term_remark,$this->order_notes,$this->order_doc_type);
            }else{
                 $table_field = array('order_status');
                 $table_value = array($this->order_status);
            }
         }
+    //    echo '<pre>';
+    //    print_r($this->order_fax);
+    //    die();
         $remark = "Update $this->document_code.<br> Document No : $this->order_no";
         if(!$this->save->UpdateData($table_field,$table_value,'db_order','order_id',$remark,$this->order_id)){
            return false;
         }else{
+
+            $fork_field = [
+              //  'orderfork_id',
+               'orderfork_order_id',
+               'orderfork_brand',
+               'orderfork_model',
+               'orderfork_capacity',
+               'orderfork_height',
+               'orderfork_mast',
+               'orderfork_length',
+               'orderfork_attachment',
+               'orderfork_acc',
+               'orderfork_serial',
+               'orderfork_battery',
+               'orderfork_bat_charger',
+               'orderfork_snr',
+            ];
+            $fork_value = [
+            //  $this->order_id,
+              $this->orderfork_brand,
+              $this->orderfork_model,
+              $this->orderfork_capacity,
+              $this->orderfork_height,
+              $this->orderfork_mast,
+              $this->orderfork_length,
+              $this->orderfork_attachment,
+              $this->orderfork_acc,
+              $this->orderfork_serial,
+              $this->orderfork_battery,
+              $this->orderfork_bat_charger,
+              $this->orderfork_snr,
+           ];
+
+           if ($this->document_type == 'DO' && $this->order_doc_type == '2') {
+               $remark = "Update to orderfork $this->document_code.<br> Document No : $this->order_no";
+               $this->save->SaveData($fork_field,$fork_value,'db_orderfork','orderfork_id',$remark);
+           }else{
+               unset($fork_value);
+           }
+
            $this->saveAttachment($this->order_id,$this->order_attachment);
            return true;
         }
     }
     public function updateOrderTotal(){
-        
+
         $subtotal = (($this->order_subtotal - $this->order_disctotal) - $this->order_discheadertotal);
         $gst = round($subtotal * (system_gst_percent/100),2);
         $this->order_grandtotal = $subtotal + $gst;
-        
+
         $table_field = array('order_subtotal','order_disctotal','order_taxtotal','order_grandtotal','order_discheadertotal');
         $table_value = array($this->order_subtotal,$this->order_disctotal,$gst,$this->order_grandtotal,$this->order_discheadertotal);
         $this->fetchOrderDetail(" AND order_id = '$this->order_id'","","",1);
@@ -170,11 +259,11 @@ class Order {
                }
            }else{
                return true;
-           } 
+           }
         }
     }
     public function updateOrderLine(){
-        
+
         $table_field = array('ordl_order_id','ordl_pro_id','ordl_pro_desc','ordl_qty','ordl_uom',
                              'ordl_uprice','ordl_disc','ordl_istax','ordl_taxamt','ordl_total',
                              'ordl_pro_no','ordl_discamt','ordl_seqno','ordl_fuprice','ordl_pfuprice',
@@ -206,7 +295,7 @@ class Order {
                }
            }else{
                return true;
-           } 
+           }
         }
     }
     public function calculateLineAmount(){
@@ -214,19 +303,19 @@ class Order {
         if($this->order_currencyrate <= 0){
             $this->order_currencyrate = 1;
         }
-        
+
         //foreign amount
         $subtotal = $this->ordl_qty * $this->ordl_fuprice;
 
-        
+
         if($this->ordl_disc > 0){
             $this->ordl_fdiscamt = ROUND($subtotal * ($this->ordl_disc/100),2);
             $this->ordl_discamt = ROUND($this->ordl_fdiscamt * $this->order_currencyrate,2);
         }else{
             $this->ordl_discamt = 0;
         }
-      
-        $subtotal_afterdiscount = $subtotal - $this->ordl_fdiscamt; 
+
+        $subtotal_afterdiscount = $subtotal - $this->ordl_fdiscamt;
 
 //        if($this->ordl_istax > 0){
 //            $this->ordl_ftaxamt = ROUND($subtotal_afterdiscount * (system_gst_percent/100),2);
@@ -238,11 +327,11 @@ class Order {
         $this->ordl_ftaxamt = 0;
         $this->ordl_ftotal = $subtotal_afterdiscount + $this->ordl_ftaxamt;
 
-        //base amount      
+        //base amount
         $this->ordl_total = ROUND($this->ordl_ftotal * $this->order_currencyrate,2);
     }
     public function getTotalDiscAmt(){
-        $sql = "SELECT SUM(ROUND(ol.ordl_discamt,2)) as discamt 
+        $sql = "SELECT SUM(ROUND(ol.ordl_discamt,2)) as discamt
                 FROM db_ordl ol
                 INNER JOIN db_order o ON o.order_id = ol.ordl_order_id
                 WHERE ol.ordl_order_id = '$this->order_id'";
@@ -268,7 +357,7 @@ class Order {
         return $total_subtotal;
     }
     public function getTotalGstAmt(){
-        $sql = "SELECT SUM(ol.ordl_taxamt) as taxamt 
+        $sql = "SELECT SUM(ol.ordl_taxamt) as taxamt
                 FROM db_ordl ol
                 INNER JOIN db_order o ON o.order_id = ol.ordl_order_id
                 WHERE ol.ordl_order_id = '$this->order_id'";
@@ -281,7 +370,7 @@ class Order {
         return $total_taxamt;
     }
     public function fetchOrderDetail($wherestring,$orderstring,$wherelimit,$type){
-        $sql = "SELECT o.*,de.delivery_desc as delivery_desc, 
+      /*  $sql = "SELECT o.*,de.delivery_desc as delivery_desc,
                             co.country_desc as country_desc,
                             fr.freightcharge_desc as freightcharge_desc,
                             pd.pointofdelivery_desc as pointofdelivery_desc,
@@ -291,7 +380,7 @@ class Order {
                             tt.transittime_desc as transittime_desc,
                             va.validity_desc as validity_desc,
                             pt.paymentterm_desc as paymentterm_desc
-                FROM db_order o 
+                FROM db_order o
                 LEFT JOIN db_paymentterm pt ON pt.paymentterm_id = o.order_paymentterm_id
                     LEFT JOIN db_delivery de ON de.delivery_id = o.order_delivery_id
                     LEFT JOIN db_price pr ON pr.price_id = o.order_price_id
@@ -302,8 +391,33 @@ class Order {
                     LEFT JOIN db_prefix pf ON pf.prefix_id = o.order_prefix_id
                     LEFT JOIN db_remarks rm ON rm.remarks_id = o.order_remarks_id
                     LEFT JOIN db_countryitem co ON co.country_id = o.order_country_id
-                WHERE o.order_id > 0  $wherestring $orderstring $wherelimit";
+                WHERE o.order_id > 0  $wherestring $orderstring $wherelimit";*/
+          $sql =  "SELECT o.*,f.*,de.delivery_desc as delivery_desc,
+                                  co.country_desc as country_desc,
+                                  fr.freightcharge_desc as freightcharge_desc,
+                                  pd.pointofdelivery_desc as pointofdelivery_desc,
+                                  pf.prefix_desc as prefix_desc,
+                                  pr.price_desc as price_desc,
+                                  rm.remarks_desc as remarks_desc,
+                                  tt.transittime_desc as transittime_desc,
+                                  va.validity_desc as validity_desc,
+                                  pt.paymentterm_desc as paymentterm_desc
+                      FROM db_order o
+                          LEFT JOIN db_paymentterm pt ON pt.paymentterm_id = o.order_paymentterm_id
+                          LEFT JOIN db_delivery de ON de.delivery_id = o.order_delivery_id
+                          LEFT JOIN db_price pr ON pr.price_id = o.order_price_id
+                          LEFT JOIN db_validity va ON va.validity_id = o.order_validity_id
+                          LEFT JOIN db_transittime tt ON tt.transittime_id = o.order_transittime_id
+                          LEFT JOIN db_freightcharge fr ON fr.freightcharge_id = o.order_freightcharge_id
+                          LEFT JOIN db_pointofdelivery pd ON pd.pointofdelivery_id = o.order_pointofdelivery_id
+                          LEFT JOIN db_prefix pf ON pf.prefix_id = o.order_prefix_id
+                          LEFT JOIN db_remarks rm ON rm.remarks_id = o.order_remarks_id
+                          LEFT JOIN db_countryitem co ON co.country_id = o.order_country_id
+                          LEFT JOIN db_orderfork f ON f.orderfork_order_id = o.order_id
+                          WHERE o.order_id > 0  $wherestring $orderstring $wherelimit ";
         $query = mysql_query($sql);
+      //  return $sql;
+
         if($type ==1){
             $row = mysql_fetch_array($query);
 
@@ -349,10 +463,10 @@ class Order {
             $this->order_regards = $row['order_regards'];
             $this->order_type = $row['order_type'];
             $this->order_void_remarks = $row['order_void_remarks'];
-            $this->order_salesperson_prefix = $row['order_salesperson_prefix'];    
+            $this->order_salesperson_prefix = $row['order_salesperson_prefix'];
             $this->order_discheadertotal = $row['order_discheadertotal'];
             //$this->order_paymentterm_remark = $row['order_paymentterm_remark'];
-            
+
             $this->order_paymentterm_id = $row['order_paymentterm_id'];
             $this->order_delivery_id = $row['order_delivery_id'];
             $this->order_price_id = $row['order_price_id'];
@@ -379,6 +493,24 @@ class Order {
             $this->order_prefix_type = $row['order_prefix_type'];
             $this->order_generate_from = $row['order_generate_from'];
             $this->order_generate_from_type = $row['order_generate_from_type'];
+
+            $this->order_doc_type = $row['order_doc_type']; //edr
+            $this->orderfork_id = $row['orderfork_id'];
+            $this->orderfork_brand = $row['orderfork_brand'];
+            $this->orderfork_model = $row['orderfork_model'];
+            $this->orderfork_capacity =$row['orderfork_capacity'];
+            $this->orderfork_height = $row['orderfork_height'];
+            $this->orderfork_mast = $row['orderfork_mast'];
+            $this->orderfork_length = $row['orderfork_length'];
+            $this->orderfork_attachment = $row['orderfork_attachment'];
+            $this->orderfork_acc = $row['orderfork_acc'];
+            $this->orderfork_serial = $row['orderfork_serial'];
+            $this->orderfork_battery = $row['orderfork_battery'];
+            $this->orderfork_bat_charger = $row['orderfork_bat_charger'];
+            $this->orderfork_snr = $row['orderfork_snr'];
+
+
+
         }else if($type == 2){
             return mysql_fetch_array($query);
         }
@@ -564,7 +696,7 @@ class Order {
             return mysql_fetch_array($query);
         }
         return $query;
-    }    
+    }
     public function delete(){
         $table_field = array('order_status');
         $table_value = array($this->order_status);
@@ -598,14 +730,14 @@ class Order {
                 $this->subconCrtl = $this->select->getCustomerSelectCtrl($_SESSION['empl_id'],'N'," AND partner_id = '{$_SESSION['empl_id']}'");
             }
             /*
-            if($this->document_type == 'SO'){             
+            if($this->document_type == 'SO'){
                 $this->order_term_remark = $progressclaim_tnc;
             }else{
                 $this->order_term_remark = $quotation_tnc;
             }
-            */
+            *///edr clue
         }else{
-            if($this->document_type == 'QT'){
+            if($this->document_type == 'QT' ){
                 $wherestring = " ot.order_id = '$this->order_id'";
             }else if($this->document_type == 'SO'){
                 $wherestring = " os.order_id = '$this->order_id'";
@@ -615,12 +747,12 @@ class Order {
                 $wherestring = " op.order_id = '$this->order_id'";
             }
             $this->generated = $this->getGeneratedSql($wherestring);
-        
+
         /*
          * find project detail for filter subcon
          */
         $p->project_id = $this->order_project_id;
-        $r = $p->getProjectDetailTransaction();    
+        $r = $p->getProjectDetailTransaction();
         $b = explode(',',$r['project_subcon']);
         for($i=0;$i<sizeof($b);$i++){
             $project_subcon .= "'" . $b[$i] . "',";
@@ -652,6 +784,10 @@ class Order {
             $this->prefixCrtl = $this->select->getPrefixSelectCtrl($this->order_prefix_id,'Y');
             $this->remarksCrtl = $this->select->getRemarksSelectCtrl($this->order_remarks_id,'Y');
             $this->countryCrtl = $this->select->getCountryItemSelectCtrl($this->order_country_id,'Y');
+
+            //edr added brand ctrl selector and model ctrl selector
+            $this->brandCrtl = $this->select->getBrandSelectCtrl($this->orderfork_brand,'Y');
+            $this->modelCrtl = $this->select->getForkModelCtrl($this->orderfork_model,'Y');
        // }
         //if(($this->document_type == 'PRF') || ($this->document_type == 'GRN') || ($this->document_type == 'PRF')){
         if($this->document_type == 'PO' || ($this->document_type == 'GRN')){
@@ -661,7 +797,7 @@ class Order {
             $cust_wherestring = " AND partner_iscustomer = 1 ";
             $empl_wherestring = " AND empl_group IN ('1')";
             if($_SESSION['empl_group'] >= 1){
-               $cust_wherestring .= " AND partner_outlet = '{$_SESSION['empl_outlet']}'"; 
+               $cust_wherestring .= " AND partner_outlet = '{$_SESSION['empl_outlet']}'";
             }
         }
         $this->employeeCrtl = $this->select->getEmployeeSelectCtrl($this->order_salesperson,'Y'); //$empl_wherestring
@@ -672,21 +808,22 @@ class Order {
         $this->supplierCrtl = $this->select->getCustomerSelectCtrl($this->order_customer,'Y',$cust_wherestring);
         $this->currencyCrtl = $this->select->getCurrencySelectCtrl($this->order_currency,'Y');
         $this->shiptermCrtl = $this->select->getShipTermSelectCtrl($this->order_shipterm,'N');
+        $this->docType = $this->select->getDocType($this->order_doc_type,'Y');
 
         $this->contactCrtl = $this->select->getContactSelectCtrl($this->order_attentionto,'Y'," AND contact_partner_id = '$this->order_customer'");
-        
-         
+
+
         $this->uomCrtl = $this->select->getUomSelectCtrl("",'N');
         $this->prodCrtl = $this->select->getProductNameSelectCtrl("",'Y');
 
         $label_col_sm = "col-sm-2";
         $field_col_sm = "col-sm-3";
-        
+
         if($this->order_status != 1){
-           $disabled = " DISABLED"; 
+           $disabled = " DISABLED";
         }
         if(($this->generated['so_id'] > 0) && ($this->document_type == 'QT')){
-            $disabled = " DISABLED"; 
+            $disabled = " DISABLED";
             $isgenerated = 1;
         }
         if($this->document_type == 'QT'){
@@ -698,7 +835,7 @@ class Order {
         }
 
         if($isgenerated > 0){
-            $disabled = " DISABLED"; 
+            $disabled = " DISABLED";
         }
     ?>
    <html>
@@ -709,7 +846,7 @@ class Order {
     <?php
     include_once 'css.php';
 
-    ?>    
+    ?>
   </head>
   <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
   <body class="hold-transition skin-blue layout-top-nav">
@@ -723,6 +860,8 @@ class Order {
         <section class="content-header">
             <h1><?php echo $this->document_name;?></h1>
         </section>
+        <!--edr f--->
+
           <!-- Main content -->
           <section class="content">
               <form id = 'order_form' class="form-horizontal" action = '<?php echo $this->document_url;?>?action=create' method = "POST" enctype="multipart/form-data">
@@ -738,42 +877,43 @@ class Order {
                 <!--<button type = "button" class="btn btn-primary pull-right" style = 'margin-right:10px;' onclick = "duplicateDocument('<?php echo $this->order_id?>')">Template</button>-->
                 <?php }?>
               </div>
-                
+
 <!--                <form id = 'order_form' class="form-horizontal" action = '<?php echo $this->document_url;?>?action=create' method = "POST" enctype="multipart/form-data">-->
                   <div class="box-body col-sm-9">
+
                       <!-- Customer don have multi currency , so we hide it.-->
                       <input type = 'hidden' id="order_currency" name="order_currency" value = '<?php echo $this->order_currency_org;?>'/>
                       <input type="hidden" class="form-control" id="order_currencyrate" name="order_currencyrate" value = "<?php echo $this->order_currencyrate;?>" placeholder="Currency Rate" READONLY>
-                        <?php 
-                        
+                        <?php
+
                         switch ($this->document_type) {
                             case "PRF":
                             case "GRN":
                             case "PO":
                             case "DO":
-                            case "PI":  
+                            case "PI":
                                 $this->getPRFForm($label_col_sm,$field_col_sm,$disabled);
                                 break;
                             case "PU":
                                 $this->getPickupForm($label_col_sm,$field_col_sm,$disabled);
                                 break;
-                            default:
+                            default:''
 //                                $this->getPRFForm($label_col_sm,$field_col_sm,$disabled);
                                 $this->getOrderForm($label_col_sm,$field_col_sm,$disabled);
                                 break;
                         }
                         ?>
-                        
+
                   </div><!-- /.box-body -->
                   <div class="box-body col-sm-3"  >
-                    <?php if($_SESSION['empl_type'] != 'SUBCON'){?>  
+                    <?php if($_SESSION['empl_type'] != 'SUBCON'){?>
                     <!--
                     <div class="form-group" style = '<?php if($this->document_type == 'PRF' || $this->document_type == 'PU'){ echo 'display:none'; }?>'>
                         <label for="order_subtotal" class="col-sm-5 control-label">Total (<span class = 'base_currency_span'><?php echo $this->order_currency_code;?></span>)</label>
                         <div class="col-sm-7">
                             <input type="text" class="form-control text-align-right" id="order_subtotal" name="order_subtotal" value = "<?php echo num_format($this->order_subtotal - $this->order_disctotal);?>" disabled>
                         </div>
-                    </div> 
+                    </div>
                     <div class="form-group" style = '<?php if($this->document_type == 'PRF' || $this->document_type == 'PU'){ echo 'display:none'; }?>'>
                         <label for="order_discheadertotal" class="col-sm-5 control-label">Disc (<span class = 'base_currency_span'><?php echo $this->order_currency_code;?></span>)</label>
                         <div class="col-sm-7">
@@ -807,12 +947,12 @@ class Order {
                               <input type="checkbox"  id="order_rev" name="order_rev" value = "1" >
                         </div>
                     </div>
-                    <?php }?>  
-                    <?php 
+                    <?php }?>
+                    <?php
                     if($_SESSION['empl_type'] == 'SUBCON'){
                     ?>
                       <input type = "hidden" value = "1" name = "order_status"/>
-                    <?php }else if($this->document_type != 'PU'){?>  
+                    <?php }else if($this->document_type != 'PU'){?>
                     <div class="form-group">
                         <label for="order_status" class="col-sm-5 control-label">Status </label>
                         <div class="col-sm-7">
@@ -826,7 +966,7 @@ class Order {
                                 <option value = '1' <?php if($this->order_status == '1'){ echo 'SELECTED';}?>>Pending</option>
                                 <option value = '3' <?php if($this->order_status == '3'){ echo 'SELECTED';}?>>Close</option>
                                 <?php }?>
-                                
+
                             </select>
                         </div>
                     </div>
@@ -853,7 +993,7 @@ class Order {
                     if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],$prm_code)){
                         if($this->order_status != -3){
                     ?>
-                        <?php 
+                        <?php
                             if($isgenerated != 1){
 
                         ?>
@@ -862,52 +1002,52 @@ class Order {
 
                               }
                         }else{
-                            
+
                             echo "<span style = 'color:red'>This quotation have be <b>Revision</b>.</span>";
                             $this->getRevQuotationOrderId($this->order_no);
                             echo " <span style = 'margin-left:30px;' >Click <a href = '$this->document_url?action=edit&order_id=$this->rev_neworder_id'><b>$this->rev_neworder_no (Rev $this->rev_neworder_revtimes)</b></a> to view the newest quotation.</span>";
                         }?>
                     <?php }?>
-                 &nbsp;&nbsp;&nbsp;        
+                 &nbsp;&nbsp;&nbsp;
                 <?php if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'print') && ($this->order_id > 0) && (($this->order_status == 1) || ($this->order_status == 2))){?>
                  <?php if(($this->document_type == 'QT') || ($this->document_type == 'SO') || ($this->document_type == 'PO') || ($this->document_type == 'PRF') || ($this->document_type == 'DO') || ($this->document_type == 'PU' || ($this->document_type == 'GRN') )){?>
                 <button type = "button" class="btn btn-primary"  onclick = "window.open('<?php echo $this->document_print_url;?>?action=<?php echo $this->document_type;?>&report_id=<?php echo $this->order_id;?>&format=1')">Print</button>
-                <?php 
+                <?php
                 if($this->document_type == 'QT'){
-                ?>&nbsp;&nbsp;&nbsp;   
+                ?>&nbsp;&nbsp;&nbsp;
                 <!--<button type = "button" class="btn btn-primary"  onclick = "window.open('<?php echo $this->document2_print_url;?>?action=<?php echo $this->document_type;?>&report_id=<?php echo $this->order_id;?>&format=2')">Print 2</button>-->
-                
+
                 <?php }?>
                  <?php }
-            
+
                     if($this->document_type == 'PRF'){
-                    ?>      &nbsp;&nbsp;&nbsp;  
+                    ?>      &nbsp;&nbsp;&nbsp;
                         <button type = "button" class="btn btn-primary" id = "confirm_email" >Email</button>
-                    <?php 
+                    <?php
                     }
-                 
+
                  ?>
-                        
+
                 <?php }?>
-                
+
                     <?php if( ($_SESSION['empl_type'] == 'EMPLOYEE') && ($this->order_id > 0) && ($this->document_type == 'PO') && ($this->order_status == 1) ){?>
                     <!--<button type = 'button' class = "btn btn-primary pull-right generate_btn" title = "Generate Multiple PR to PO" generateto = "PO_multi">Generate From PR</button>-->
-                    <?php }?>  
-                   <?php 
+                    <?php }?>
+                   <?php
                     if($isgenerated > 0 ){
                         echo "<span style = 'margin-left:30px;color:red' ><b>This $this->document_code transaction already generated.</b></span>";
                     }
-                   ?>    
+                   ?>
                   </div><!-- /.box-footer -->
 <!--                </form>-->
-                
+
             </div><!-- /.box -->
             <?php if($this->order_id > 0){?>
             <div class="box box-success">
                 <div class="nav-tabs-custom" style = 'margin-top:5px;'>
                     <ul class="nav nav-tabs">
                       <li <?php if($_REQUEST['tab'] == "" || $_REQUEST['tab'] == 'detail_tab'){ echo 'class="active"';}?>><a href="#detail_tab" data-toggle="tab">Detail</a></li>
-                      
+
                       <?php
                       if($this->document_type == 'QT'){
                       ?>
@@ -917,10 +1057,10 @@ class Order {
                       <?php
                       }
                       ?>
-                      <?php 
+                      <?php
                       if(($this->document_type == 'PRF') && ($this->order_status > 0) && ($_SESSION['empl_type'] == 'EMPLOYEE')){
                       ?>
-                      
+
                       <?php }else if($this->document_type == 'PO'){?>
                       <li <?php if($_REQUEST['tab'] == 'sodo_order_tab'){ echo 'class="active"';}?>><a href="#sodo_order_tab" data-toggle="tab">Goods Received</a></li>
                       <!--<li <?php if($_REQUEST['tab'] == 'note_order_tab'){ echo 'class="active"';}?>><a href="#note_order_tab" data-toggle="tab">Credit Note (Purchase)</a></li>-->
@@ -930,7 +1070,7 @@ class Order {
                       <li <?php if($_REQUEST['tab'] == 'pickup_tab'){ echo 'class="active"';}?>><a href="#pickup_tab" data-toggle="tab">Pickup List</a></li>
                       <?php }?>
                     </ul>
-
+                    <!--edr-->
                     <div class="tab-content">
                         <div class="tab-pane <?php if($_REQUEST['tab'] == "" || $_REQUEST['tab'] == 'detail_tab'){ echo 'active';}?>" id="detail_tab">
                             <?php echo $this->getAddItemDetailForm();?>
@@ -950,20 +1090,20 @@ class Order {
                     </div>
                 </div>
             </div><!-- /.box -->
-            <?php }?> 
+            <?php }?>
             </form>
           </section><!-- /.content -->
         </div><!-- /.container -->
       </div><!-- /.content-wrapper -->
       <?php include_once 'footer.php';?>
     </div><!-- ./wrapper -->
-    <?php 
+    <?php
     include_once 'js.php';
     ?>
-    
+
 <div class="modal fade modal-wide" id="ProductDetailModal" role="dialog">
     <div class="modal-dialog">
-    
+
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
@@ -998,7 +1138,7 @@ class Order {
                             <th style = 'width:10%'>Unit Price</th>
                             <th style = 'width:10%'>Qty</th>
                             <th style = 'width:10%'>UOM</th>
-                            <th style = 'width:10%'>Disc(%)</th>  
+                            <th style = 'width:10%'>Disc(%)</th>
                             <th style = 'width:10%'>Disc($)</th>
                             <th style = 'width:10%'>Subtotal</th>
                             <th style = 'width:5%'></th>
@@ -1010,29 +1150,31 @@ class Order {
             <div style = 'clear:both' ></div>
         </div>
         <div class="modal-footer">
-          <small class = 'pull-left' >Shows latest 10 records</small>  
+          <small class = 'pull-left' >Shows latest 10 records</small>
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
-      
+
     </div>
   </div><input type ="hidden" id = 'product_current_itype'/>
+
+  <!--edr- end of getPRFForm form script area-->
     <script>
 
     var line_copy = '<tr id = "line_@i" class="tbl_grid_odd" line = "@i">' +
-                    '<td style = "width:30px;padding-left:5px">@i</td>' + 
+                    '<td style = "width:30px;padding-left:5px">@i</td>' +
                     //'<td style = "width:60px;"><input type = "text" id = "ordl_seqno_@i" class="form-control" value=""/></td>'+
                     <?php if($this->document_type != 'PO' && $this->document_type != 'GRN'){?>
-                    '<td style = "width:100px;"><select style = "" line = "@i" id = "ordl_pro_type_@i" class="form-control order-quotation-type-item"><option value="product">Product</option><option value="package">Package</option></select>' + 
+                    '<td style = "width:100px;"><select style = "" line = "@i" id = "ordl_pro_type_@i" class="form-control order-quotation-type-item"><option value="product">Product</option><option value="package">Package</option></select>' +
                     <?php } ?>
-                    '<td style = "width:350px;"><select style = "" line = "@i" id = "ordl_pro_id_@i" class="form-control order-quotation-item-list "><?php echo $this->prodCrtl;?></select>' + 
+                    '<td style = "width:350px;"><select style = "" line = "@i" id = "ordl_pro_id_@i" class="form-control order-quotation-item-list "><?php echo $this->prodCrtl;?></select>' +
                     <?php if($_SESSION['empl_type'] != 'SUBCON'){?>
-                    '<div style = "padding-top:8px;"><a href = "javascript:void(0)" class = "view_product_detail" style = "display:none;font-size:20px;cursor:pointer" id = "ordl_pdetail_id_@i" line = "@i" title = "Item Transaction History" ><i class="fa fa-fw fa-history"></i></a></div>' + 
+                    '<div style = "padding-top:8px;"><a href = "javascript:void(0)" class = "view_product_detail" style = "display:none;font-size:20px;cursor:pointer" id = "ordl_pdetail_id_@i" line = "@i" title = "Item Transaction History" ><i class="fa fa-fw fa-history"></i></a></div>' +
                     <?php }?>
                     '</td>'+
                     '<td style = "width:300px;"><textarea rows="1" id = "ordl_pro_desc_@i" class="form-control"></textarea></td>'+
                     '<td style = "width:60px;"><input type = "text" id = "ordl_qty_@i" class="form-control calculate" value="1.00"/></td>'+
-                    '<td style = "width:80px;"><select style = "width:100%" id = "ordl_uom_@i" class="form-control select2"><?php echo $this->uomCrtl;?></select></td>'+ 
+                    '<td style = "width:80px;"><select style = "width:100%" id = "ordl_uom_@i" class="form-control select2"><?php echo $this->uomCrtl;?></select></td>'+
                     <?php if($this->document_type != 'PRF' && $this->document_type != 'QT' && $this->document_type != 'PO' && $this->document_type != 'GRN'){?>
                     '<td style = "width:60px;"><input type = "text" id = "ordl_pfuprice_@i" class="form-control  text-align-right" disabled/></td>'+
                     <?php }?>
@@ -1041,19 +1183,19 @@ class Order {
                     '<td style = "width:60px;"><input type = "text" id = "ordl_disc_@i" class="form-control calculate text-align-right"/></td>'+
                     '<td style = "width:100px;"><input readonly type = "text" id = "ordl_total_@i" class="form-control text-align-right"/></td>'+
                     <?php if($this->document_type == 'PU'){?>
-                    '<td style = "width:300px;"><textarea rows="1" id = "ordl_prod_location_@i" class="form-control"></textarea></td>'+    
-                    <?php }?>  
+                    '<td style = "width:300px;"><textarea rows="1" id = "ordl_prod_location_@i" class="form-control"></textarea></td>'+
+                    <?php }?>
                     <?php if(($this->document_type == 'PRF') && ($this->document_type == 'GRN')){?>
-                    '<td style = "width:100px;"><input  type = "text" id = "ordl_delivery_date_@i" class="form-control text-align-right datepicker"/></td>'+    
-                    <?php }?>    
+                    '<td style = "width:100px;"><input  type = "text" id = "ordl_delivery_date_@i" class="form-control text-align-right datepicker"/></td>'+
+                    <?php }?>
                     '<td style = "width:120px;"><textarea  rows="1" cols="15" id = "ordl_pro_remark_@i" class="form-control"></textarea></td>'+
                     '<td align = "center" class = "" style ="vertical-align:top;width:80px;padding-right:10px;padding-left:5px">' +
-                    '<img id = "save_line_@i" ordl_id = "" class = "save_line" line = "@i" src = "dist/img/add.png" style = "cursor:pointer" alt = "Add New"/>' + 
-                    '<img id = "delete_line_@i" ordl_id = "" class = "delete_line" line = "@i" src = "dist/img/delete_icon.png" style = "cursor:pointer" alt = "Delete"/>' + 
+                    '<img id = "save_line_@i" ordl_id = "" class = "save_line" line = "@i" src = "dist/img/add.png" style = "cursor:pointer" alt = "Add New"/>' +
+                    '<img id = "delete_line_@i" ordl_id = "" class = "delete_line" line = "@i" src = "dist/img/delete_icon.png" style = "cursor:pointer" alt = "Delete"/>' +
                     '<input type="hidden" id = "ordl_product_location_@i" class="form-control"/>' +
                     '</td>'+
                     '</tr>';
-        
+
     $(document).ready(function() {
         <?php if($this->order_id == 0){?>
         getCurrency();
@@ -1067,7 +1209,7 @@ class Order {
                     if($this->order_generate_from == 0 && $this->order_generate_from_type == null){
         ?>
                     addline();
-        <?php       }     
+        <?php       }
                 }?>
         <?php if($_REQUEST['isbottom'] == 1){?>
             $("html, body").animate({ scrollTop: $(document).height() },1000);
@@ -1076,7 +1218,7 @@ class Order {
 //            placeholder: "Select One"
 //        });
         itemCodeAutoComplete();
-        $('.invt_autocomplete').on("change", function(e) { 
+        $('.invt_autocomplete').on("change", function(e) {
            getProductDetail($(this).val(),$(this).closest("tr").attr('line'));
         });
         $('.save_line').on('click',function(){
@@ -1106,7 +1248,7 @@ class Order {
             }
         });
         $('.generate_btn').on('click',function(){
-            
+
             if($(this).attr('generateto') == 'PO_multi'){
                 $('#generate_multi_line_title').html($(this).attr('title'));
                 getGenerateLineData($(this).attr('generateto'));
@@ -1114,10 +1256,10 @@ class Order {
                 generateDocument($(this).attr('generateto'));
             }
         });
-        $('#order_project_id').on("change", function(e) { 
+        $('#order_project_id').on("change", function(e) {
             getProjectDetail($(this).val());
         });
-       
+
        $('#confirm_email').click(function(){
            if(confirm('Confirm Sent?')){
                window.location.href = "<?php echo $this->document_url;?>?action=emailbypr&order_id=<?php echo $this->order_id;?>";
@@ -1131,25 +1273,27 @@ class Order {
                 var data = "action=reactivecancelitems&ordl_id="+$(this).attr('pid');
                  $.ajax({
                     type: "POST",
-                    url: "<?php echo $this->document_url;?>",      
+                    url: "<?php echo $this->document_url;?>",
                     data:data,
                     success: function(data) {
                         var jsonObj = eval ("(" + data + ")");
                         if(jsonObj.status == 1){
-                            alert("<?php echo $language[$lang]['reactive_cancel_success'];?>"); 
+                            alert("<?php echo $language[$lang]['reactive_cancel_success'];?>");
                             window.location.reload();
                         }else{
-                            alert("<?php echo $language[$lang]['reactive_cancel_fail'];?>");    
+                            alert("<?php echo $language[$lang]['reactive_cancel_fail'];?>");
                         }
                     }
                  });
             }
         });
+
+        //edr order customer setup to dependend dropdown edrs
         $('#order_customer').change(function(){
             var data = "action=getPartnerDetailTransaction&partner_id="+$(this).val()
              $.ajax({
                 type: "POST",
-                url: "partner.php",      
+                url: "partner.php",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1167,12 +1311,12 @@ class Order {
                     //    $('#order_shipaddress').html(jsonObj.partner_name + "\n" + jsonObj.partner_bill_address);
                     //}
 
-                    
+
                     //$('#order_fax').val(jsonObj.partner_fax);
                     //<?php if($_SESSION['empl_type'] != 'SUBCON'){?>
                     //$('#order_salesperson').val(jsonObj.order_salesperson);
                     //<?php }?>
-                    
+
                     $('#order_attentionto').html(jsonObj.contact_option);
                     //$('#order_attentionto').select2("val", "");
                     $('#order_billaddress').val(jsonObj.partner_bill_address).text();
@@ -1187,7 +1331,7 @@ class Order {
             var data = "action=getShippingAddress&shipping_id="+$(this).val()
              $.ajax({
                 type: "POST",
-                url: "partner.php",      
+                url: "partner.php",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1200,7 +1344,7 @@ class Order {
             var data = "action=getContactJson&contact_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "partner.php",      
+                url: "partner.php",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1218,12 +1362,12 @@ class Order {
              });
         });
         // Added by Ivan
-        
+
         $('#order_price_id').change(function(){
             var data = "action=getPriceJson&order_price_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1235,7 +1379,7 @@ class Order {
             var data = "action=getDeliveryJson&order_delivery_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1247,7 +1391,7 @@ class Order {
             var data = "action=getPaymenttermJson&order_paymentterm_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1259,7 +1403,7 @@ class Order {
             var data = "action=getValidityJson&order_validity_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1271,7 +1415,7 @@ class Order {
             var data = "action=getTransittimeJson&order_transittime_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1283,7 +1427,7 @@ class Order {
             var data = "action=getFreightchargeJson&order_freightcharge_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1295,7 +1439,7 @@ class Order {
             var data = "action=getPointofdeliveryJson&order_pointofdelivery_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1307,7 +1451,7 @@ class Order {
             var data = "action=getPrefixJson&order_prefix_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1319,7 +1463,7 @@ class Order {
             var data = "action=getRemarksJson&order_remarks_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1331,7 +1475,7 @@ class Order {
             var data = "action=getCountryJson&order_country_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1339,13 +1483,13 @@ class Order {
                 }
              });
         });
-        
+
         $('.order-quotation-type-item').change(function(){
             var line = $(this).attr('line');
             var data = "action=getItemListJson&order_type_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1360,7 +1504,7 @@ class Order {
             var data = "action=getItemDescJson&qt_type=" + qtype + "&order_item_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1379,7 +1523,7 @@ class Order {
                 }
              });
         });
-        <?php 
+        <?php
         if(($_REQUEST['fi'] == 1) && ($this->order_customer > 0)){
             echo "$('#order_customer').change();";
         }
@@ -1389,9 +1533,9 @@ class Order {
           checkboxClass: 'icheckbox_minimal-blue',
           radioClass: 'iradio_minimal-blue'
         });
-    
+
         $("#order_form").validate({
-              rules: 
+              rules:
               {
                   order_customer:
                   {
@@ -1418,11 +1562,11 @@ class Order {
                   <?php }?>
               }
         });
-        
-        
+
+
         $('#order_discheadertotal').keyup(function(){
                 //calculate header discount
-       
+
                 var order_discheadertotal = parseFloat($('#order_discheadertotal').val().replace(/,/gi, ""));
                 console.log(order_discheadertotal)
                 if(isNaN(order_discheadertotal)){
@@ -1437,30 +1581,30 @@ class Order {
                 var order_finalsubtotal = parseFloat(order_subtotal) - parseFloat(order_discheadertotal);
 
                 $('#order_finalsubtotal').val(changeNumberFormat(RoundNum(order_finalsubtotal,2)));
-                
+
                 var order_taxtotal = parseFloat(order_finalsubtotal) * (parseFloat(system_gst_percent)/100);
                 $('#order_taxtotal').val(changeNumberFormat(RoundNum(order_taxtotal,2)));
-                
+
                 var order_grandtotal = parseFloat(order_finalsubtotal) + parseFloat(order_taxtotal);
                 $('#order_grandtotal').val(changeNumberFormat(RoundNum(order_grandtotal,2)));
-                
-                
+
+
         });
-        
-        $(".toggle_container").hide(); 
+
+        $(".toggle_container").hide();
         $("button.reveal").click(function(){
             if($(this).text()=== "Show Customer Info"){
-                $(this).text("Hide Customer Info"); 
+                $(this).text("Hide Customer Info");
             }else{
-                $(this).text("Show Customer Info");           
+                $(this).text("Show Customer Info");
             }
-            $(".toggle_container").toggle();  
+            $(".toggle_container").toggle();
         });
         $('button.save-order').tooltip();
     });
     var issend = false;
     function saveline(line,ordl_id){
-        
+
         var data = "&ordl_pro_type="+$('#ordl_pro_type_'+line).val();
             data += "&ordl_pro_id="+$('#ordl_pro_id_'+line).val();
             data += "&ordl_pro_desc="+encodeURIComponent($('#ordl_pro_desc_'+line).val());
@@ -1474,14 +1618,14 @@ class Order {
             data += "&ordl_product_location="+encodeURIComponent($('#ordl_product_location_'+line).val());
             data += "&ordl_pro_remark="+encodeURIComponent($('#ordl_pro_remark_'+line).val());
             data += "&ordl_istax=1";
-            
+
             //data += "&order_currencyrate=<?php echo $this->order_currencyrate;?>";
             //data += "&order_project_id="+$('#order_project_id').val();
             data += "&action=saveline";
             data += "&ordl_id="+ordl_id;
             data += "&order_id=<?php echo $_REQUEST['order_id'];?>";
 
-        $.ajax({ 
+        $.ajax({
             type: 'POST',
             url: '<?php echo $this->document_url;?>',
             cache: false,
@@ -1498,12 +1642,12 @@ class Order {
                    alert(jsonObj.msg);
                }
                issend = false;
-            }		
+            }
          });
          return false;
     }
     function updateline(line,ordl_id){
-        
+
         var data = "&ordl_pro_type="+$('#ordl_pro_type_'+line).val();
             data += "&ordl_pro_id="+$('#ordl_pro_id_'+line).val();
             data += "&ordl_pro_desc="+encodeURIComponent($('#ordl_pro_desc_'+line).val());
@@ -1517,14 +1661,14 @@ class Order {
             data += "&ordl_delivery_date="+$('#ordl_delivery_date_'+line).val();
             data += "&ordl_pro_remark="+encodeURIComponent($('#ordl_pro_remark_'+line).val());
             data += "&ordl_istax=1";
-            
+
             //data += "&order_currencyrate=<?php echo $this->order_currencyrate;?>";
             //data += "&order_project_id="+$('#order_project_id').val();
             data += "&action=updateline";
             data += "&ordl_id="+ordl_id;
             data += "&order_id=<?php echo $_REQUEST['order_id'];?>";
 
-        $.ajax({ 
+        $.ajax({
             type: 'POST',
             url: '<?php echo $this->document_url;?>',
             cache: false,
@@ -1541,13 +1685,13 @@ class Order {
                    alert(jsonObj.msg);
                }
                issend = false;
-            }		
+            }
          });
          return false;
     }
     function deleteline(ordl_id){
         var data = "action=deleteline&order_id=<?php echo $this->order_id;?>&ordl_id="+ordl_id;
-        $.ajax({ 
+        $.ajax({
             type: 'POST',
             url: '<?php echo $this->document_url;?>',
             cache: false,
@@ -1564,7 +1708,7 @@ class Order {
                    alert("<?php echo $language[$lang]['deleteline_error'];?>");
                }
                issend = false;
-            }		
+            }
          });
          return false;
     }
@@ -1593,15 +1737,15 @@ class Order {
            rate = 0;
         }
         var selling_price = funit_price * rate;
-        
+
         var subtotal = parseFloat(qty) * RoundNum(parseFloat(selling_price),2);
-        
+
         if(discount > 0){
             var disc_amt = RoundNum(parseFloat(subtotal) * (parseFloat(discount)/100),2);
         }else{
             var disc_amt = 0;
         }
-        
+
         var subtotal_afterdiscount = parseFloat(subtotal) - parseFloat(disc_amt);
 //        $('#ordl_istax_'+line).is(':checked')
 //        if(1==1){
@@ -1610,41 +1754,41 @@ class Order {
 //           var fgst_amt = 0;
 //        }
         var fgst_amt = 0;
-        
+
         var fgrandtotal = RoundNum(parseFloat(subtotal_afterdiscount) + parseFloat(fgst_amt),2);
         var uprice = RoundNum(parseFloat(funit_price) * parseFloat(rate),2);
 
         $('#ordl_uprice_'+line).val(changeNumberFormat(RoundNum(uprice,2)));
         $('#ordl_ftotal_'+line).val(changeNumberFormat(fgrandtotal));
-        
+
         var gst_amt = (RoundNum(subtotal_afterdiscount * rate,2)) * (parseFloat(system_gst_percent)/100);
         var grandtotal = parseFloat((RoundNum(subtotal_afterdiscount,2))) + parseFloat(RoundNum(fgst_amt,2));
 
         $('#ordl_total_'+line).val(changeNumberFormat(RoundNum(grandtotal,2)));
         $('#ordl_taxamt_'+line).val(changeNumberFormat(RoundNum(fgst_amt,2)));
-        
 
-        
+
+
     }
     function getProductDetail(product_id,line){
          var data = "action=getProductDetail&product_id="+product_id+"&itype="+$('#product_current_itype').val();
          $.ajax({
             type: "POST",
-            url: "product.php",      
+            url: "product.php",
             data:data,
-            success: function(data) { 
+            success: function(data) {
                 var jsonObj = eval ("(" + data + ")");
 
                 <?php if($_SESSION['empl_type'] == 'SUBCON'){?>
                     $('#ordl_pro_desc_'+line).html(jsonObj.product_desc);
                 <?php }else{?>
                     $('#ordl_pro_desc_'+line).html(jsonObj.product_desc);
-                <?php }?>    
+                <?php }?>
                 $('#ordl_pfuprice_'+line).val(jsonObj.product_sales_price);
                 $('#ordl_fuprice_'+line).val(jsonObj.product_sales_price);
-                
-              
-                
+
+
+
 //                if(jsonObj.product_sales_price == 0){
 //                    $('#ordl_fuprice_'+line).attr('readonly',false);
 //                }else{
@@ -1661,7 +1805,7 @@ class Order {
               placeholder: "Search for a Item",
               width: '100%',
 //              minimumInputLength: 1,
-              ajax: { 
+              ajax: {
                   url: 'autocomplete.php?action=item&document_type=<?php echo $this->document_type?>&order_project_id='+$('#order_project_id').val(),
                   dataType: 'json',
                   cache: true,
@@ -1679,8 +1823,8 @@ class Order {
               initSelection: function(element, callback) {
                         var elementText = $(element)[0].textContent;
                         var data = {"value":elementText};
-                    
-                        
+
+
                         callback(data);
 
               },
@@ -1716,9 +1860,9 @@ class Order {
          }
          $.ajax({
             type: "POST",
-            url: url,      
+            url: url,
             data:data,
-            success: function(data) { 
+            success: function(data) {
                 var jsonObj = eval ("(" + data + ")");
                 if(jsonObj.status == 1){
                     alert("<?php echo $language[$lang]['generate_success'];?>");
@@ -1736,18 +1880,18 @@ class Order {
         $('#detail_last_tr').before(newline);
         $('#total_line').val(nextvalue);
         $('#ordl_seqno_'+nextvalue).val(nextvalue*10);
-        
+
         $('.datepicker').datepicker({
             format: 'dd-M-yyyy',
             autoclose: true,
             pickerPosition: "bottom-left"
-        }); 
+        });
     }
     function getCurrency(){
             var data = "action=getCurrencyRateDetail&crate_tcurrency_id="+$("#order_currency").val()
              $.ajax({
                 type: "POST",
-                url: "crate.php",      
+                url: "crate.php",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1760,16 +1904,16 @@ class Order {
              });
     }
     function duplicateDocument(){
-        
-        
+
+
          var data = "action=duplicate&order_id=<?php echo $this->order_id;?>";
          var url = "<?php echo $this->document_url;?>";
          if(confirm("Confirm duplicate this quotation?")){
             $.ajax({
                type: "POST",
-               url: url,      
+               url: url,
                data:data,
-               success: function(data) { 
+               success: function(data) {
                    var jsonObj = eval ("(" + data + ")");
                    if(jsonObj.status == 1){
                        alert("<?php echo $language[$lang]['duplicate_success'];?>");
@@ -1780,7 +1924,7 @@ class Order {
                }
             });
             }
-       
+
     }
     function getGenerateLineData(generate_type){
          $('#generate_type').val(generate_type);
@@ -1788,9 +1932,9 @@ class Order {
          var data = "action=getGenerateLineData&order_id=<?php echo $this->order_id;?>&generate_type="+generate_type;
          $.ajax({
             type: "POST",
-            url: "<?php echo $this->document_url;?>",      
+            url: "<?php echo $this->document_url;?>",
             data:data,
-            success: function(data) { 
+            success: function(data) {
                 var jsonObj = eval ("(" + data + ")");
                 var html = "";
 
@@ -1801,9 +1945,9 @@ class Order {
                     var order_id = "";
                     var order_id2 = "";
                     for(var i = 0;i<jsonObj.json.length;i++){
-                        
+
                         kk++;
-                        
+
                         if(order_id != jsonObj.json[i].order_id){
                             k++;
                             html += "<tr style = 'cursor:pointer' balance = '" + jsonObj.json[i].balance + "' order_id = '" + jsonObj.json[i].order_id + "' class = 'parent_line' >";
@@ -1812,17 +1956,17 @@ class Order {
                             html += "<td>" + jsonObj.json[i].order_date + "</td>";
                             html += "<td>" + jsonObj.json[i].sales_person_name + "</td>";
                             html += "</tr>";
-                            
+
                             order_id = jsonObj.json[i].order_id;
                             kk = 1;
                         }
-                        
-                        
+
+
                         html += "<tr style = 'display:none' balance = '" + jsonObj.json[i].balance + "' ordl_id = '" + jsonObj.json[i].ordl_id + "' class = 'generatelinetr children_line_" + jsonObj.json[i].order_id + "' >";
                         html += "<td colspan = '4'><table class = 'table tablenoborder table-empl-detail'>";
-                        
+
                         if(order_id2 != jsonObj.json[i].order_id){
-                        html += "<tr>" + 
+                        html += "<tr>" +
                                 "<th style = 'width:5%'>No.</th>" +
                                 "<th style = 'width:10%'>Product Code.</th>" +
                                 "<th style = 'width:30%'>Description</th>" +
@@ -1835,7 +1979,7 @@ class Order {
                                 "</tr>";
                         order_id2 = jsonObj.json[i].order_id;
                         }
-                        
+
                         html += "<tr balance = '" + jsonObj.json[i].balance + "' ordl_id = '" + jsonObj.json[i].ordl_id + "' class = 'generatelinetr' >";
                         html += "<td style = 'width:5%'>" + kk + "<input type = 'hidden' id = 'generateordlid_" + jsonObj.json[i].ordl_id + "' name = 'generateordlid[" + i + "]' value = '"+ jsonObj.json[i].ordl_id +"' /></td>";
                         html += "<td style = 'width:10%'>" + jsonObj.json[i].ordl_pro_no + "<input type = 'hidden' id = 'generateorderid_" + jsonObj.json[i].ordl_id + "' name = 'generateorderid[" + i + "]' value = '"+ jsonObj.json[i].order_id +"' /></td>";
@@ -1847,24 +1991,24 @@ class Order {
                         html += "<td style = 'width:10%'><input type = 'text' id = 'generateqty_" + jsonObj.json[i].ordl_id + "' name = 'generateqty[" + i + "]' value = '0' class='form-control' style = 'text-align:right' /></td>";
                         html += "<td style = 'width:5%'><input type = 'checkbox' id = 'generatecheckbox_" + jsonObj.json[i].ordl_id + "' name = 'generatecheckbox[" + i + "]' style = 'text-align:right' class = 'generatechildren_checkbox generatechildren_checkbox_" + jsonObj.json[i].order_id + "' minimal' /></td>";
                         html += "</tr>";
-                        
+
                         html += "</table></td></tr>";
-                        
-                       
+
+
                     } $('#generatelasttr').before(html);
                     $('.parent_line').on('click',function(){
                         if($(this).attr('isopen') == 1){
                             $('.children_line_'+$(this).attr('order_id')).css('display','none');
-                        
+
                             $(this).attr('isopen','0');
                         }else{
                             $('.children_line_'+$(this).attr('order_id')).css('display','');
-                        
+
                             $(this).attr('isopen','1');
                         }
-                        
+
                     });
-                    
+
                     $('.generateparent_checkbox').on('click',function(){
 
                             if($(this).is(':checked')){
@@ -1889,7 +2033,7 @@ class Order {
         $('#generate_model').modal('show');
     }
     function activeGenerateChildrenCheckbox(){
-    
+
         $('.generatechildren_checkbox').on('click',function(){
             generateChildrenCheckboxFunction($(this));
         });
@@ -1902,17 +2046,17 @@ class Order {
             $('#generateqty_'+ordl_id).val(balance);
         }else{
             $('#generateqty_'+ordl_id).val(0);
-        }    
+        }
     }
     function getProjectDetail(project_id){
          var data = "action=getProjectDetail&project_id="+project_id;
          $.ajax({
             type: "POST",
-            url: "project.php",      
+            url: "project.php",
             data:data,
-            success: function(data) { 
+            success: function(data) {
                 var jsonObj = eval ("(" + data + ")");
-                
+
                 $('#order_job_no').val(jsonObj.project_code);
                 <?php if($_SESSION['empl_type'] != 'SUBCON'){?>
                 $('#order_subcon').select2('val', 'All');
@@ -1925,23 +2069,23 @@ class Order {
          var data = "action=getProductHistory&order_id=<?php echo $this->order_id;?>&history_type=<?php echo $this->document_type;?>&product_id="+product_id+"&customer_id="+$('#order_customer').val();
          $.ajax({
             type: "POST",
-            url: "quotation.php",      
+            url: "quotation.php",
             data:data,
-            success: function(data) { 
+            success: function(data) {
                 var jsonObj = eval ("(" + data + ")");
-                
+
                 var html = "";
-                
+
                 if(jsonObj.status == 1){
                     var k = 0;
                     $('.generatelinetr').remove();
                     $('.historyline').unbind('click');
-                    
+
                     $('#product_code').val(jsonObj.product_code);
                     $('#product_price').val(jsonObj.product_sales_price);
                     $('#product_category').val(jsonObj.product_code);
                     $('#product_cost').val(jsonObj.product_cost_price);
-                    
+
                     for(var i = 0;i<jsonObj.json.length;i++){
                         k = i + 1;
                         html = "<tr class = 'generatelinetr' >";
@@ -1970,15 +2114,15 @@ class Order {
                 $('#ProductDetailModal').modal('show');
             }
          });
-        
+
     }
     function getHistoryLineDetail(ordl_id,line){
          var data = "action=getHistoryLineDetail&ordl_id="+ordl_id;
          $.ajax({
             type: "POST",
-            url: "quotation.php",      
+            url: "quotation.php",
             data:data,
-            success: function(data) { 
+            success: function(data) {
                 var jsonObj = eval ("(" + data + ")");
                 console.log(jsonObj.json.ordl_uom);
                 $('#ordl_uom_'+line).val(jsonObj.json.ordl_uom);
@@ -1989,13 +2133,13 @@ class Order {
             }
          });
     }
-    
+
     </script>
         <?php echo $this->generateDialogForm();?>
   </body>
 </html>
         <?php
-        
+
     }
     public function getListing(){
     ?>
@@ -2006,7 +2150,7 @@ class Order {
     <title><?php echo $this->document_code;?> Management</title>
     <?php
     include_once 'css.php';
-    
+
     ?>
   </head>
   <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
@@ -2020,7 +2164,7 @@ class Order {
         <section class="content-header">
             <h1><?php echo $this->document_code;?> Management</h1>
         </section>
-
+        <!--edr index--->
         <!-- Main content -->
         <section class="content">
           <div class="row">
@@ -2037,13 +2181,13 @@ class Order {
                     <thead>
                       <tr>
                         <th style = 'width:10%'>Doc.No</th>
-                        <?php if($_SESSION['empl_type'] != 'SUBCON'){?> 
+                        <?php if($_SESSION['empl_type'] != 'SUBCON'){?>
                         <?php if($this->document_type == 'PO' || $this->document_type == 'GRN'){?>
                         <th style = 'width:12%'>Supplier</th>
                         <?php }else{?>
                         <th style = 'width:12%'>Customer</th>
                         <?php }?>
-                        <?php }?>                        
+                        <?php }?>
                         <th style = 'width:5%'>Date</th>
                         <?php if($this->document_type == 'SO'){?>
                         <th style = 'width:5%'>Customer PO</th>
@@ -2064,13 +2208,13 @@ class Order {
                         <?php }?>
                         <?php if($this->document_type != 'PO' && $this->document_type != 'GRN'){?>
                         <th style = 'width:5%'>Is Generated</th>
-                        <?php }?> 
+                        <?php }?>
                         <th style = 'width:5%'>Status</th>
                         <th style = 'width:10%'></th>
                       </tr>
                     </thead>
                     <tbody>
-                    <?php   
+                    <?php
                       if($this->document_type == 'PRF'){
                           if($_SESSION['empl_type'] != 'EMPLOYEE'){
                             $this->wherestring .= " AND o.order_salesperson = '{$_SESSION['empl_id']}'";
@@ -2078,8 +2222,8 @@ class Order {
                       }
                       $sql = "SELECT o.*,pr.partner_id,
                               CONCAT(pr.partner_code,' - ',pr.partner_name) as partner_name,empl.empl_name as sales_person,cy.currency_code,
-                              empl2.empl_name as revby,pro.project_code,pro.project_name 
-                              FROM db_order o 
+                              empl2.empl_name as revby,pro.project_code,pro.project_name
+                              FROM db_order o
                               LEFT JOIN db_partner pr ON pr.partner_id = o.order_customer
                               LEFT JOIN db_empl empl ON empl.empl_id = o.order_salesperson
                               LEFT JOIN db_empl empl2 ON empl2.empl_id = o.order_revby
@@ -2102,11 +2246,11 @@ class Order {
                                     AND ref_id = '".$row['order_id']."'";
                           $q1 = mysql_query($sql1);
                           //$num_attachment['countid'] = mysql_fetch_assoc($q1);
-                              
+
                     ?>
                         <tr>
                             <td>
-                                <?php 
+                                <?php
                                     echo $order_no;
                                     if(mysql_num_rows($q1)>0){
                                         echo '<i class="fa fa-paperclip pull-right" style="font-size:25px;color:lightblue;text-shadow:2px 2px 1px #000000;margin-right:10px;"></i>';
@@ -2115,12 +2259,12 @@ class Order {
                                 </td>
                             <?php if($_SESSION['empl_type'] != 'SUBCON'){?>
                             <td><?php echo "<a href = 'partner.php?action=edit&tab=$this->document_type&partner_id={$row['partner_id']}'>" . $row['partner_name'] . "</a>";?></td>
-                            <?php }?>                            
+                            <?php }?>
                             <td><?php echo format_date($row['order_date']);?></td>
                             <?php if($this->document_type == 'SO'){?>
                             <td><?php echo $row['order_customerpo'];?></td>
                             <td>
-                                <?php 
+                                <?php
                                    $qt_query = getDataBySql("order_no,order_id","db_order"," WHERE order_id = '{$row['order_generate_from']}' AND order_status = '1'");
                                    $qt_no = "";
                                    while($r_qt = mysql_fetch_array($qt_query)){
@@ -2131,7 +2275,7 @@ class Order {
                             </td>
                             <?php }else if($this->document_type == 'DO'){?>
                             <!--<td>
-                                <?php 
+                                <?php
                                    $do_query = getDataBySql("order_no,order_id","db_order"," WHERE order_id = '{$row['order_generate_from']}' AND order_status = '1'");
                                    $do_no = "";
                                    if($r_do = mysql_fetch_array($do_query)){
@@ -2141,7 +2285,7 @@ class Order {
                                 ?>
                             </td>
                             <td>
-                                <?php 
+                                <?php
                                    $query2 = getDataBySql("*","db_invoice"," WHERE invoice_generate_from = '{$row['order_id']}'  AND invoice_status = 1"," ORDER BY invoice_date");
                                    $generated = "";
                                    while($row2 = mysql_fetch_array($query2)){
@@ -2152,7 +2296,7 @@ class Order {
                             </td>-->
                             <?php }else if($this->document_type == 'PRF'){?>
                             <td>
-                                <?php 
+                                <?php
                                 if($row['order_salesperson_prefix'] == 'SUBCON'){
                                     echo getDataCodeBySql("partner_name","db_partner"," WHERE partner_id = '{$row['order_salesperson']}'","");
                                 }else if($row['order_salesperson_prefix'] == 'EMPLOYEE'){
@@ -2162,7 +2306,7 @@ class Order {
                             </td>
                             <?php }else if($this->document_type == 'GRN'){?>
                             <td>
-                                <?php 
+                                <?php
                                    $do_query = getDataBySql("order_no,order_id","db_order"," WHERE order_id = '{$row['order_generate_from']}' AND order_status = '1'");
                                    $do_no = "";
                                    if($r_do = mysql_fetch_array($do_query)){
@@ -2172,7 +2316,7 @@ class Order {
                                 ?>
                             </td>
                             <!--<td>
-                                <?php 
+                                <?php
                                    $query2 = getDataBySql("*","db_invoice"," WHERE invoice_generate_from = '{$row['order_id']}'  AND invoice_status = 1"," ORDER BY invoice_date");
                                    $generated = "";
                                    while($row2 = mysql_fetch_array($query2)){
@@ -2184,24 +2328,24 @@ class Order {
                             <?php }?>
                             <?php if($_SESSION['empl_type'] != 'SUBCON'){?>
                             <td style="text-align:right;">
-                                <?php 
+                                <?php
                                 $this->order_id = $row['order_id'];
                                 echo num_format(($this->getSubTotalAmt() + $this->getTotalGstAmt()) - $this->getTotalDiscAmt());
                                 ?>
                             </td>
                             <td style="text-align:right;">
-                                <?php 
+                                <?php
                                 echo num_format($row['order_taxtotal']);
                                 ?>
                             </td>
                             <td style="text-align:right;">
-                                <?php 
+                                <?php
                                 echo num_format($row['order_grandtotal']);
                                 ?>
                             </td>
                             <?php if($this->document_type != 'PO' && $this->document_type != 'GRN'){?>
                             <td>
-                                <?php 
+                                <?php
                                     $orderNoLink = $this->fetchOrderNoDetail($this->document_type,$row['order_id']);
                                     $orderNoLink = str_replace(",", ",<br>", $orderNoLink);
                                     echo "<b>".$orderNoLink."</b>";
@@ -2210,33 +2354,33 @@ class Order {
                             <?php }?>
                             <?php }?>
                             <td>
-                                <?php 
-                                if($row['order_status'] == 2){ 
+                                <?php
+                                if($row['order_status'] == 2){
                                     echo 'Completed';
-                                }else if($row['order_status'] == 1){ 
+                                }else if($row['order_status'] == 1){
                                     echo 'Pending';
-                                }else if($row['order_status'] == -1){ 
+                                }else if($row['order_status'] == -1){
                                     echo 'No Response';
-                                }else if($row['order_status'] == -3){ 
+                                }else if($row['order_status'] == -3){
                                     echo 'Void';
-                                } 
+                                }
                                  ?>
                             </td>
                             <td class = "text-align-right">
-  
-                                <?php 
+
+                                <?php
                                 if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'update')){
                                 ?>
                                 <button type="button" class="btn btn-primary btn-info " onclick = "location.href = '<?php echo $this->document_url;?>?action=edit&order_id=<?php echo $row['order_id'];?>'">Edit</button>
                                 <?php }?>
-                                <?php 
+                                <?php
                                 if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'delete')){
                                 ?>
                                 <button type="button" class="btn btn-primary btn-danger " onclick = "confirmAlertHref('<?php echo $this->document_url;?>?action=delete&order_id=<?php echo $row['order_id'];?>','Confirm Delete?')">Delete</button>
                                 <?php }?>
                             </td>
                         </tr>
-                    <?php    
+                    <?php
                         $i++;
                       }
                     ?>
@@ -2307,9 +2451,9 @@ class Order {
     <?php
     }
     public function getAddItemDetailForm(){
-    $line = 0;  
-    
-    ?>    
+    $line = 0;
+
+    ?>
     <table id="detail_table" class="table transaction-detail">
         <thead>
           <tr>
@@ -2331,7 +2475,7 @@ class Order {
             <?php }else if($this->document_type !== 'PU'){?>
             <!--<th class = "" style = 'width:60px;'>U.Price(<span class = 'base_currency_span'><?php echo $this->order_currency_code;?></span>)</th>-->
             <th class = "" style = 'width:60px;'>U/Price</th>
-            
+
             <th class = "" style = 'width:60px;'>Disc %</th>
             <th class = "">Sub Total</th>
             <?php }?>
@@ -2372,7 +2516,7 @@ class Order {
                 }
                 if(($this->order_status == -3) || ($this->order_status == 2) || ($this->order_status == 3)){
                         $readonly = " READONLY";
-                        $disabled = " DISABLED"; 
+                        $disabled = " DISABLED";
                 }
                 //if($this->document_type == "PO"){
                 //    $isgenerated = getDataCountBySql("db_invl invl INNER JOIN db_invoice invoice ON invoice.invoice_id = invl.invl_invoice_id"," WHERE invl.invl_parent = '{$row['ordl_id']}' AND invl.invl_parent_type = 'PO' AND invoice.invoice_status = '1'");
@@ -2388,7 +2532,7 @@ class Order {
                 }
                 if($isgenerated > 0){
                         $readonly = " READONLY";
-                        $disabled = " DISABLED"; 
+                        $disabled = " DISABLED";
                 }
             ?>
                 <tr id = "line_<?php echo $line;?>" class="tbl_grid_odd" line = "<?php echo $line;?>">
@@ -2426,7 +2570,7 @@ class Order {
                     </td>
 <!-- Description --><td style="width:300px;"><textarea rows="1" cols="15" line = "<?php echo $line;?>" id = "ordl_pro_desc_<?php echo $line;?>" class="form-control text-align-left" <?php echo $readonly;?>><?php echo $row['ordl_pro_desc'];?></textarea></td>
 <!-- Qty         --><td style="width:60px;"><input type = "text" line = "<?php echo $line;?>" id = "ordl_qty_<?php echo $line;?>" class="form-control calculate" value="<?php echo $row['ordl_qty'];?>" <?php echo $readonly;?>/></td>
-<!-- UOM         --><td style="width:80px;"><select style = 'width:100%' id = "ordl_uom_<?php echo $line;?>" class="form-control " <?php echo $disabled;?>><?php echo $this->uomCrtl;?></select></td>      
+<!-- UOM         --><td style="width:80px;"><select style = 'width:100%' id = "ordl_uom_<?php echo $line;?>" class="form-control " <?php echo $disabled;?>><?php echo $this->uomCrtl;?></select></td>
                     <?php if($this->document_type != 'PRF' && $this->document_type == 'QT' && $this->document_type == 'PO' && ($this->document_type == 'DO')){?>
                     <td style="width:60px;"><input type = "text" line = "<?php echo $line;?>" id = "ordl_pfuprice_<?php echo $line;?>" class="form-control calculate text-align-right" value = "<?php echo num_format($row['ordl_pfuprice']);?>" disabled/></td>
                     <?php }?>
@@ -2447,13 +2591,13 @@ class Order {
                         <?php if(($row['ordl_id'] > 0) && ($disabled == "")){?>
                         <img id = "update_line_<?php echo $line;?>" ordl_id = "<?php echo $row['ordl_id'];?>" class = "update_line" line = "<?php echo $line;?>" src = "dist/img/update.png" style = "cursor:pointer" alt = "Update"/>
                         <?php }else{
-                            if($disabled == ""){    
+                            if($disabled == ""){
                         ?>
                         <img id = "save_line_<?php echo $line;?>" ordl_id = "<?php echo $row['ordl_id'];?>" class = "save_line" line = "<?php echo $line;?>" src = "dist/img/add.png" style = "cursor:pointer" alt = "Add New"/>
-                        <?php 
+                        <?php
                             }
                         }
-                        if($disabled == ""){ 
+                        if($disabled == ""){
                         ?>
                         <img id = "delete_line_<?php echo $line;?>" ordl_id = "<?php echo $row['ordl_id'];?>" class = "delete_line" line = "<?php echo $line;?>" src = "dist/img/delete_icon.png" style = "cursor:pointer" alt = "Delete"/>
                         <?php }?>
@@ -2472,7 +2616,7 @@ class Order {
                     echo "</tr>";
                 }
                 ?>
-            
+
             <?php
             }
             ?>
@@ -2488,7 +2632,7 @@ class Order {
                 <td <?php if($this->document_type != 'PO' && $this->document_type != 'GRN'){ ?>colspan="8"<?php }else{ ?>colspan="7"<?php } ?> align="right">Disc (<span class = 'base_currency_span'><?php echo $this->order_currency_code;?></span>):</td>
                 <td class="order-discheadertotal text-align-right" style="width:100px;"><input type="text" class="form-control text-align-right " id="order_discheadertotal" name="order_discheadertotal" value = "<?php echo num_format($this->order_discheadertotal);?>" <?php echo $disabled;?> ></td>
                 <td colspan="2"></td>
-            </tr>            
+            </tr>
             <tr id="order_subtotal_price">
                 <td <?php if($this->document_type != 'PO' && $this->document_type != 'GRN'){ ?>colspan="8"<?php }else{ ?>colspan="7"<?php } ?> align="right">Sub Total (<span class = 'base_currency_span'><?php echo $this->order_currency_code;?></span>):</td>
                 <td class="order-fin-subtotal text-align-right" style="width:100px;"><input type="text" class="form-control text-align-right"  id = 'order_finalsubtotal' value = "<?php echo num_format($this->order_subtotal - $this->order_disctotal - $this->order_discheadertotal);?>" disabled></td>
@@ -2516,11 +2660,11 @@ class Order {
         </tfoot>
     </table>
     <input type = 'hidden' id = 'total_line' name = 'total_line' value = '<?php echo $line;?>'/>
-    <?php    
+    <?php
     }
     public function getOrderGenerateTabTable(){
-        
-      if($this->document_type == 'QT'){ 
+
+      if($this->document_type == 'QT'){
           /*$document_type = 'Progress Claim';
           $generate_to = 'SO';
           $partner_field = 'Customer';
@@ -2553,7 +2697,7 @@ class Order {
           $menu_id = '12';// pickup menu id is 12
           $document_url = 'pickup.php';
           $salesperson_field = "Ordered By";
-      }else if($this->document_type == 'PRF'){ 
+      }else if($this->document_type == 'PRF'){
           $document_type = 'Purchase Order';
           $generate_to = 'PO';
           $partner_field = 'Supplier';
@@ -2566,7 +2710,7 @@ class Order {
         <div class="box-header">
           <div class = "pull-left"><h3 class="box-title"><?php echo $document_type;?> Table</h3></div>
           <div class = "pull-right">
-            <?php 
+            <?php
             if((getWindowPermission($menu_id,'generate'))){
                 $allow = false;
                 if(($this->document_type == 'SO') && ($this->generated['do_id'] <= 0) && ($this->generated['inv_id'] <= 0)){
@@ -2580,11 +2724,11 @@ class Order {
                 }else{
                     $allow = true;
                 }
-                
+
                 if($allow){
             ?>
                <button type = 'button' class = "btn btn-primary generate_btn" generateto = "<?php echo $generate_to;?>">Generate <?php echo $document_type;?></button>
-            <?php 
+            <?php
                   }
                 }?>
           </div>
@@ -2604,9 +2748,9 @@ class Order {
               </tr>
             </thead>
             <tbody>
-            <?php   
-              $sql = "SELECT o.*,partner.partner_name,empl.empl_name 
-                      FROM db_order o 
+            <?php
+              $sql = "SELECT o.*,partner.partner_name,empl.empl_name
+                      FROM db_order o
                       INNER JOIN db_partner partner ON partner.partner_id = o.order_customer
                       LEFT JOIN db_empl empl ON empl.empl_id = o.order_salesperson
                       WHERE o.order_generate_from = '$this->order_id' AND order_generate_from_type = '$this->document_type' AND o.order_status = '1'";
@@ -2626,14 +2770,14 @@ class Order {
                     <td><?php echo num_format($gst);?></td>
                     <td><?php echo num_format($total);?></td>
                     <td class = "text-align-right">
-                        <?php 
+                        <?php
                         if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'update')){
                         ?>
                         <button type="button" class="btn btn-primary btn-info " onclick = "location.href = '<?php echo $document_url;?>?action=edit&order_id=<?php echo $row['order_id'];?>'">View</button>
                         <?php }?>
                     </td>
                 </tr>
-            <?php    
+            <?php
                 $i++;
               }
             ?>
@@ -2646,7 +2790,7 @@ class Order {
     public function generateDocument(){
       include_once 'class/Partner.php';
       include_once 'class/Invoice.php';
-      $o = new Invoice();  
+      $o = new Invoice();
       $p = new Partner();
       if($this->generate_document_type == 'DO'){
         $this->document_code = "Delivery Order";
@@ -2675,7 +2819,7 @@ class Order {
                 return true;
             }else{
                 return false;
-            } 
+            }
         }
         }else{
             if($this->fetchOrderDetail(" AND order_id = '$this->order_id'","","",1)){
@@ -2739,10 +2883,10 @@ class Order {
                     return true;
                 }else{
                     return false;
-                } 
+                }
           }else{
               return false;
-          } 
+          }
         }
     }
     public function generateOrderLine($r,$order_id){
@@ -2787,29 +2931,29 @@ class Order {
                }
            }else{
                return true;
-           }       
+           }
         }
     }
     public function generateStockTransaction($ordl_id,$action){
         include_once 'Product.php';
         include_once 'Package.php';
-        $p = new Product();   
-        $g = new Package();   
+        $p = new Product();
+        $g = new Package();
         //$packProdQty[] = array();
         $product_qty = 0;
         $this->fetchOrderLine2Detail(" AND ol.ordl_id = '$ordl_id'","","",1);
         if($this->ordl_item_type == 'product'){
             $p->fetchProductDetail(" AND product_id = '$this->ordl_pro_id'","","",1);
             $product_qty = $this->ordl_qty;
-            if($action=='out'){            
+            if($action=='out'){
                 $stock_balance = $p->product_stock - $product_qty;
                 $stock_desc = 'OUT';
-                $pro_table_field = array('product_stock');        
+                $pro_table_field = array('product_stock');
                 $pro_table_value = array($stock_balance);
             }else if($action=='in'){
                 $stock_balance = $p->product_stock + $product_qty;
                 $stock_desc = 'IN';
-                $pro_table_field = array('product_stock');        
+                $pro_table_field = array('product_stock');
                 $pro_table_value = array($stock_balance);
             }
             $st_table_field = array('documentline_id','ref_id','quantity','type',
@@ -2835,16 +2979,16 @@ class Order {
             $query = $g->fetchPackageDetail(" AND package_id = '$this->ordl_pro_id'","","",0);
             while($row = mysql_fetch_array($query)){
                 $p->fetchProductDetail(" AND product_id = '".$row['package_product_id']."'","","",1);
-                $product_qty = $this->ordl_qty * $row['package_product_qty'];                
-                if($action=='out'){            
+                $product_qty = $this->ordl_qty * $row['package_product_qty'];
+                if($action=='out'){
                     $stock_balance = $p->product_stock - $product_qty;
                     $stock_desc = 'OUT';
-                    $pro_table_field = array('product_stock');        
+                    $pro_table_field = array('product_stock');
                     $pro_table_value = array($stock_balance);
                 }else if($action=='in'){
                     $stock_balance = $p->product_stock + $product_qty;
                     $stock_desc = 'IN';
-                    $pro_table_field = array('product_stock');        
+                    $pro_table_field = array('product_stock');
                     $pro_table_value = array($stock_balance);
                 }
                 $st_table_field = array('documentline_id','ref_id','quantity','type',
@@ -2868,29 +3012,29 @@ class Order {
             return true;
         }else{
             return false;
-        }                
-    }    
+        }
+    }
     public function updateStockTransaction($ordl_id,$action){
         include_once 'Product.php';
         include_once 'Package.php';
-        $p = new Product();  
+        $p = new Product();
         $g = new Package();
         $product_qty = 0;
         $this->fetchOrderLine2Detail(" AND ol.ordl_id = '$ordl_id'","","",1);
         if($this->ordl_item_type == 'product'){
-            $product_qty = $this->ordl_qty;        
+            $product_qty = $this->ordl_qty;
             $p->fetchProductDetail(" AND product_id = '$this->ordl_pro_id'","","",1);
             $this->fetchPrevOrderLineDetail(" AND documentline_id = '$ordl_id' AND item_id = '$this->ordl_pro_id' AND type='$action'","","",1);
             $prev_qty = $this->trans_ordl_qty;
-            if($action=='out'){            
+            if($action=='out'){
                 $stock_balance = ($p->product_stock + $prev_qty) - $product_qty;
                 $stock_desc = 'OUT';
-                $pro_table_field = array('product_stock');        
+                $pro_table_field = array('product_stock');
                 $pro_table_value = array($stock_balance);
             }else if($action=='in'){
                 $stock_balance = ($p->product_stock - $prev_qty) + $product_qty;
                 $stock_desc = 'IN';
-                $pro_table_field = array('product_stock');        
+                $pro_table_field = array('product_stock');
                 $pro_table_value = array($stock_balance);
             }
             $st_table_field = array('documentline_id','ref_id','quantity','type',
@@ -2918,15 +3062,15 @@ class Order {
                $product_qty = $this->ordl_qty * $row['package_product_qty'];
                $this->fetchPrevOrderLineDetail(" AND documentline_id = '$ordl_id' AND item_id = '$this->ordl_pro_id' AND type='$action'","","",1);
                $prev_qty = $this->trans_ordl_qty;
-               if($action=='out'){            
+               if($action=='out'){
                     $stock_balance = ($p->product_stock + $prev_qty) - $product_qty;
                     $stock_desc = 'OUT';
-                    $pro_table_field = array('product_stock');        
+                    $pro_table_field = array('product_stock');
                     $pro_table_value = array($stock_balance);
                 }else if($action=='in'){
                     $stock_balance = ($p->product_stock - $prev_qty) + $product_qty;
                     $stock_desc = 'IN';
-                    $pro_table_field = array('product_stock');        
+                    $pro_table_field = array('product_stock');
                     $pro_table_value = array($stock_balance);
                 }
                 $st_table_field = array('documentline_id','ref_id','quantity','type',
@@ -2948,12 +3092,12 @@ class Order {
                     }
                 }
             }
-        }                       
+        }
     }
     public function getInvoiceGenerateTabTable(){
       include_once 'Invoice.php';
       $invc = new Invoice();
-      if($this->document_type == 'QT'){  
+      if($this->document_type == 'QT'){
             $document_type = 'Sales Invoice';
             $partner_field = 'Customer';
             $generate_to = 'SI';
@@ -2964,26 +3108,26 @@ class Order {
             $partner_field = 'Customer';//'Supplier';
             $generate_to = 'SCN';
             $menu_id = '78';// sales_cn menu id is 78
-            $document_url = 'sales_cn.php'; 
+            $document_url = 'sales_cn.php';
       }elseif($this->document_type == 'PO'){
             $document_type = 'Credit Note (Purchase)';
             $partner_field = 'Supplier';//'Supplier';
             $generate_to = 'PCN';
             $menu_id = '84';// sales_cn menu id is 78
-            $document_url = 'purchase_cn.php'; 
+            $document_url = 'purchase_cn.php';
       }else{
             $document_type = 'Purchase Invoice';
             $partner_field = 'Supplier';
             $generate_to = 'PI';
             $menu_id = '54';// purchase invoice menu id is 13
-            $document_url = 'purchase_invoice.php';   
+            $document_url = 'purchase_invoice.php';
       }
     ?>
     <div class="box">
         <div class="box-header">
           <div class = "pull-left"><h3 class="box-title"><?php echo $document_type;?> Table</h3></div>
           <div class = "pull-right">
-            <?php 
+            <?php
             if(getWindowPermission($menu_id,'generate')){
                 $allow = false;
                 if(($this->document_type == 'DO') && ($this->generated['inv_id'] <= 0)){
@@ -3015,9 +3159,9 @@ class Order {
               </tr>
             </thead>
             <tbody>
-            <?php   
-              $sql = "SELECT i.*,partner.partner_name,empl.empl_name 
-                      FROM db_invoice i 
+            <?php
+              $sql = "SELECT i.*,partner.partner_name,empl.empl_name
+                      FROM db_invoice i
                       INNER JOIN db_partner partner ON partner.partner_id = i.invoice_customer
                       LEFT JOIN db_empl empl ON empl.empl_id = i.invoice_salesperson
                       WHERE i.invoice_generate_from = '$this->order_id' AND i.invoice_status = '1'";
@@ -3038,14 +3182,14 @@ class Order {
                     <td><?php echo num_format($gst);?></td>
                     <td><?php echo num_format($total);?></td>
                     <td class = "text-align-right">
-                        <?php 
+                        <?php
                         if(getWindowPermission($menu_id,'update')){
                         ?>
                         <button type="button" class="btn btn-primary btn-info " onclick = "location.href = '<?php echo $document_url;?>?action=edit&invoice_id=<?php echo $row['invoice_id'];?>'">View</button>
                         <?php }?>
                     </td>
                 </tr>
-            <?php    
+            <?php
                 $i++;
               }
             ?>
@@ -3113,7 +3257,7 @@ class Order {
         }
     }
     public function duplicate(){
-       
+
         if($this->fetchOrderDetail(" AND order_id = '$this->order_id'","","",1)){
             $this->order_rev = 0;
             $this->order_revby = 0;
@@ -3154,7 +3298,7 @@ class Order {
                LEFT JOIN db_order od ON od.order_generate_from = os.order_id AND od.order_status = 1
                LEFT JOIN db_invoice iv ON iv.invoice_generate_from = od.order_id AND iv.invoice_status = 1
                LEFT JOIN db_invoice ip ON ip.invoice_generate_from = od.order_id AND ip.invoice_status = 1
-o               WHERE  $wherestring"; 
+o               WHERE  $wherestring";
 
        if($returnsql == 1){
            return $sql;
@@ -3189,7 +3333,7 @@ o               WHERE  $wherestring";
                 var data = "action=generatelineitems&generate_document_type=" + $('#generate_type').val() + "&order_id=<?php echo $this->order_id;?>&" + $('#generatelineform').serialize();
                  $.ajax({
                     type: "POST",
-                    url: "<?php echo $this->document_url;?>",  
+                    url: "<?php echo $this->document_url;?>",
                     data:data,
                     success: function(data) {
                         var jsonObj = eval ("(" + data + ")");
@@ -3203,14 +3347,14 @@ o               WHERE  $wherestring";
                  });
             }
         });
-        
+
         $('.generate_cancel_btn').on('click',function(){
             var remark = prompt("Please enter remark", "");
             if(remark != null){
                 var data = "action=cancellineitems&generate_document_type=PI&order_id=<?php echo $this->order_id;?>&ordl_cancel_remark=" + encodeURIComponent(remark) + "&" + $('#generatelineform').serialize();
                  $.ajax({
                     type: "POST",
-                    url: "purchase_order.php",  
+                    url: "purchase_order.php",
                     data:data,
                     success: function(data) {
                         var jsonObj = eval ("(" + data + ")");
@@ -3288,26 +3432,26 @@ o               WHERE  $wherestring";
     <?php
     }
     public function getGenerateLineData($wherestring){
-        
+
         //get total invoice generated quantity
-        $subsql = "SELECT SUM(ordl.ordl_qty) 
-                   FROM db_ordl ordl 
+        $subsql = "SELECT SUM(ordl.ordl_qty)
+                   FROM db_ordl ordl
                    INNER JOIN db_order o ON o.order_id = ordl.ordl_order_id
                    WHERE ordl.ordl_parent = ordl.ordl_id AND o.order_status IN ('1','2')";
-        
+
         $sql = "SELECT a.* FROM (
                 SELECT ordl.*,COALESCE(($subsql),0) as generated_qty
                 FROM db_order o
                 INNER JOIN db_ordl ordl ON ordl.ordl_order_id = o.order_id
                 WHERE o.order_status IN ('1','2') AND o.order_id = '$this->order_id' $wherestring AND ordl_cancel_remark  = ''
-                )a 
+                )a
                 WHERE (a.ordl_qty - a.generated_qty) > 0
                 ";
 
         $query = mysql_query($sql);
         $json = array();
         while($row = mysql_fetch_array($query)){
-            
+
             $data["ordl_id"] = $row['ordl_id'];
             $data["ordl_pro_no"] = $row['ordl_pro_no'];
             $data["ordl_pro_id"] = $row['ordl_pro_id'];
@@ -3326,21 +3470,21 @@ o               WHERE  $wherestring";
         $r = $this->fetchOrderDetail(" AND order_id = '$this->order_id'", $orderstring, $wherelimit, 2);
         $order_customer = $r['order_customer'];
         $order_project_id = $r['order_project_id'];
-        
-        
+
+
         //get total invoice generated quantity
-        $subsql = "SELECT SUM(b.ordl_qty) 
-                   FROM db_ordl b 
+        $subsql = "SELECT SUM(b.ordl_qty)
+                   FROM db_ordl b
                    INNER JOIN db_order c ON c.order_id = b.ordl_order_id
                    WHERE b.ordl_parent = ordl.ordl_id AND c.order_status IN ('1','2')";
-        
+
         $sql = "SELECT a.* FROM (
                 SELECT ordl.*,o.order_no,o.order_id,o.order_date,o.order_salesperson_prefix,o.order_salesperson,COALESCE(($subsql),0) as generated_qty
                 FROM db_order o
                 INNER JOIN db_ordl ordl ON ordl.ordl_order_id = o.order_id
-                WHERE o.order_prefix_type = 'PRF' AND o.order_status IN ('1','2') AND o.order_customer = '$order_customer' 
+                WHERE o.order_prefix_type = 'PRF' AND o.order_status IN ('1','2') AND o.order_customer = '$order_customer'
                 AND o.order_project_id = '$order_project_id'  AND ordl_cancel_remark  = ''
-                )a 
+                )a
                 WHERE (a.ordl_qty - a.generated_qty) > 0
                 ORDER BY a.order_id,a.order_no
                 ";
@@ -3348,7 +3492,7 @@ o               WHERE  $wherestring";
         $query = mysql_query($sql);
         $json = array();
         while($row = mysql_fetch_array($query)){
-            
+
             $data["order_id"] = $row['order_id'];
             $data["order_date"] = $row['order_date'];
             $data["order_no"] = $row['order_no'];
@@ -3357,8 +3501,8 @@ o               WHERE  $wherestring";
             }else{
                 $data["sales_person_name"] = getDataCodeBySql("empl_name","db_empl"," WHERE empl_id = '{$row['order_salesperson']}'","");
             }
-            
-            
+
+
             $data["ordl_id"] = $row['ordl_id'];
             $data["ordl_pro_no"] = $row['ordl_pro_no'];
             $data["ordl_pro_id"] = $row['ordl_pro_id'];
@@ -3373,7 +3517,7 @@ o               WHERE  $wherestring";
         return $json;
     }
     public function getProjectTotalPOAmount($wherestring){
-        
+
         //previous purchase order amount
         $sql = "SELECT SUM(o.order_grandtotal) as total
                 FROM db_order o
@@ -3388,7 +3532,7 @@ o               WHERE  $wherestring";
         return $previous_total;
     }
     public function getPRFForm($label_col_sm,$field_col_sm,$disabled){
-        global $mandatory; 
+        global $mandatory;
     ?>
         <div class="form-group">
             <label for="order_code" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->document_code;?> No.</label>
@@ -3399,7 +3543,7 @@ o               WHERE  $wherestring";
             <div class="<?php echo $field_col_sm;?>">
               <input type="text" <?php if($this->document_type == 'PRF'){ echo 'READONLY';}?> class="form-control <?php if($this->document_type != 'PRF'){ echo 'datepicker';}?>" id="order_date" name="order_date" value = "<?php echo format_date($this->order_date);?>" placeholder=" <?php echo $this->document_code;?> Date" <?php echo $disabled;?>>
             </div>
-        </div>  
+        </div>
             <div class="form-group" <?php if($this->document_type == 'PO' || $this->document_type == 'GRN' || $this->document_type == 'DO' || $this->document_type == 'PU'){ echo "style = 'display:none'";}?>>
               <label for="order_project_id" class="<?php echo $label_col_sm;?> control-label">Project Name <?php echo $mandatory;?></label>
               <div class="<?php echo $field_col_sm;?>">
@@ -3412,15 +3556,34 @@ o               WHERE  $wherestring";
                 <input type="text" class="form-control" id="order_job_no" name="order_job_no" value = "<?php echo $this->order_job_no;?>" placeholder="Job No." <?php echo $disabled;?> READONLY>
               </div>
             </div>
+
+            <!--edr customer DO--->
+            <!--Quotation == QT Sales invoice = SI--->
+
+            <?php $type =$this->document_type;  ?>
+            <?php if ($type =='DO'): ?>
+              <div class="form-group">
+                <label for="doc_type" class="<?php echo $label_col_sm;?> control-label">Doc Type</label>
+                  <div class="<?php echo $field_col_sm;?>">
+                    <select class="form-control select2" id="order_doc_type" name="order_doc_type" >
+                      <?php echo $this->docType ?>
+                    </select>
+                  </div>
+              </div>
+            <?php endif; ?>
+
             <div class="form-group">
-              <?php if($this->document_type != 'PRF'){?>  
-              <label for="order_customer" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->custsupp_label;?> <?php echo $mandatory;?></label>
+              <!---edr customer selector-->
+              <?php if($this->document_type != 'PRF'){?>
+              <label for="order_customer" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->custsupp_label;?><?php echo $mandatory;?></label>
               <div class="<?php echo $field_col_sm;?>">
                    <select class="form-control select2" id="order_customer" name="order_customer" <?php echo $disabled;?>>
                        <?php echo $this->customerCrtl;?>
                    </select>
               </div>
-              <?php }?>
+
+            <?php }?> <!--??end of PRF form-->
+
               <label for="order_attentionto" class="<?php echo $label_col_sm;?> control-label">Attention To</label>
                 <div class="col-sm-3">
                      <select class="form-control select2" id="order_attentionto" name="order_attentionto" <?php echo $disabled;?>>
@@ -3429,7 +3592,8 @@ o               WHERE  $wherestring";
                      <p></p>
                     <input type="text" class="form-control" id="order_attentionto_name" name="order_attentionto_name" value = "<?php echo $this->order_attentionto_name;?>" placeholder="Attention To Name" <?php echo $disabled;?>>
                 </div>
-            </div>  
+            </div>
+
             <?php if($this->document_type != 'PRF'){?>
             <div class="form-group">
                 <label for="order_billaddress" class="<?php echo $label_col_sm;?> control-label">Billing Address</label>
@@ -3575,8 +3739,8 @@ o               WHERE  $wherestring";
                   <textarea class="form-control" rows="2" id="order_remarks_remark" name="order_remarks_remark" placeholder="Remarks" <?php echo $disabled;?>><?php echo $this->order_remarks_remark;?></textarea>
                 </div>
             </div>
-    
-            <?php } ?> 
+
+            <?php } ?>
         <?php }?>
         <div class="form-group">
             <!--<label for="order_term_remark" class="<?php echo $label_col_sm;?> control-label">T & C</label>
@@ -3607,10 +3771,82 @@ o               WHERE  $wherestring";
         </div>
     </div>
     <?php } ?>
+
+
+    <!--edr lift for DO-->
+    <div class="forklifts">
+      <div class="form-group">
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Brand</label>
+            <div class="<?php echo $field_col_sm;?>">
+              <select class="form-control select2" id="orderfork_brand" name="orderfork_brand">
+                  <?php echo $this->brandCrtl;?>
+              </select>
+
+            </div>
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Model</label>
+            <div class="<?php echo $field_col_sm;?>">
+              <select class="form-control select2" id="orderfork_model" name="orderfork_model">
+                  <?php echo $this->modelCrtl;?>
+              </select>
+            </div>
+      </div>
+      <div class="form-group">
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Capacity</label>
+            <div class="<?php echo $field_col_sm;?>">
+                <input type="text" class="form-control" id="orderfork_capacity" name="orderfork_capacity" value = "<?php echo $this->orderfork_capacity;?>" placeholder="Capacity" >
+            </div>
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Height</label>
+            <div class="<?php echo $field_col_sm;?>">
+                <input type="text" class="form-control" id="orderfork_height" name="orderfork_height" value = "<?php echo $this->orderfork_height;?>" placeholder="Height" >
+            </div>
+      </div>
+      <div class="form-group">
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Mast</label>
+            <div class="<?php echo $field_col_sm;?>">
+                <input type="text" class="form-control" id="orderfork_mast" name="orderfork_mast" value = "<?php echo $this->orderfork_mast;?>" placeholder="Mast" >
+            </div>
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Length</label>
+            <div class="<?php echo $field_col_sm;?>">
+                <input type="text" class="form-control" id="orderfork_length" name="orderfork_length" value = "<?php echo $this->orderfork_length;?>" placeholder="Length" >
+            </div>
+      </div>
+      <div class="form-group">
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Attachment</label>
+            <div class="<?php echo $field_col_sm;?>">
+                <input type="text" class="form-control" id="orderfork_attachment" name="orderfork_attachment" value = "<?php echo $this->orderfork_attachment;?>" placeholder="Attachments" >
+            </div>
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Accessories</label>
+            <div class="<?php echo $field_col_sm;?>">
+                <input type="text" class="form-control" id="orderfork_acc" name="orderfork_acc" value = "<?php echo $this->orderfork_acc;?>" placeholder="Accessories" >
+            </div>
+      </div>
+      <div class="form-group">
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Serial</label>
+            <div class="<?php echo $field_col_sm;?>">
+                <input type="text" class="form-control" id="orderfork_serial" name="orderfork_serial" value = "<?php echo $this->orderfork_serial;?>" placeholder="Serial" >
+            </div>
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Battery</label>
+            <div class="<?php echo $field_col_sm;?>">
+                <input type="text" class="form-control" id="orderfork_battery" name="orderfork_battery" value = "<?php echo $this->orderfork_battery;?>" placeholder="Battery">
+            </div>
+      </div>
+      <div class="form-group">
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Battery Charger</label>
+            <div class="<?php echo $field_col_sm;?>">
+                <input type="text" class="form-control" id="orderfork_bat_charger" name="orderfork_bat_charger" value = "<?php echo $this->orderfork_bat_charger;?>" placeholder="Battery Charger" >
+            </div>
+            <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Charger S/Nr</label>
+            <div class="<?php echo $field_col_sm;?>">
+                <input type="text" class="form-control" id="orderfork_snr" name="orderfork_snr" value = "<?php echo $this->orderfork_snr;?>" placeholder="Charger S/Nr" >
+            </div>
+      </div>
+    </div>
+
+
     <?php
-    }  
+    }
     public function getPickupForm($label_col_sm,$field_col_sm,$disabled){
-        global $mandatory; 
+        global $mandatory;
     ?>
         <div class="form-group">
             <label for="order_code" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->document_code;?> No.</label>
@@ -3621,7 +3857,7 @@ o               WHERE  $wherestring";
             <div class="<?php echo $field_col_sm;?>">
               <input type="text" <?php if($this->document_type == 'PRF'){ echo 'READONLY';}?> class="form-control <?php if($this->document_type != 'PRF'){ echo 'datepicker';}?>" id="order_date" name="order_date" value = "<?php echo format_date($this->order_date);?>" placeholder=" <?php echo $this->document_code;?> Date" <?php echo $disabled;?>>
             </div>
-        </div> 
+        </div>
         <div class="form-group">
             <label for="order_do_code" class="<?php echo $label_col_sm;?> control-label">Delivery Order No.</label>
             <div class="<?php echo $field_col_sm;?>">
@@ -3633,10 +3869,10 @@ o               WHERE  $wherestring";
                 ?>
               <input type="text" class="form-control" id="order_do_code" name="order_do_code" value = "<?php echo $do_num; ?>" READONLY >
             </div>
-            
-        </div>  
+
+        </div>
             <div class="form-group">
-              <?php if($this->document_type != 'PRF'){?>  
+              <?php if($this->document_type != 'PRF'){?>
               <label for="order_customer" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->custsupp_label;?> <?php echo $mandatory;?></label>
               <div class="<?php echo $field_col_sm;?>">
                    <select class="form-control select2" id="order_customer" name="order_customer" <?php echo $disabled;?>>
@@ -3652,9 +3888,9 @@ o               WHERE  $wherestring";
                      <p></p>
                     <input type="text" class="form-control" id="order_attentionto_name" name="order_attentionto_name" value = "<?php echo $this->order_attentionto_name;?>" placeholder="Attention To Name" <?php echo $disabled;?>>
                 </div>
-            </div>  
+            </div>
 
-            
+
         <div class="form-group">
             <label for="order_notes" class="<?php echo $label_col_sm;?> control-label">Initial Remark</label>
             <div class="<?php echo $field_col_sm;?>">
@@ -3662,30 +3898,31 @@ o               WHERE  $wherestring";
             </div>
         </div>
     <?php
-    } 
+    }
     public function getOrderForm($label_col_sm,$field_col_sm,$disabled){
         global $mandatory;
     ?>
     <input type ="hidden" name = 'order_requestby' value = '<?php echo $this->order_requestby;?>'/>
     <input type ="hidden" name = 'order_agc_requestby' value = '<?php echo $this->order_agc_requestby;?>'/>
     <input type ="hidden" name = 'order_delivery_date' value = '<?php echo $this->order_delivery_date;?>'/>
+    <!--edr quotation , order confirm???-->
     <div class="form-group">
         <label for="order_code" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->document_code;?> No.</label>
         <div class="<?php echo $field_col_sm;?>">
             <input type="text" class="form-control" id="order_no" name="order_no" value = "<?php if(($this->order_revtimes > 0) && ($this->document_type == 'QT')){ echo $this->order_no . " (Rev $this->order_revtimes)";}else{ echo $this->order_no;}?>" READONLY>
-        </div>            
+        </div>
         <label for="order_date" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->document_code;?> Date</label>
         <div class="<?php echo $field_col_sm;?>">
             <input type="text" class="form-control datepicker" id="order_date" name="order_date" value = "<?php echo format_date($this->order_date);?>" placeholder=" <?php echo $this->document_code;?> Date" <?php echo $disabled;?>>
         </div>
-    </div>  
+    </div>
     <div class="form-group">
         <label for="order_customer" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->custsupp_label;?> <?php echo $mandatory;?></label>
         <div class="<?php echo $field_col_sm;?>">
             <select class="form-control select2" id="order_customer" name="order_customer" <?php echo $disabled;?>>
                 <?php echo $this->customerCrtl;?>
             </select>
-            
+
         </div>
         <button type="button" data-loading-text="Loading..." id='show_btn' class="btn btn-primary reveal" autocomplete="off">Show Customer Info</button>
     </div>
@@ -3725,8 +3962,8 @@ o               WHERE  $wherestring";
             </div>
         </div>
     </div>
-    
-    <div class="form-group">        
+
+    <div class="form-group">
         <label for="order_salesperson" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->salesorderedby_label;?></label>
         <div class="<?php echo $field_col_sm;?>">
             <select class="form-control select2" id="order_salesperson" name="order_salesperson" <?php echo $disabled;?> >
@@ -3734,7 +3971,7 @@ o               WHERE  $wherestring";
             </select>
         </div>
     </div>
-    
+
     <!--
     <label for="order_shipping_id" class="<?php echo $label_col_sm;?> control-label" >Shipping Address Multi</label>
     <div class="col-sm-3">
@@ -3761,7 +3998,7 @@ o               WHERE  $wherestring";
               </div>
             </div>
             <?php } ?>
-        
+
     <!-- Show following in Quotation -->
     <?php if($this->document_type == 'QT') { ?>
     <!--<div class="form-group">
@@ -3858,7 +4095,7 @@ o               WHERE  $wherestring";
             <textarea class="form-control" rows="3" id="order_remark" name="order_remark" placeholder="Remark" <?php echo $disabled;?>><?php echo $this->order_remark;?></textarea>
         </div>
         -->
-        
+
         <label for="order_country" class="<?php echo $label_col_sm;?> control-label">Country </label>
         <div class="<?php echo $field_col_sm;?>">
             <select class="form-control select2" id="order_country_id" name="order_country_id" <?php echo $disabled;?> >
@@ -3873,13 +4110,13 @@ o               WHERE  $wherestring";
                 <?php echo $this->currencyCrtl;?>
             </select>
         </div>-->
-        
+
     </div>
     <div class="form-group">
         <!--<label for="order_term_remark" class="<?php echo $label_col_sm;?> control-label">T & C</label>
         <div class="<?php echo $field_col_sm;?>">
             <textarea class="form-control" rows="3" id="order_term_remark" name="order_term_remark" placeholder="T & C" <?php echo $disabled;?>><?php echo $this->order_term_remark;?></textarea>
-        </div>--> 
+        </div>-->
         <label for="order_regards" class="<?php echo $label_col_sm;?> control-label">Initial Remark</label>
         <div class="<?php echo $field_col_sm;?>">
             <textarea class="form-control" rows="3" id="order_notes" name="order_notes" placeholder="Initial Remark" <?php echo $disabled;?>><?php echo $this->order_notes;?></textarea>
@@ -3894,7 +4131,7 @@ o               WHERE  $wherestring";
         <div class="<?php echo $field_col_sm;?>">
             <input type = "file" name = "order_attachment[]" id = 'order_attachment' <?php echo $disabled;?>/>
             <p class="help-block">
-                <?php 
+                <?php
                 $sql = "SELECT * FROM db_image WHERE ref_id = '$this->order_id' AND ref_table = 'db_order' ORDER BY upload_field";
                 $query = mysql_query($sql);
                 $file_id = array();
@@ -3912,7 +4149,7 @@ o               WHERE  $wherestring";
             </p>
             <input type = "file" name = "order_attachment[]" id = 'order_attachment' <?php echo $disabled;?>/>
             <p class="help-block">
-                <?php 
+                <?php
                 $path = "upload/" . $this->document_type . "/" . $file_id[1] . "." . $file_type[1];
                 if(file_exists($path)){
                 ?>
@@ -3931,7 +4168,7 @@ o               WHERE  $wherestring";
                 continue;
             }
             $ordl_id = escape($this->generateordlid[$i]);
-            
+
             $table_field = array('ordl_cancel_remark');
             $table_value = array($this->ordl_cancel_remark);
             $remark = "Cancel line item";
@@ -3940,7 +4177,7 @@ o               WHERE  $wherestring";
         return true;
     }
     public function reactiveCancelItems(){
-            
+
 
         $table_field = array('ordl_cancel_remark');
         $table_value = array('');
@@ -3958,7 +4195,7 @@ o               WHERE  $wherestring";
             $table_field = array('ref_table','ref_id','image','status','upload_field','image_type');
             $table_value = array("db_order",$ref_id,$image_input['name'][$i],1,$i,$type);
             $remark = "Insert db_order's attachment.";
-            
+
             if((getDataCountBySql("db_image"," WHERE upload_field = '$i'") > 0) && ($image_input['size'][$i] > 0)){
 //                echo "<pre>";
 //                echo $image_input['name'][$i];die;
@@ -3974,14 +4211,14 @@ o               WHERE  $wherestring";
                     mysql_query($sql);
                 }
             }
-            
+
                 if($image_input['size'][$i] > 0){
                     if($this->save->SaveData($table_field,$table_value,'db_image','image_id',$remark)){
                         $image_id = $this->save->lastInsert_id;
                         $this->pictureManagement($image_id,$this->document_type,$image_input,$i,$ref_id,$type);
                     }
                 }
-                
+
         }
 
 
@@ -3994,7 +4231,7 @@ o               WHERE  $wherestring";
 
         if($image_input['size'][$i] > 0 ){
 
-            
+
             move_uploaded_file($image_input['tmp_name'][$i],"upload/$folder_name/$image_id.$type");
         }
     }
@@ -4002,7 +4239,7 @@ o               WHERE  $wherestring";
         $sql = "SELECT FROM db_image WHERE ref_table = 'db_order'";
     }
     public function getProductHistory($wherestring){
-        
+
         $sql = "SELECT o.order_no,o.order_date,ordl.ordl_qty,ordl.ordl_uom,ordl.ordl_fuprice,ordl.ordl_disc,ordl.ordl_fdiscamt,ordl.ordl_ftotal,ordl.ordl_id
                 FROM db_order o
                 INNER JOIN db_ordl ordl ON ordl.ordl_order_id = o.order_id AND ordl.ordl_pro_id = '$this->product_id'
@@ -4013,7 +4250,7 @@ o               WHERE  $wherestring";
         $query = mysql_query($sql);
         $this->d = array();
         while($row = mysql_fetch_array($query)){
-            
+
             $this->d[] = array('order_no'=>$row['order_no'],'order_date'=>format_date($row['order_date']),'ordl_qty'=>$row['ordl_qty'],
                                'ordl_uom'=>getDataCodeBySql("uom_code",'db_uom'," WHERE uom_id = '{$row['ordl_uom']}'", $orderby),'ordl_fuprice'=>num_format($row['ordl_fuprice']),'ordl_disc'=>$row['ordl_disc'],
                                'ordl_fdiscamt'=>num_format($row['ordl_fdiscamt']),'ordl_ftotal'=>num_format($row['ordl_ftotal']),
@@ -4022,16 +4259,16 @@ o               WHERE  $wherestring";
         return true;
     }
     public function getHistoryLineDetail(){
-        
+
         $sql = "SELECT ordl.*
                 FROM db_ordl ordl
-                WHERE ordl.ordl_id = '$this->ordl_id' 
+                WHERE ordl.ordl_id = '$this->ordl_id'
                 limit 0,10
                 ";
         $query = mysql_query($sql);
-        
+
         if($row = mysql_fetch_array($query)){
-            
+
             $this->d = array('ordl_uom'=>$row['ordl_uom'],'ordl_fuprice'=>$row['ordl_fuprice'],'ordl_disc'=>$row['ordl_disc'],
                        'ordl_fdiscamt'=>$row['ordl_fdiscamt'],'ordl_ftotal'=>$row['ordl_ftotal'],
                        'ordl_id'=>$row['ordl_id']);
@@ -4040,7 +4277,7 @@ o               WHERE  $wherestring";
     }
     public function generateMultiLineItems(){
         include_once 'class/Order.php';
-        $order = new Order();  
+        $order = new Order();
         $query = $order->fetchOrderDetail(" AND order_id = '$this->order_id'","","",0);
         $order->order_id = $this->order_id;
         if($query){
@@ -4058,15 +4295,15 @@ o               WHERE  $wherestring";
             $this->isgenerate = true;
 //            if($this->createOrder()){
 //echo sizeof($this->generateqty);die;
-                
+
                 for($i=0;$i<sizeof($this->generateqty);$i++){
                     $invl_ordl_id = escape($this->generateordlid[$i]);
                     $generate_quantity = escape($this->generateqty[$i]);
-                    
+
                     if($this->generatecheckbox[$i] != 'on'){
                         continue;
                     }
-                    
+
                     if($generate_quantity <=0){
                         $generate_quantity = 0;
                     }
@@ -4082,12 +4319,12 @@ o               WHERE  $wherestring";
                     }else{
                         $allow_generate_quantity = 0;
                     }
-                    
+
                     $query1 = $order->fetchOrderLineDetail(" AND ordl_id = '$invl_ordl_id'","","",0);
                     while($row = mysql_fetch_array($query1)){
                         $row['ordl_qty'] = $allow_generate_quantity;
                         $row['ordl_ftotal'] = $row['ordl_qty'] * $row['ordl_fuprice'];
-                        $row['ordl_total'] = $row['ordl_ftotal']; 
+                        $row['ordl_total'] = $row['ordl_ftotal'];
                         $row['ordl_fdiscamt'] = ROUND($row['ordl_ftotal'] * ($row['ordl_disc']/100),2);
                         $row['ordl_discamt'] = $row['ordl_fdiscamt'];
                         if($row['ordl_istax'] == 1){
@@ -4096,13 +4333,13 @@ o               WHERE  $wherestring";
                         }
                         $row['ordl_total'] = $row['ordl_total'] + $row['ordl_taxamt'];
                         $row['ordl_ftotal'] = $row['ordl_ftotal'] + $row['ordl_ftaxamt'];
-                        
+
                         $row['ordl_parent_type'] = $this->document_type;
                         $this->generateOrderLine($row,$this->order_id);
                     }
                 }
-                
-              
+
+
                 $this->order_disctotal = $this->getTotalDiscAmt();
                 $this->order_subtotal = $this->getSubTotalAmt();
                 $this->order_taxtotal = $this->getTotalGstAmt();
@@ -4114,7 +4351,7 @@ o               WHERE  $wherestring";
         }
     }
     public function getGenerating(){
-        
+
     ?>
     <html>
   <head>
@@ -4123,7 +4360,7 @@ o               WHERE  $wherestring";
     <title><?php echo $this->document_code;?> Management</title>
     <?php
     include_once 'css.php';
-    
+
     ?>
   </head>
   <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
@@ -4150,7 +4387,7 @@ o               WHERE  $wherestring";
                 <?php }?>
                 </div><!-- /.box-header -->
                 <div class="box-body">
-                    <form id = 'selected_material_form' >  
+                    <form id = 'selected_material_form' >
                         <table id="order_table" class="table table-bordered table-hover">
                             <thead>
                               <tr>
@@ -4165,10 +4402,10 @@ o               WHERE  $wherestring";
                               </tr>
                             </thead>
                             <tbody>
-                            <?php   
+                            <?php
 
-                                $subsql = "SELECT SUM(ordl1.ordl_qty) 
-                                           FROM db_ordl ordl1 
+                                $subsql = "SELECT SUM(ordl1.ordl_qty)
+                                           FROM db_ordl ordl1
                                            INNER JOIN db_order o1 ON o1.order_id = ordl1.ordl_order_id
                                            WHERE ordl1.ordl_parent = ordl.ordl_id AND o1.order_status IN ('1','2')";
 
@@ -4176,11 +4413,11 @@ o               WHERE  $wherestring";
                                         SELECT ordl.*,COALESCE(($subsql),0) as generated_qty,o.order_no,o.order_project_id,o.order_salesperson,o.order_id
                                         FROM db_order o
                                         INNER JOIN db_ordl ordl ON ordl.ordl_order_id = o.order_id
-                                        WHERE o.order_status IN ('1','2') AND o.order_prefix_type = 'PRF' 
-                                        )a 
+                                        WHERE o.order_status IN ('1','2') AND o.order_prefix_type = 'PRF'
+                                        )a
                                         WHERE (a.ordl_qty - a.generated_qty) > 0
                                         ";
-                      
+
                               $query = mysql_query($sql);
                               $i = 1;
                               while($row = mysql_fetch_array($query)){
@@ -4190,19 +4427,19 @@ o               WHERE  $wherestring";
                                 <tr>
                                     <td><?php echo  "<a href = 'purchase_request.php?action=edit&order_id={$row['order_id']}' target = '_blank' >" . $row['order_no'] . "</a>";?></td>
                                     <td>
-                                        <?php 
-                                           echo "<a href = 'project.php?action=edit&project_id={$row['order_project_id']}' target = '_blank' >" . 
-                                                   getDataCodeBySql('project_name','db_project'," WHERE project_id = '{$row['order_project_id']}'", $orderby) . 
-                                                "</a>";           
+                                        <?php
+                                           echo "<a href = 'project.php?action=edit&project_id={$row['order_project_id']}' target = '_blank' >" .
+                                                   getDataCodeBySql('project_name','db_project'," WHERE project_id = '{$row['order_project_id']}'", $orderby) .
+                                                "</a>";
                                         ?>
                                     </td>
                                     <td>
-                                        <?php 
+                                        <?php
                                            echo getDataCodeBySql('partner_name','db_partner'," WHERE partner_id = '{$row['order_salesperson']}'", $orderby)
                                         ?>
                                     </td>
                                     <td>
-                                        <?php 
+                                        <?php
                                            echo "<a href = 'material.php?action=edit&material_id={$row['ordl_pro_id']}' target = '_blank'>" . $row['ordl_pro_no'] . "</a>";
                                         ?>
                                     </td>
@@ -4215,15 +4452,15 @@ o               WHERE  $wherestring";
                                     </td>
                                     <td class = "text-align-center">
 
-                                        <?php 
+                                        <?php
                                         if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'update')){
                                         ?>
                                         <input type = 'checkbox' name = 'selected_material[]' value = '<?php echo $row['ordl_id'];?>'/>
                                         <?php }?>
-                                        
+
                                     </td>
                                 </tr>
-                            <?php    
+                            <?php
                                 $i++;
                               }
                             ?>
@@ -4269,12 +4506,12 @@ o               WHERE  $wherestring";
                 var data = "action=generatingpo&"+$('#selected_material_form').serialize();
                  $.ajax({
                     type: "POST",
-                    url: "<?php echo $this->document_url;?>",      
+                    url: "<?php echo $this->document_url;?>",
                     data:data,
                     success: function(data) {
                         var jsonObj = eval ("(" + data + ")");
                         if(jsonObj.status == 1){
-                            
+
                             window.location.href = 'purchase_order.php';
                         }else{
                             alert('Generate error.');
@@ -4293,7 +4530,7 @@ o               WHERE  $wherestring";
         foreach($_POST['selected_material'] as $b){
             $supplier[$_POST['selected_supplier'][$b]][] = $b;
         }
-      
+
         $count = 0;
         foreach($supplier as $c => $g){
 
@@ -4359,21 +4596,21 @@ o               WHERE  $wherestring";
             }
             //Set who the message is to be sent to
 
-            
+
             $r = $this->fetchOrderDetail(" AND order_id = '$this->order_id' AND order_prefix_type = 'PRF'", $orderstring, $wherelimit,2);
-     
+
             $order_by = getDataCodeBySql('partner_name',"db_partner"," WHERE partner_id = '{$r['order_salesperson']}'", $orderby);
             $order_date = format_date($r['order_date']);
             $project_name = getDataCodeBySql('project_name',"db_project"," WHERE project_id = '{$r['order_project_id']}'", $orderby);
-            
-            
+
+
             //Set the subject line
             $mail->Subject = "1 new Request Form - " . system_datetime ;
             //Read an HTML message body from an external file, convert referenced images to embedded,
             //convert HTML into a basic plain-text alternative body
-            
+
             $html = <<<EOF
- 
+
 <html>
         <head>
           <title>Notification of Request Form</title>
@@ -4404,12 +4641,12 @@ o               WHERE  $wherestring";
 
         </body>
     </html>
-                    
-                    
-                    
+
+
+
 EOF;
-            
-            
+
+
             $mail->msgHTML($html);
             //Replace the plain text body with one created manually
             $mail->AltBody = $html;
@@ -4425,7 +4662,7 @@ EOF;
             }
     }
     public function fetchOrderNoDetail($docType,$orderNo){
-        
+
         if($docType == 'QT'){
             $selectSql = " qt.order_id as QT_ID, qt.order_no as QT_No, si.invoice_id as SI_ID, si.invoice_no as SI_No, do.order_id as DO_ID, do.order_no as DO_No, pu.order_id as PU_ID, pu.order_no as PU_No " ;
             $fromSql = " db_order qt LEFT JOIN db_invoice si ON si.invoice_generate_from = qt.order_id AND si.invoice_generate_from_type = qt.order_prefix_type
@@ -4459,14 +4696,14 @@ WHERE qt.order_id = 110
     AND pu.order_status = 1";
          */
         //$sql = "SELECT " . $selectSql . " FROM " . $fromSql . " WHERE " . $whereSql;
-        
+
         $query2 = getDataBySql($selectSql,$fromSql,$whereSql);
         $generated = "";
         while($row2 = mysql_fetch_array($query2)){
             if($docType != 'SI'){
                if(isset($row2['SI_ID']) && $row2['SI_ID'] > 0){
                     $generated .= "<a href = 'sales_invoice.php?action=edit&invoice_id=".$row2['SI_ID']."'>".$row2['SI_No']."</a>,";
-                } 
+                }
             }
             if($docType != 'DO'){
                 if(isset($row2['DO_ID']) && $row2['DO_ID'] > 0){
@@ -4476,8 +4713,8 @@ WHERE qt.order_id = 110
             if($docType != 'PU'){
                if(isset($row2['PU_ID']) && $row2['PU_ID'] > 0){
                     $generated .= "<a href = 'pickup.php?action=edit&order_id=".$row2['PU_ID']."'>".$row2['PU_No']."</a>,";
-                } 
-            }      
+                }
+            }
         }
         return rtrim($generated,',');
     }
