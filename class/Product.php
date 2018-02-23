@@ -239,7 +239,7 @@ class Product {
                           <li tab = "General" class="tab_header <?php if(($this->current_tab == "") || ($this->current_tab == "General")){ echo 'active';}?>"><a href="#general" data-toggle="tab">General</a></li>
 
                       </div>
-                        <div class="tab-content">
+                        <div class="tab-content"><!--edr-->
                           <div class=" tab-pane <?php if(($this->current_tab == "") || ($this->current_tab == "General")){ echo 'active';}?>" id="general">
                               <?php echo $this->getGeneralForm();?>
                           </div>
@@ -387,7 +387,12 @@ class Product {
         <section class="content-header">
             <h1>Product Management</h1>
         </section>
+        <!--edr i-->
+        <?php //edr
 
+      //  $test =   $this->getDataTable();
+  //      print_r($test);
+         ?>
         <?php
         $sql = "SELECT product.*,cy.category_code
                 FROM db_product product
