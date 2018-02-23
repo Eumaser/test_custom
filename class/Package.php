@@ -14,18 +14,18 @@ class Package {
     public function Package(){
         include_once 'class/SelectControl.php';
         $this->select = new SelectControl();
-        
+
 
     }
     public function create(){
         $table_field = array('package_part_no','package_desc','package_sale_price','package_cost_price',
                              'package_category','package_brand','package_packagetype','package_outlet',
-                             'package_barcode','package_remark','package_seqno','package_status',                             
+                             'package_barcode','package_remark','package_seqno','package_status',
                              'package_custom_no','package_weight','package_uom','package_product_wastage',
                              'package_labour_profit');
         $table_value = array($this->package_part_no,$this->package_desc,$this->package_sale_price,$this->package_cost_price,
                              $this->package_category,$this->package_brand,$this->package_packagetype,$this->package_outlet,
-                             $this->package_barcode,$this->package_remark,$this->package_seqno,$this->package_status,                             
+                             $this->package_barcode,$this->package_remark,$this->package_seqno,$this->package_status,
                              $this->package_custom_no,$this->package_weight,$this->package_uom,$this->package_product_wastage,
                              $this->package_labour_profit);
         $remark = "Insert Package.";
@@ -40,19 +40,19 @@ class Package {
     public function update(){
         $table_field = array('package_part_no','package_desc','package_sale_price','package_cost_price',
                              'package_category','package_brand','package_packagetype','package_outlet',
-                             'package_barcode','package_remark','package_seqno','package_status',                             
+                             'package_barcode','package_remark','package_seqno','package_status',
                              'package_custom_no','package_weight','package_uom','package_product_wastage',
                              'package_labour_profit');
         $table_value = array($this->package_part_no,$this->package_desc,$this->package_sale_price,$this->package_cost_price,
                              $this->package_category,$this->package_brand,$this->package_packagetype,$this->package_outlet,
-                             $this->package_barcode,$this->package_remark,$this->package_seqno,$this->package_status,                             
+                             $this->package_barcode,$this->package_remark,$this->package_seqno,$this->package_status,
                              $this->package_custom_no,$this->package_weight,$this->package_uom,$this->package_product_wastage,
                              $this->package_labour_profit);
         $remark = "Update Package.";
         if(!$this->save->UpdateData($table_field,$table_value,'db_package','package_id',$remark,$this->package_id)){
            return false;
         }else{
-           $this->pictureManagement(); 
+           $this->pictureManagement();
            return true;
         }
     }
@@ -140,13 +140,13 @@ class Package {
         $this->categoryCrtl1 = $this->select->getItemCategorySelectCtrl($this->package_category,'Y');
         $this->categoryCrtl2 = $this->select->getItemSubCategorySelectCtrl($this->package_category2,'Y');
         $this->categoryCrtl3 = $this->select->getItemSubSubCategorySelectCtrl($this->package_category3,'Y');
-        
-        
+
+
         $this->packagetypeCrtl = $this->select->getPackagetypeSelectCtrl($this->package_packagetype,'N');
         $this->brandCrtl = $this->select->getBrandSelectCtrl($this->package_brand,'N');
         $this->outletCrtl = $this->select->getOutletSelectCtrl($this->package_outlet,'N');
         $this->uomCrtl = $this->select->getUomSelectCtrl($this->probom_uom_id,'N');
-       
+
     ?>
    <html>
   <head>
@@ -155,8 +155,8 @@ class Package {
     <title>Package Management</title>
     <?php
     include_once 'css.php';
-    
-    ?>  
+
+    ?>
     <style>
 
     </style>
@@ -183,14 +183,14 @@ class Package {
                 <button type = "button" class="btn btn-primary pull-right" style = 'margin-right:10px;' onclick = "window.location.href='package.php?action=createForm'">Create New</button>
                 <?php }?>
               </div>
-                
+
                 <form id = 'package_form' class="form-horizontal" action = 'package.php?action=create' method = "POST" enctype="multipart/form-data">
                      <input type ='hidden' name = 'current_tab' id = 'current_tab' value = "<?php echo $this->current_tab?>"/>
                   <div class="box-body">
                       <div class="nav-tabs-custom">
                         <ul class="nav nav-tabs">
                           <li tab = "General" class="tab_header <?php if(($this->current_tab == "") || ($this->current_tab == "General")){ echo 'active';}?>"><a href="#general" data-toggle="tab">General</a></li>
-                          <?php if($this->package_id > 0){?> 
+                          <?php if($this->package_id > 0){?>
                           <li tab = "Product" class="tab_header <?php if($this->current_tab == "Product"){ echo 'active';}?>" ><a href="#Product" data-toggle="tab">Product</a></li>
                           <!--<li tab = "Labour" class="tab_header <?php if($this->current_tab == "Labour"){ echo 'active';}?>"><a href="#Labour" data-toggle="tab">Job Scope</a></li>-->
                           <?php }?>
@@ -200,7 +200,7 @@ class Package {
                           <div class=" tab-pane <?php if(($this->current_tab == "") || ($this->current_tab == "General")){ echo 'active';}?>" id="general">
                               <?php echo $this->getGeneralForm();?>
                           </div>
-                          <?php if($this->package_id > 0){?>  
+                          <?php if($this->package_id > 0){?>
                           <div class=" tab-pane <?php if($this->current_tab == "Product"){ echo 'active';}?>" id="Product">
                               <?php echo $this->getProductForm();?>
                           </div>
@@ -209,8 +209,8 @@ class Package {
                           </div>-->
                           <?php }?>
                        </div>
-                      
-                      
+
+
                   </div><!-- /.box-body -->
                   <div class="box-footer">
                     <button type="button" class="btn btn-default" onclick = "history.go(-1)" style="display:none;">Cancel</button>
@@ -238,12 +238,12 @@ class Package {
     </div><!-- ./wrapper -->
     <?php
     include_once 'js.php';
-    
+
     ?>
-     
+
 <div class="modal fade "  id="ProductModal" role="dialog">
     <div class="modal-dialog " style = 'width:60%'>
-    
+
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
@@ -300,13 +300,13 @@ class Package {
           <button type="submit" class="btn btn-primary" id = 'add_product' >Add Product</button>
         </div>
       </div>
-      
+
     </div>
   </div>
-    
+
 <div class="modal fade " id="LabourModal" role="dialog">
     <div class="modal-dialog">
-    
+
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
@@ -341,13 +341,13 @@ class Package {
           <button type="submit" class="btn btn-primary" id = 'add_labour' >Add Labour</button>
         </div>
       </div>
-      
+
     </div>
   </div>
     <script>
     $(document).ready(function() {
         $("#package_form").validate({
-                  rules: 
+                  rules:
                   {
                       package_part_no:
                       {
@@ -367,12 +367,12 @@ class Package {
        $('#probom_uom_id').select2('val',"");
        $('#probom_id').val(0);
        $('#ProductModal').modal('show');
-       
+
     });
     $('select#probom_product_id').change(function(){
             var selectedVal = $(this).val();
             var data = "action=getPackageDetail&product_id="+selectedVal+"&itype=product";
-            $.ajax({ 
+            $.ajax({
                 type: 'POST',
                 url: 'package.php',
                 cache: false,
@@ -386,7 +386,7 @@ class Package {
                        alert("Fail to update line.");
                    }
                    issend = false;
-                }		
+                }
              });
 
              return false;
@@ -421,7 +421,7 @@ class Package {
 //        $('select#probom_product_id').on('change',function(){
 //            var selectedVal = $(this).find(':selected').val();
 //            var data = "action=getPackageDetail&product_id="+selectedVal+"&itype=product";
-//            $.ajax({ 
+//            $.ajax({
 //                type: 'POST',
 //                url: 'package.php',
 //                cache: false,
@@ -439,27 +439,27 @@ class Package {
 //                       alert("Fail to update line.");
 //                   }
 //                   issend = false;
-//                }		
+//                }
 //             });
 //
 //             return false;
 //        });
     });
-    
+
     $('.edit_line_labour').on('click',function(){
-        
+
         $('#prolabour_labour_id').select2('val',$(this).attr('prolabour_labour_id'));
         $('#prolabour_qty').val($(this).attr('prolabour_qty'));
         $('#prolabour_layer').val($(this).attr('prolabour_layer'));
         $('#prolabour_id').val($(this).attr('prolabour_id'));
         $('#add_product').text("Update Labour");
-        
-        
+
+
         $('#LabourModal').modal('show');
     });
     $('#add_product').click(function(){
         var data = "action=add_product&package_id=<?php echo $this->package_id;?>&"+$('#product_form').serialize()+"&total_line_product="+$('#total_line_product').val()+"&current_tab=Product";
-        $.ajax({ 
+        $.ajax({
             type: 'POST',
             url: 'package.php',
             cache: false,
@@ -478,14 +478,14 @@ class Package {
                    alert("Fail to delete line.");
                }
                issend = false;
-            }		
+            }
          });
          return false;
     });
 
     $('#add_labour').click(function(){
         var data = "action=add_labour&package_id=<?php echo $this->package_id;?>&"+$('#labour_form').serialize()+"&total_line_labour="+$('#total_line_labour').val()+"&current_tab=Labour";
-        $.ajax({ 
+        $.ajax({
             type: 'POST',
             url: 'package.php',
             cache: false,
@@ -504,24 +504,24 @@ class Package {
                    alert("Fail to delete line.");
                }
                issend = false;
-            }		
+            }
          });
          return false;
     });
     $('#package_labour_profit').on('keyup',function(){
-        
+
         $('#profit_amt').text('$ ' + changeNumberFormat(RoundNum(($(this).val()/100) * $('#labour_subtotal').val(),2)));
         $('#Grandtotal_profit_amt').text('$ ' + changeNumberFormat( RoundNum(parseFloat(RoundNum(($(this).val()/100) * $('#labour_subtotal').val(),2)) + parseFloat($('#labour_subtotal').val()),2) ) );
     });
     $('#product_wastage').on('keyup',function(){
-        
+
         $('#wastage_amt').text('$ ' + changeNumberFormat(RoundNum(($(this).val()/100) * $('#product_subtotal').val(),2)));
         $('#Grandtotal_wastage_amt').text('$ ' + changeNumberFormat( RoundNum(parseFloat(RoundNum(($(this).val()/100) * $('#product_subtotal').val(),2)) + parseFloat($('#product_subtotal').val()),2) ) );
     });
 });
     function deleteline(line_id,line_type){
         var data = "action=deleteline&package_id=<?php echo $this->package_id;?>&line_id="+line_id+"&line_type="+line_type;
-        $.ajax({ 
+        $.ajax({
             type: 'POST',
             url: 'package.php',
             cache: false,
@@ -538,7 +538,7 @@ class Package {
                    alert("Fail to delete line.");
                }
                issend = false;
-            }		
+            }
          });
          return false;
     }
@@ -546,7 +546,7 @@ class Package {
   </body>
 </html>
         <?php
-        
+
     }
     public function getListing(){
     ?>
@@ -557,10 +557,10 @@ class Package {
     <title>Package Management</title>
     <?php
     include_once 'css.php';
-    
+
     ?>
     <style>
-    
+
    </style>
   </head>
   <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
@@ -584,7 +584,7 @@ class Package {
                   <h3 class="box-title">Package Table</h3>
                 <?php if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'create')){?>
                 <button class="btn btn-primary pull-right" onclick = "window.location.href='package.php?action=createForm'">Create New + </button>
-                
+
                 <!--<button style = 'margin-right:10px;' class="btn btn-primary pull-right import_btn" data-toggle="modal" data-target="#myModal">Import + </button>-->
                 <?php }?>
                 </div><!-- /.box-header -->
@@ -601,9 +601,9 @@ class Package {
                       </tr>
                     </thead>
                     <tbody>
-                    <?php   
-                      $sql = "SELECT package.* 
-                              FROM db_package package 
+                    <?php
+                      $sql = "SELECT package.*
+                              FROM db_package package
                               WHERE package.package_id > 0 limit 0,100";
                       //$query = mysql_query($sql);
                       $i = 1;
@@ -616,19 +616,19 @@ class Package {
                             <td><?php echo $row['package_sale'];?></td>
                             <td><?php if($row['package_status'] == 1){ echo 'Active';}else{ echo 'In-Active';}?></td>
                             <td class = "text-align-right">
-                                <?php 
+                                <?php
                                 if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'update')){
                                 ?>
                                 <button type="button" class="btn btn-primary btn-info " onclick = "location.href = 'package.php?action=edit&package_id=<?php echo $row['package_id'];?>'">Edit</button>
                                 <?php }?>
-                                <?php 
+                                <?php
                                 if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'delete')){
                                 ?>
                                 <button type="button" class="btn btn-primary btn-danger " onclick = "confirmAlertHref('package.php?action=delete&package_id=<?php echo $row['package_id'];?>','Confirm Delete?')">Delete</button>
                                 <?php }?>
                             </td>
                         </tr>
-                    <?php    
+                    <?php
                         $i++;
                       }
                     ?>
@@ -663,7 +663,7 @@ class Package {
                 "dom": '<"topleft"l><"topright"f>rt<"btmleft"i><"btmright"p><"clear">',
 		"bProcessing": true,
 		"bServerSide": true,
-		"sAjaxSource": "package.php?action=getDataTable",  
+		"sAjaxSource": "package.php?action=getDataTable",
                 "paging": true,
                 "lengthChange": true,
                 "searching": true,
@@ -680,7 +680,7 @@ class Package {
                       {"sClass": "text-align-right" }
                   ]
         });
-        
+
         $("div.topleft").addClass('col-sm-3');
         $("div.topright").css('text-align','left');
         $("div.btmleft").addClass('col-sm-6');
@@ -690,12 +690,12 @@ class Package {
             {'width':'500px','display':'inline-block'}
          );
 
-            $('#uploadForm').submit(function(e) {	
+            $('#uploadForm').submit(function(e) {
                 if($('#import_file').val()) {
                     e.preventDefault();
                     $('#loader-icon').show();
-                    $(this).ajaxSubmit({ 
-                        target:   '#targetLayer', 
+                    $(this).ajaxSubmit({
+                        target:   '#targetLayer',
                         beforeSubmit: function() {
                             $("#targetLayer").html("<img style = 'width:100px;' src = 'dist/img/LoaderIcon.gif'/>");
                             $(".import_btn").val("Importing.......");
@@ -711,9 +711,9 @@ class Package {
                             $(".import_btn").val("Import");
                             $(".import_btn").attr("disabled",false);
                         },
-                        resetForm: true 
-                    }); 
-                    return false; 
+                        resetForm: true
+                    });
+                    return false;
                 }
             });
 
@@ -733,11 +733,11 @@ class Package {
    <div id="bar_color"></div>
   </div>
               <div id="status"></div>
-            <form id = 'uploadForm' action = 'package.php' method = "POST" >  
+            <form id = 'uploadForm' action = 'package.php' method = "POST" >
                 <div class="modal-body">
 
                     <input type = "file" name = 'import_file' id = 'import_file' style = 'display:inline;'/>
-                    
+
                     <input type = 'hidden' value ='import'  name = 'action' style = 'display:inline;'/>
 
                     <div id="targetLayer" style = 'display:inline;'></div>
@@ -761,13 +761,13 @@ class Package {
 	 * you want to insert a non-database field (for example a counter or static image)
 	 */
 	$aColumns = array('No','package_part_no','package_desc','package_sale_price','package_status','');
-	
+
 	/* Indexed column (used for fast and accurate table cardinality) */
 	$sIndexColumn = "package_id";
-	
+
 	/* DB table to use */
         $sTable = "db_package";
-        /* 
+        /*
 	 * Paging
 	 */
 	$sLimit = "";
@@ -775,8 +775,8 @@ class Package {
 		$sLimit = "LIMIT ".mysql_real_escape_string($_GET['iDisplayStart'] ).", ".
 			mysql_real_escape_string( $_GET['iDisplayLength'] );
 	}
-	
-	/* 
+
+	/*
 	 * Filtering
 	 * NOTE this does not match the built-in DataTables filtering which does it
 	 * word by word on any field. It's possible to do here, but concerned about efficiency
@@ -794,7 +794,7 @@ class Package {
 		$sWhere = substr_replace( $sWhere, "", -3 );
 		$sWhere .= ')';
 	}
-	
+
 	/* Individual column filtering */
 	for ($i=0;$i<count($aColumns);$i++){
                 if($aColumns[$i] == 'No' || $aColumns[$i] == ""){
@@ -811,7 +811,7 @@ class Package {
 			$sWhere .= $aColumns[$i]." LIKE '%".mysql_real_escape_string($_GET['sSearch_'.$i])."%' ";
 		}
 	}
-        
+
 	/*
 	 * SQL queries
 	 * Get data to display
@@ -826,7 +826,7 @@ class Package {
 				 	".mysql_real_escape_string( $_GET['sSortDir_'.$i] ) .", ";
 			}
 		}
-		
+
 		$sOrder = substr_replace( $sOrder, "", -2 );
 		if($sOrder == "ORDER BY" ){
 			$sOrder = "";
@@ -835,19 +835,19 @@ class Package {
 	}else{
             $sOrder = "ORDER BY package.package_seqno,package.package_part_no";
         }
-        
+
 	$sQuery = "
-		SELECT SQL_CALC_FOUND_ROWS package.* 
-		FROM db_package package                
+		SELECT SQL_CALC_FOUND_ROWS package.*
+		FROM db_package package
 		$sWhere
 		$sOrder
-                    
+
 		$sLimit
-                    
+
 	";
 
 	$rResult = mysql_query($sQuery);
-	
+
 	/* Data set length after filtering */
 	$sQuery = "
 		SELECT FOUND_ROWS()
@@ -855,7 +855,7 @@ class Package {
 	$rResultFilterTotal = mysql_query($sQuery);
 	$aResultFilterTotal = mysql_fetch_array($rResultFilterTotal);
 	$iFilteredTotal = $aResultFilterTotal[0];
-	
+
 	/* Total data set length */
 	$sQuery = "
 		SELECT COUNT(".$sIndexColumn.")
@@ -864,7 +864,7 @@ class Package {
 	$rResultTotal = mysql_query($sQuery);
 	$aResultTotal = mysql_fetch_array($rResultTotal);
 	$iTotal = $aResultTotal[0];
-	
+
 
 	/*
 	 * Output
@@ -894,10 +894,10 @@ class Package {
 			}else{
                            $btn = "";
                            if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'update')){
-                             $btn = "<button type='button' class='btn btn-primary btn-info ' onclick = 'location.href = \"package.php?action=edit&package_id={$aRow['package_id']}\"'>Edit</button>";       
+                             $btn = "<button type='button' class='btn btn-primary btn-info ' onclick = 'location.href = \"package.php?action=edit&package_id={$aRow['package_id']}\"'>Edit</button>";
                            }
                            if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'delete')){
-                             $btn .= " <button type='button' class='btn btn-primary btn-danger' onclick = 'confirmAlertHref(\"package.php?action=delete&package_id={$aRow['package_id']}\",\"Confirm Delete?\")'>Delete</button>";  
+                             $btn .= " <button type='button' class='btn btn-primary btn-danger' onclick = 'confirmAlertHref(\"package.php?action=delete&package_id={$aRow['package_id']}\",\"Confirm Delete?\")'>Delete</button>";
                            }
                                 $row[] = $btn;
                         }
@@ -909,9 +909,9 @@ class Package {
 	echo json_encode($output);
     }
     public function getPackageDetailTransaction(){
-        
+
         $package_query = $this->fetchPackageDetail(" AND p.package_id = '$this->package_id'","","",0);
-        
+
         if($row = mysql_fetch_array($package_query)){
             return $row;
         }else{
@@ -979,7 +979,7 @@ class Package {
 
           </div>
       </div>
-    <div style = 'clear:both'></div>  
+    <div style = 'clear:both'></div>
     <table id="detail_table" class="table transaction-detail">
         <thead>
           <tr>
@@ -999,7 +999,7 @@ class Package {
           <?php
           $sql = "SELECT bom.*,ma.product_part_no,ma.product_sale_price,ma.product_cost_price,ma.product_id,ma.product_desc,um.uom_code
                   FROM db_probom bom
-                  INNER JOIN db_product ma ON ma.product_id = bom.probom_product_id                  
+                  INNER JOIN db_product ma ON ma.product_id = bom.probom_product_id
                   LEFT JOIN db_uom um ON um.uom_id = bom.probom_uom_id
                   WHERE bom.probom_package_id = '$this->package_id'";
           $query = mysql_query($sql);
@@ -1027,11 +1027,11 @@ class Package {
                 <td class = 'text-align-right'>$ <?php echo num_format($sum_sale_price_item);?></td>
                 <td class = 'text-align-right'>
                     <a title = 'edit' style = "margin-left:10px;margin-right:10px;font-size:20px;" href = "javascript:void(0)" id = "delete_line_<?php echo $i;?>" probom_id = "<?php echo $row['probom_id'];?>" probom_product_id = '<?php echo $row['probom_product_id'];?>' probom_qty = '<?php echo $row['probom_qty'];?>' probom_cost = '<?php echo $row['probom_cost'];?>' probom_sale = '<?php echo $row['probom_sale'];?>' probom_uom_id = '<?php echo $row['probom_uom_id'];?>' class = "edit_line_product font-icon" line = "<?php echo $i;?>" ><i class="fa fa-edit" aria-hidden="true"></i></a>
-                    
+
                     <a title = 'delete' style = "margin-left:10px;margin-right:10px;font-size:20px;color:red" href = "javascript:void(0)" id = "delete_line_<?php echo $i;?>" probom_id = "<?php echo $row['probom_id'];?>" class = "delete_line_probom font-icon" line = "<?php echo $i;?>" ><i class="fa fa-trash-o" aria-hidden="true"></i></a>
                 </td>
             </tr>
-          <?php  
+          <?php
           $i++;
           }
           ?>
@@ -1043,7 +1043,7 @@ class Package {
                 <td class ='text-align-right' id = 'total_sale' >$ <?php echo num_format($sum_sale_amount);?></td>
                 <td></td>
             </tr>
-          
+
         </tbody>
 
     </table>
@@ -1063,7 +1063,7 @@ class Package {
 
           </div>
       </div>
-    <div style = 'clear:both'></div>  
+    <div style = 'clear:both'></div>
     <table id="detail_table" class="table transaction-detail">
         <thead>
           <tr>
@@ -1099,11 +1099,11 @@ class Package {
                 <td class = 'text-align-right'>$ <?php echo num_format($linetotal);?></td>
                 <td class = 'text-align-right'>
                     <a title = 'edit' style = "margin-left:10px;margin-right:10px;font-size:20px;" href = "javascript:void(0)" id = "delete_line_<?php echo $i;?>" prolabour_id = "<?php echo $row['prolabour_id'];?>" prolabour_labour_id = '<?php echo $row['prolabour_labour_id'];?>' prolabour_qty = '<?php echo $row['prolabour_qty'];?>' prolabour_layer = '<?php echo $row['prolabour_layer'];?>' class = "edit_line_labour font-icon" line = "<?php echo $i;?>" ><i class="fa fa-edit" aria-hidden="true"></i></a>
-                    
+
                     <a title = 'delete' style = "margin-left:10px;margin-right:10px;font-size:20px;color:red" href = "javascript:void(0)" id = "delete_line_<?php echo $i;?>" prolabour_id = "<?php echo $row['prolabour_id'];?>" class = "delete_line_prolabour font-icon" line = "<?php echo $i;?>" ><i class="fa fa-trash-o" aria-hidden="true"></i></a>
                 </td>
             </tr>
-          <?php  
+          <?php
           $i++;
           }
           ?>
@@ -1124,12 +1124,12 @@ class Package {
                 <td class ='text-align-right' id = 'Grandtotal_profit_amt' >$ <?php echo num_format($subtotal + ($subtotal * ($labour_profit/100)));?></td>
                 <td></td>
             </tr>
-          
+
         </tbody>
 
     </table>
     <input type = 'hidden' value = '<?php echo $i;?>' id = 'total_line_product' name = "total_line_product" />
-    <?php 
+    <?php
     }
     public function createUpdatePackageBom(){
 
@@ -1164,7 +1164,7 @@ class Package {
             if(!$this->save->UpdateData($table_field,$table_value,'db_prolabour','prolabour_id',$remark,$this->prolabour_id)){
                return false;
             }else{
-               $this->calculatePackagePrice(); 
+               $this->calculatePackagePrice();
                return true;
             }
         }else{
@@ -1198,8 +1198,8 @@ class Package {
         }
     }
     public function getItemProductDetail(){
-//        CONCAT(COALESCE(mc.productcategory_code,''),' - ',COALESCE(ms.mscategory_code,''),' - ',COALESCE(mss.msscategory_code,''),' => $',m.product_sale_price) as product_code 
-        $sql = "SELECT CONCAT(COALESCE(mc.category_code,''),' - ',COALESCE(ms.mscategory_code,''),' - ',COALESCE(mss.msscategory_code,''),' - ',COALESCE(m.product_part_no,''),' => $',m.product_sale_price) as product_code 
+//        CONCAT(COALESCE(mc.productcategory_code,''),' - ',COALESCE(ms.mscategory_code,''),' - ',COALESCE(mss.msscategory_code,''),' => $',m.product_sale_price) as product_code
+        $sql = "SELECT CONCAT(COALESCE(mc.category_code,''),' - ',COALESCE(ms.mscategory_code,''),' - ',COALESCE(mss.msscategory_code,''),' - ',COALESCE(m.product_part_no,''),' => $',m.product_sale_price) as product_code
                 FROM db_probom pm
                 INNER JOIN db_product m ON m.product_id = pm.probom_product_id
 
@@ -1213,8 +1213,8 @@ class Package {
             $html .= " - " . $row['product_code'] . "\n";
         }
         $html .= "[Labour]\n";
-        
-        $sql = "SELECT CONCAT(l.labour_code,' => $',l.labour_sale_price) as labour_code 
+
+        $sql = "SELECT CONCAT(l.labour_code,' => $',l.labour_sale_price) as labour_code
                 FROM db_prolabour pr
                 INNER JOIN db_labour l ON l.labour_id = pr.prolabour_labour_id
                 WHERE pr.prolabour_package_id = '$this->package_id'";
@@ -1231,9 +1231,9 @@ class Package {
                 SELECT SUM( ((bom.probom_qty * bom.probom_layer) * ma.product_sale_price) + (((bom.probom_qty * bom.probom_layer) * ma.product_sale_price) * ($this->package_product_wastage/100))  ) as total
                     FROM db_probom bom
                     INNER JOIN db_product ma ON ma.product_id = bom.probom_product_id
-                    WHERE bom.probom_package_id = '$this->package_id' 
+                    WHERE bom.probom_package_id = '$this->package_id'
 
-                    UNION 
+                    UNION
 
                     SELECT SUM(pl.prolabour_qty*labour.labour_sale_price) as total
                     FROM db_prolabour pl
@@ -1247,8 +1247,8 @@ class Package {
             $final_total = num_format($row1['final_total']);
         }else{
             $final_total = 0;
-        } 
-        
+        }
+
         $sql = "UPDATE db_package SET package_sales_price = '$final_total' WHERE package_id = '$this->package_id'";
         mysql_query($sql);
     }
