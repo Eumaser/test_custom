@@ -104,8 +104,11 @@
 
     $o->line_type = escape($_POST['line_type']);
     $o->line_id = escape($_POST['line_id']);
+
+
     switch ($action) {
         case "create":
+
             $count_partno = getDataCountBySql("db_product", "WHERE product_part_no = '$o->product_part_no' AND product_status = 1");
             if($count_partno>0){
                 $_SESSION['status_alert'] = 'alert-error';
@@ -146,7 +149,8 @@
             exit();
             break;
         case "edit":
-            if($o->fetchProductDetail(" AND p.product_id = '$o->product_id'","","",1)){
+
+            if($o->fetchProductDetail(" AND p.fork_id = '$o->product_id'","","",1)){
                 $o->getInputForm("update");
             }else{
                rediectUrl("product.php",getSystemMsg(0,'Fetch Data'));
@@ -401,6 +405,7 @@
             exit();
             break;
         default:
+      //  die('tasdgt');
             $o->getListing();
             exit();
             break;
