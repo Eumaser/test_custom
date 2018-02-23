@@ -14,7 +14,7 @@ class Cprofile {
     public function Cprofile(){
         include_once 'class/SelectControl.php';
         $this->select = new SelectControl();
-        
+
 
     }
     public function create(){
@@ -30,7 +30,7 @@ class Cprofile {
         if(!$this->save->SaveData($table_field,$table_value,'cprofile','cprofile_id',$remark)){
            return false;
         }else{
-           $this->cprofile_id = $this->save->lastInsert_id; 
+           $this->cprofile_id = $this->save->lastInsert_id;
            return true;
         }
     }
@@ -39,12 +39,12 @@ class Cprofile {
                              'cprofile_contactemail','cprofile_ccemail','cprofile_description',
                              'cprofile_address','cprofile_bank','cprofile_account','cprofile_acc_code',
                              'cprofile_facebook','cprofile_twitter','cprofile_google','cprofile_youtube',
-                             'cprofile_gst_no','cprofile_gst','cprofile_country');
+                             'cprofile_gst_no','cprofile_gst','cprofile_country','cprofile_website','cprofile_business_no');
         $table_value = array($this->cprofile_name,$this->cprofile_tel,$this->cprofile_fax,$this->cprofile_email,
                              $this->cprofile_contactemail,$this->cprofile_ccemail,$this->cprofile_description,
                              $this->cprofile_address,$this->cprofile_bank,$this->cprofile_account,$this->cprofile_acc_code,
                              $this->cprofile_facebook,$this->cprofile_twitter,$this->cprofile_google,$this->cprofile_youtube,
-                             $this->cprofile_gst_no,$this->cprofile_gst,$this->cprofile_country);
+                             $this->cprofile_gst_no,$this->cprofile_gst,$this->cprofile_country,$this->cprofile_website,$this->cprofile_business_no);
         $remark = "Update Cprofile.";
         if(!$this->save->UpdateData($table_field,$table_value,'db_cprofile','cprofile_id',$remark,$this->cprofile_id)){
            return false;
@@ -78,6 +78,8 @@ class Cprofile {
             $this->cprofile_gst_no = $row['cprofile_gst_no'];
             $this->cprofile_gst = $row['cprofile_gst'];
             $this->cprofile_country = $row['cprofile_country'];
+            $this->cprofile_website = $row['cprofile_website'];
+            $this->cprofile_business_no = $row['cprofile_business_no'];
         }
         return $query;
     }
@@ -95,8 +97,8 @@ class Cprofile {
     <title>Company Profile Management</title>
     <?php
     include_once 'css.php';
-    
-    ?>    
+
+    ?>
   </head>
   <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
   <body class="hold-transition skin-blue layout-top-nav">
@@ -117,7 +119,7 @@ class Cprofile {
                 <h3 class="box-title"><?php echo "Update Company Profile";?></h3>
                 <button type = "button" class="btn btn-primary pull-right" style = 'width:150px;' onclick = "window.location.href='cprofile.php'">Search</button>
               </div>
-                
+
                 <form id = 'cprofile_form' class="form-horizontal" action = 'cprofile.php?action=create' method = "POST">
                   <div class="box-body">
                         <div class="form-group">
@@ -129,7 +131,7 @@ class Cprofile {
                           <div class="col-sm-3">
                               <input type="text" class="form-control" id="cprofile_tel" name="cprofile_tel" value = "<?php echo $this->cprofile_tel;?>" placeholder="Tel">
                            </div>
-                        </div>  
+                        </div>
                     <div class="form-group">
                       <label for="cprofile_fax" class="col-sm-2 control-label">Fax</label>
                       <div class="col-sm-3">
@@ -139,7 +141,7 @@ class Cprofile {
                       <div class="col-sm-3">
                         <input type="text" class="form-control" id="cprofile_email" name="cprofile_email" value = "<?php echo $this->cprofile_email;?>" placeholder="Email">
                       </div>
-                    </div> 
+                    </div>
                     <div class="form-group">
                       <label for="cprofile_country" class="col-sm-2 control-label">Country <?php echo $mandatory;?></label>
                       <div class="col-sm-3">
@@ -148,7 +150,7 @@ class Cprofile {
                                </select>
                       </div>
 
-                    </div> 
+                    </div>
                     <div class="form-group">
                       <label for="cprofile_gst_no" class="col-sm-2 control-label">GST No</label>
                       <div class="col-sm-3">
@@ -158,7 +160,19 @@ class Cprofile {
                       <div class="col-sm-3">
                         <input type="text" class="form-control" id="cprofile_gst" name="cprofile_gst" value = "<?php echo $this->cprofile_gst;?>" placeholder="GST %">
                       </div>
-                    </div> 
+                    </div>
+
+                    <div class="form-group">
+                      <label for="cprofile_gst_no" class="col-sm-2 control-label">Website</label>
+                      <div class="col-sm-3">
+                        <input type="text" class="form-control" id="cprofile_website" name="cprofile_website" value = "<?php echo $this->cprofile_website;?>" placeholder="Website">
+                      </div>
+                      <label for="cprofile_gst" class="col-sm-2 control-label">Business No</label>
+                      <div class="col-sm-3">
+                        <input type="text" class="form-control" id="cprofile_business_no" name="cprofile_business_no" value = "<?php echo $this->cprofile_business_no;?>" placeholder="Business No">
+                      </div>
+                    </div>
+
                     <div class="form-group">
                       <label for="cprofile_address" class="col-sm-2 control-label">Address</label>
                       <div class="col-sm-3">
@@ -168,9 +182,9 @@ class Cprofile {
                       <div class="col-sm-3">
                             <textarea class="form-control" rows="3" id="cprofile_description" name="cprofile_description" placeholder="Remark"><?php echo $this->cprofile_description;?></textarea>
                       </div>
-                    </div> 
+                    </div>
 
-                      <h4>Bank</h4> 
+                      <h4>Bank</h4>
                     <div class="form-group">
                       <label for="cprofile_bank" class="col-sm-2 control-label">Bank</label>
                       <div class="col-sm-3">
@@ -188,7 +202,7 @@ class Cprofile {
                       </div>
 
                     </div>
-                      <h4>Social</h4> 
+                      <h4>Social</h4>
                     <div class="form-group">
                       <label for="cprofile_facebook" class="col-sm-2 control-label">Facebook</label>
                       <div class="col-sm-3">
@@ -215,7 +229,7 @@ class Cprofile {
                     &nbsp;&nbsp;&nbsp;
                     <input type = "hidden" value = "<?php echo $action;?>" name = "action"/>
                     <input type = "hidden" value = "<?php echo $this->cprofile_id;?>" name = "cprofile_id"/>
-                    <?php 
+                    <?php
                     if($this->cprofile_id > 0){
                         $prm_code = "update";
                     }else{
@@ -234,12 +248,12 @@ class Cprofile {
     </div><!-- ./wrapper -->
     <?php
     include_once 'js.php';
-    
+
     ?>
     <script>
     $(document).ready(function() {
         $("#cprofile_form").validate({
-                  rules: 
+                  rules:
                   {
                       cprofile_name:
                       {
@@ -262,14 +276,14 @@ class Cprofile {
                       }
                   }
               });
-    
-    
+
+
 });
     </script>
   </body>
 </html>
         <?php
-        
+
     }
     public function getListing(){
     ?>
@@ -280,7 +294,7 @@ class Cprofile {
     <title>Company Profile Management</title>
     <?php
     include_once 'css.php';
-    
+
     ?>
   </head>
   <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
@@ -319,9 +333,9 @@ class Cprofile {
                       </tr>
                     </thead>
                     <tbody>
-                    <?php   
+                    <?php
                       $sql = "SELECT cprofile.*
-                              FROM db_cprofile cprofile 
+                              FROM db_cprofile cprofile
                               WHERE cprofile.cprofile_id > 0 ORDER BY cprofile.cprofile_name";
                       $query = mysql_query($sql);
                       $i = 1;
@@ -337,14 +351,14 @@ class Cprofile {
                             <td><?php echo $row['cprofile_account'];?></td>
                             <td><?php echo $row['cprofile_acc_code'];?></td>
                             <td class = "text-align-right">
-                                <?php 
+                                <?php
                                 if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'update')){
                                 ?>
                                 <button type="button" class="btn btn-primary btn-info " onclick = "location.href = 'cprofile.php?action=edit&cprofile_id=<?php echo $row['cprofile_id'];?>'">Edit</button>
                                 <?php }?>
                             </td>
                         </tr>
-                    <?php    
+                    <?php
                         $i++;
                       }
                     ?>
