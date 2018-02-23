@@ -12,7 +12,7 @@
  */
 class SelectControl {
     public function SelectControl(){
-     
+
     }
     public function getBrandSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT brand_id,brand_code from db_brand WHERE (brand_id = '$pid' or brand_id >0) and brand_status = 1 $wherestring
@@ -29,7 +29,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -48,10 +48,51 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
+
+    public function getDocType($pid,$shownull="Y"){
+      $sql = "SELECT * from db_doctype ORDER BY doc_type";
+      if($shownull =="Y"){
+          $selectctrl .="<option value = '' SELECTED='SELECTED'>Select One</option>";
+      }
+      $query = mysql_query($sql);
+      while($row = mysql_fetch_array($query)){
+          $id = $row['doc_id'];
+          $code = $row['doc_type'];
+          if($id == $pid){
+              $selected = "SELECTED = 'SELECTED'";
+          }else{
+              $selected = "";
+          }
+          $selectctrl .="<option value = '$id' $selected>$code</option>";
+      }
+      return $selectctrl;
+    }
+
+    public function getForkModelCtrl($pid,$shownull="Y",$wherestring=''){
+      //add where fork_brand == brand at DO??
+      $sql = "SELECT fork_id, fork_model from db_forklift WHERE (fork_id>0 or fork_id='$pid') $wherestring ORDER BY fork_id";
+      if($shownull =="Y"){
+          $selectctrl .="<option value = '' SELECTED='SELECTED'>Select One</option>";
+      //    $selectctrl .="<option value = '0' SELECTED='SELECTED'>Select One</option>";
+      }
+      $query = mysql_query($sql);
+      while($row = mysql_fetch_array($query)){
+          $id = $row['fork_id'];
+          $code = $row['fork_model'];
+          if($id == $pid){
+              $selected = "SELECTED = 'SELECTED'";
+          }else{
+              $selected = "";
+          }
+          $selectctrl .="<option value = '$id' $selected>$code</option>";
+      }
+      return $selectctrl;
+    }
+
     public function getShipTermSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT shipterm_id,shipterm_code from db_shipterm WHERE (shipterm_id = '$pid' or shipterm_id >0) and shipterm_status = 1 $wherestring
                 ORDER BY shipterm_seqno,shipterm_code ASC";
@@ -67,7 +108,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -81,7 +122,7 @@ class SelectControl {
         while($row = mysql_fetch_array($query)){
             $id = $row['partner_id'];
             $code = $row['partner_code'];
-            
+
             if(($_SESSION['empl_language'] == "chinese") && ($row['partner_name_cn'] != "")){//taiwan
                 $code = $code . " - " . $row['partner_name_cn'];
             }else if(($_SESSION['empl_language'] == "thai") && ($row['partner_name_thai'] != "")){//thailand
@@ -89,14 +130,14 @@ class SelectControl {
             }else{
                 $code = $code . " - " . $row['partner_name'];
             }
-            
+
             if($ismulti != ""){
                 $b = explode(',',$pid);
                 if(in_array($id, $b)){
                     $selected = "SELECTED = 'SELECTED'";
                 }else{
                     $selected = "";
-                }          
+                }
 
             }else{
                 if($id == $pid){
@@ -106,9 +147,9 @@ class SelectControl {
                 }
             }
 
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ' >' . $code . '</option>'; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ' >' . $code . '</option>';
         }
-       
+
         return $selectctrl;
     }
     public function getGroupSelectCtrl($pid,$shownull="Y",$wherestring=''){
@@ -126,7 +167,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
 
         return $selectctrl;
@@ -146,7 +187,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
 
         return $selectctrl;
@@ -167,7 +208,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -187,7 +228,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -207,7 +248,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
@@ -227,7 +268,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -247,7 +288,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -267,7 +308,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "'.$id.'" '.$selected.'>'.$code.'</option>'; 
+            $selectctrl .='<option value = "'.$id.'" '.$selected.'>'.$code.'</option>';
         }
         return $selectctrl;
     }
@@ -287,7 +328,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
@@ -306,7 +347,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -325,7 +366,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -344,7 +385,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -363,7 +404,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -382,7 +423,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -401,7 +442,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -420,13 +461,13 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
     public function getMaterialSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT material_id,material_code,CONCAT(mc.materialcategory_code,' - ',ms.mscategory_code,' - ',mss.msscategory_code,' - ',m.material_code) as  code ,
-                material_sale_price 
+                material_sale_price
                 FROM db_material m
                 LEFT JOIN db_msscategory mss ON mss.msscategory_id = m.material_category
                 LEFT JOIN db_mscategory ms ON ms.mscategory_id = mss.mssparent_id
@@ -445,7 +486,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code - $" . $row['material_sale_price'] . "</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code - $" . $row['material_sale_price'] . "</option>";
         }
         return $selectctrl;
     }
@@ -464,7 +505,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -483,12 +524,12 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
     public function getMaterialCategorySelectCtrl($pid,$shownull="Y",$wherestring=''){
-        $sql = "SELECT mc.materialcategory_id,mc.materialcategory_code as code 
+        $sql = "SELECT mc.materialcategory_id,mc.materialcategory_code as code
                 FROM db_materialcategory mc
                 WHERE (mc.materialcategory_id = '$pid' or mc.materialcategory_id >0) and mc.materialcategory_status = 1 $wherestring
                 ORDER BY mc.materialcategory_code  ASC";
@@ -505,12 +546,12 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
     public function getMaterialSubCategorySelectCtrl($pid,$shownull="Y",$wherestring=''){
-        $sql = "SELECT ms.mscategory_id,CONCAT(mc.materialcategory_code,' - ',ms.mscategory_code) as  code 
+        $sql = "SELECT ms.mscategory_id,CONCAT(mc.materialcategory_code,' - ',ms.mscategory_code) as  code
                 FROM db_mscategory ms
                 LEFT JOIN db_materialcategory mc ON ms.msparent_id = mc.materialcategory_id
                 WHERE (ms.mscategory_id = '$pid' or ms.mscategory_id >0) and ms.mscategory_status = 1 $wherestring
@@ -528,13 +569,13 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
     public function getMaterialSubSubCategorySelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT mss.msscategory_id,mc.materialcategory_code,
-                CONCAT(COALESCE(mc.materialcategory_code,''),' - ',COALESCE(ms.mscategory_code,''),' - ',COALESCE(mss.msscategory_code,'')) as  code 
+                CONCAT(COALESCE(mc.materialcategory_code,''),' - ',COALESCE(ms.mscategory_code,''),' - ',COALESCE(mss.msscategory_code,'')) as  code
                 FROM db_materialcategory mc
                 LEFT JOIN db_mscategory ms ON ms.msparent_id = mc.materialcategory_id
                 LEFT JOIN db_msscategory mss ON ms.mscategory_id = mss.mssparent_id
@@ -553,11 +594,11 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
-    
+
     public function getItemCategorySelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT c.category_id,c.category_code
                 FROM db_category c
@@ -576,12 +617,12 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
     public function getItemSubCategorySelectCtrl($pid,$shownull="Y",$wherestring=''){
-        $sql = "SELECT isc.iscategory_id,isc.iscategory_code as  code 
+        $sql = "SELECT isc.iscategory_id,isc.iscategory_code as  code
                 FROM db_iscategory isc
                 WHERE (isc.iscategory_id = '$pid' or isc.iscategory_id >0) and isc.iscategory_status = 1 $wherestring
                 ORDER BY isc.iscategory_code  ASC";
@@ -598,13 +639,13 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
     public function getItemSubSubCategorySelectCtrl($pid,$shownull="Y",$wherestring=''){
-        $sql = "SELECT mss.isscategory_id as category_id,mss.isscategory_code as  code 
-                FROM db_isscategory mss 
+        $sql = "SELECT mss.isscategory_id as category_id,mss.isscategory_code as  code
+                FROM db_isscategory mss
                 WHERE (mss.isscategory_id = '$pid' or mss.isscategory_id >0) and mss.isscategory_status = 1 $wherestring
                 ORDER BY mss.isscategory_code  ASC";
 //echo $sql;die;
@@ -620,11 +661,11 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
-    
+
     // Added: Ivan
     public function getPackageCategorySelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT c.category_id,c.category_code
@@ -644,12 +685,12 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
     public function getPackageSubCategorySelectCtrl($pid,$shownull="Y",$wherestring=''){
-        $sql = "SELECT isc.iscategory_id,isc.iscategory_code as  code 
+        $sql = "SELECT isc.iscategory_id,isc.iscategory_code as  code
                 FROM db_iscategory isc
                 WHERE (isc.iscategory_id = '$pid' or isc.iscategory_id >0) and isc.iscategory_status = 1 $wherestring
                 ORDER BY isc.iscategory_code  ASC";
@@ -666,13 +707,13 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
     public function getPackageSubSubCategorySelectCtrl($pid,$shownull="Y",$wherestring=''){
-        $sql = "SELECT mss.isscategory_id as category_id,mss.isscategory_code as  code 
-                FROM db_isscategory mss 
+        $sql = "SELECT mss.isscategory_id as category_id,mss.isscategory_code as  code
+                FROM db_isscategory mss
                 WHERE (mss.isscategory_id = '$pid' or mss.isscategory_id >0) and mss.isscategory_status = 1 $wherestring
                 ORDER BY mss.isscategory_code  ASC";
 //echo $sql;die;
@@ -688,7 +729,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
@@ -707,7 +748,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -728,8 +769,8 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '".$id."' ".$selected.">".$row['product_part_no']." - " . $row['product_name'] . "</option>"; 
-            //$selectctrl .="<option value = '".$id."' ".$selected.">(".$id.")".$row['product_part_no']." - " . $row['product_desc'] . "</option>"; 
+            $selectctrl .="<option value = '".$id."' ".$selected.">".$row['product_part_no']." - " . $row['product_name'] . "</option>";
+            //$selectctrl .="<option value = '".$id."' ".$selected.">(".$id.")".$row['product_part_no']." - " . $row['product_desc'] . "</option>";
         }
         return $selectctrl;
     }
@@ -738,7 +779,7 @@ class SelectControl {
                 FROM db_product
                 WHERE (product_id = '$pid' or product_id >0) and product_status = 1 $wherestring
                 ORDER BY product_part_no ASC";
-                
+
         if($shownull =="Y"){
             $selectctrl .='<option value = "" selected="selected">Select One</option>';
         }
@@ -778,7 +819,7 @@ class SelectControl {
     }
     public function getDeliverySelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT delivery_id,delivery_code,delivery_desc
-                FROM db_delivery 
+                FROM db_delivery
                 WHERE delivery_id >0 and delivery_status = 1 $wherestring
                 ORDER BY delivery_id ASC";
         if($shownull =="Y"){
@@ -793,7 +834,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '".$id."' ".$selected.">".$row['delivery_code']. "</option>"; 
+            $selectctrl .="<option value = '".$id."' ".$selected.">".$row['delivery_code']. "</option>";
         }
         return $selectctrl;
     }
@@ -814,7 +855,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '".$id."' ".$selected.">".$row['price_code']. "</option>"; 
+            $selectctrl .="<option value = '".$id."' ".$selected.">".$row['price_code']. "</option>";
         }
         return $selectctrl;
     }
@@ -835,7 +876,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '".$id."' ".$selected.">".$row['paymentterm_code']. "</option>"; 
+            $selectctrl .="<option value = '".$id."' ".$selected.">".$row['paymentterm_code']. "</option>";
         }
         return $selectctrl;
     }
@@ -856,7 +897,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '".$id."' ".$selected.">".$row['validity_code']. "</option>"; 
+            $selectctrl .="<option value = '".$id."' ".$selected.">".$row['validity_code']. "</option>";
         }
         return $selectctrl;
     }
@@ -877,7 +918,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '" . $id . "'" . $selected . ">$code</option>"; 
+            $selectctrl .="<option value = '" . $id . "'" . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
@@ -898,7 +939,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '" . $id . "'" . $selected . ">".$code."</option>"; 
+            $selectctrl .="<option value = '" . $id . "'" . $selected . ">".$code."</option>";
         }
         return $selectctrl;
     }
@@ -917,14 +958,14 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
-    
+
     public function getTransittimeSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT transittime_id,transittime_code,transittime_desc
-                FROM db_transittime 
+                FROM db_transittime
                 WHERE transittime_id >0 and transittime_status = 1 $wherestring
                 ORDER BY transittime_id ASC";
         if($shownull =="Y"){
@@ -939,13 +980,13 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '".$id."' ".$selected.">".html_entity_decode($row['transittime_code']). "</option>"; 
+            $selectctrl .="<option value = '".$id."' ".$selected.">".html_entity_decode($row['transittime_code']). "</option>";
         }
         return $selectctrl;
     }
     public function getFreightchargeSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT freightcharge_id,freightcharge_code,freightcharge_desc
-                FROM db_freightcharge 
+                FROM db_freightcharge
                 WHERE freightcharge_id >0 and freightcharge_status = 1 $wherestring
                 ORDER BY freightcharge_id ASC";
         if($shownull =="Y"){
@@ -960,13 +1001,13 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '".$id."' ".$selected.">".html_entity_decode($row['freightcharge_code']). "</option>"; 
+            $selectctrl .="<option value = '".$id."' ".$selected.">".html_entity_decode($row['freightcharge_code']). "</option>";
         }
         return $selectctrl;
     }
     public function getPointofdeliverySelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT pointofdelivery_id,pointofdelivery_code,pointofdelivery_desc
-                FROM db_pointofdelivery 
+                FROM db_pointofdelivery
                 WHERE pointofdelivery_id >0 and pointofdelivery_status = 1 $wherestring
                 ORDER BY pointofdelivery_id ASC";
         if($shownull =="Y"){
@@ -981,13 +1022,13 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '".$id."' ".$selected.">".html_entity_decode($row['pointofdelivery_code']). "</option>"; 
+            $selectctrl .="<option value = '".$id."' ".$selected.">".html_entity_decode($row['pointofdelivery_code']). "</option>";
         }
         return $selectctrl;
     }
     public function getPrefixSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT prefix_id,prefix_code,prefix_desc
-                FROM db_prefix 
+                FROM db_prefix
                 WHERE prefix_id >0 and prefix_status = 1 $wherestring
                 ORDER BY prefix_id ASC";
         if($shownull =="Y"){
@@ -1002,13 +1043,13 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '".$id."' ".$selected.">".html_entity_decode($row['prefix_code']). "</option>"; 
+            $selectctrl .="<option value = '".$id."' ".$selected.">".html_entity_decode($row['prefix_code']). "</option>";
         }
         return $selectctrl;
     }
     public function getRemarksSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT remarks_id,remarks_code,remarks_desc
-                FROM db_remarks 
+                FROM db_remarks
                 WHERE remarks_id >0 and remarks_status = 1 $wherestring
                 ORDER BY remarks_id ASC";
         if($shownull =="Y"){
@@ -1023,11 +1064,11 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '".$id."' ".$selected.">".html_entity_decode($row['remarks_code']). "</option>"; 
+            $selectctrl .="<option value = '".$id."' ".$selected.">".html_entity_decode($row['remarks_code']). "</option>";
         }
         return $selectctrl;
     }
-    
+
     public function getExpensesSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT expenses_id,expenses_code from db_expenses WHERE (expenses_id = '$pid' or expenses_id >0) and expenses_status = 1 $wherestring
                 ORDER BY expenses_seqno,expenses_code ASC";
@@ -1044,7 +1085,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
@@ -1064,7 +1105,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -1084,7 +1125,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>"; 
+            $selectctrl .='<option value = "' . $id . '"' . $selected . ">$code</option>";
         }
         return $selectctrl;
     }
@@ -1103,7 +1144,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -1122,7 +1163,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -1141,7 +1182,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -1160,7 +1201,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -1179,13 +1220,13 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .='<option value = "' . $id . '" ' . $selected . '>' . $code . '</option>'; 
+            $selectctrl .='<option value = "' . $id . '" ' . $selected . '>' . $code . '</option>';
         }
         return $selectctrl;
     }
     public function getEmployeeSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT empl_id,CONCAT(empl_code,' - ',empl_name) as empl_name from db_empl WHERE (empl_id = '$pid' or empl_id >0) and empl_status = 1 $wherestring
-                ORDER BY empl_seqno,empl_name ASC"; 
+                ORDER BY empl_seqno,empl_name ASC";
 
         if($shownull =="Y"){
             $selectctrl .="<option value = '' SELECTED='SELECTED'>Select One</option>";
@@ -1199,7 +1240,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -1218,12 +1259,12 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
     public function getSubconWorkerSelectCtrl($pid,$shownull="Y",$wherestring=''){
-        $sql = "SELECT pe.pempl_id,CONCAT(pe.pempl_nric,' - ',pe.pempl_name,' - ',p.partner_name) as pempl_name 
+        $sql = "SELECT pe.pempl_id,CONCAT(pe.pempl_nric,' - ',pe.pempl_name,' - ',p.partner_name) as pempl_name
                 FROM db_pempl pe
                 INNER JOIN db_partner p ON p.partner_id = pe.pempl_partner_id
                 WHERE (pe.pempl_id = '$pid' or pe.pempl_id >0) $wherestring
@@ -1240,7 +1281,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
@@ -1259,14 +1300,14 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
-    
+
     public function getProjectQuotationItemsSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT ordl.*
-                FROM db_order o 
+                FROM db_order o
                 INNER JOIN db_ordl ordl ON ordl.ordl_order_id = o.order_id
                 WHERE (ordl.ordl_id = '$pid' or ordl.ordl_id >0) and o.order_status IN ('1','2')  $wherestring
                 ORDER BY ordl.ordl_pro_no ASC";
@@ -1282,13 +1323,13 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
     public function getMaterialSupplierSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT p.partner_id,CONCAT(p.partner_code,' - ',p.partner_name) as name
-                FROM db_materialline m 
+                FROM db_materialline m
                 INNER JOIN db_partner p ON p.partner_id = m.materialline_partner_id
                 WHERE (m.materialline_id = '$pid' or m.materialline_id >0) $wherestring
                 ORDER BY p.partner_name ASC";
@@ -1304,13 +1345,13 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
     public function getProductLabourSelectCtrl($pid,$shownull="Y",$wherestring=''){
         $sql = "SELECT p.prolabour_id,l.labour_code as name
-                FROM db_prolabour p 
+                FROM db_prolabour p
                 INNER JOIN db_labour l ON l.labour_id = p.prolabour_labour_id
                 WHERE (p.prolabour_id = '$pid' or p.prolabour_id >0) $wherestring
                 ORDER BY l.labour_code ASC";
@@ -1326,7 +1367,7 @@ class SelectControl {
             }else{
                 $selected = "";
             }
-            $selectctrl .="<option value = '$id' $selected>$code</option>"; 
+            $selectctrl .="<option value = '$id' $selected>$code</option>";
         }
         return $selectctrl;
     }
