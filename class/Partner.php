@@ -1058,7 +1058,7 @@ class Partner {
 //                            $(".import_btn").attr("disabled",true);
                         },
                         success:function (data){
-                            jsonObj = eval('('+ data +')');
+                            jsonObj = eval('('+ data +')');                      
                             if(jsonObj.status == 1){
                                 $("#targetLayer").html("<font color = 'green'><b>Import Success. &nbsp;&nbsp;&nbsp;" + jsonObj.data + " rows effect.</b></font>");
                                 partner_table.ajax.url("partner.php?action=getDataTable");
