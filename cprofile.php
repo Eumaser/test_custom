@@ -2,14 +2,14 @@
     include_once 'connect.php';
     include_once 'config.php';
     include_once 'include_function.php';
-    include_once 'class/Cprofile.php'; 
+    include_once 'class/Cprofile.php';
     include_once 'class/SavehandlerApi.php';
     include_once 'class/GeneralFunction.php';
     $o = new Cprofile();
     $s = new SavehandlerApi();
     $gf = new GeneralFunction();
     $o->save = $s;
-    
+
     $action = escape($_REQUEST['action']);
     $o->cprofile_id = escape($_REQUEST['cprofile_id']);
     $o->cprofile_name = escape($_POST['cprofile_name']);
@@ -28,9 +28,10 @@
     $o->cprofile_gst_no = escape($_POST['cprofile_gst_no']);
     $o->cprofile_gst = escape($_POST['cprofile_gst']);
     $o->cprofile_country = escape($_POST['cprofile_country']);
+    $o->cprofile_website = escape($_POST['cprofile_website']);
+    $o->cprofile_business_no = escape($_POST['cprofile_business_no']);
 
 
-    
     switch ($action) {
 //        case "create":
 //            if($o->create()){
@@ -43,7 +44,7 @@
 //                rediectUrl("cprofile.php",getSystemMsg(0,'Create data'));
 //            }
 //            exit();
-//            break; 
+//            break;
         case "update":
             if($o->update()){
                 $_SESSION['status_alert'] = 'alert-success';
@@ -55,7 +56,7 @@
                 rediectUrl("cprofile.php?action=edit&cprofile_id=$o->cprofile_id",getSystemMsg(0,'Update data'));
             }
             exit();
-            break;    
+            break;
         case "edit":
             if($o->fetchCprofileDetail(" AND cprofile_id = '$o->cprofile_id'","","",1)){
                 $o->getInputForm("update");
@@ -68,10 +69,8 @@
             $o->getInputForm('create');
             exit();
             break;
-        default: 
+        default:
             $o->getListing();
             exit();
             break;
     }
-
-
