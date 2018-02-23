@@ -2,7 +2,7 @@
     include_once 'connect.php';
     include_once 'config.php';
     include_once 'include_function.php';
-    include_once 'class/Order.php'; 
+    include_once 'class/Order.php';
     include_once 'class/Partner.php';
     include_once 'class/SavehandlerApi.php';
     include_once 'class/GeneralFunction.php';
@@ -19,6 +19,7 @@
     $o->custsupp_label = 'Customer';
     $o->salesorderedby_label = "Sales Person";
     $o->isstock = 0;
+
 
     $o->order_id = escape($_REQUEST['order_id']);
     $o->order_no = escape($_POST['order_no']);
@@ -38,7 +39,11 @@
     $o->order_fax = escape($_POST['order_fax']);
     $o->order_subcon = escape($_POST['order_subcon']);
     $o->order_project_id = escape($_POST['order_project_id']);
-    
+    $o->order_attentionto_name = escape($_POST['order_attentionto_name']);
+    $o->order_attentionto = escape($_POST['order_attentionto']);
+    $o->order_attentionto_email = escape($_POST['order_attentionto_email']);
+    $o->order_doc_type = escape($_POST['order_doc_type']);
+
     $o->order_delivery_date = escape($_POST['order_delivery_date']);
     $o->order_self_correction = escape($_POST['order_self_correction']);
     $o->order_supp_delivery = escape($_POST['order_supp_delivery']);
@@ -46,7 +51,7 @@
     $o->order_agc_requestby = escape($_POST['order_agc_requestby']);
     $o->order_approvedby = escape($_POST['order_approvedby']);
     $o->order_verifiedby = escape($_POST['order_verifiedby']);
-    
+
     $o->order_currency = escape($_POST['order_currency']);
     $o->order_currencyrate = escape($_POST['order_currencyrate']);
     if($o->order_currencyrate <= 1){
@@ -75,7 +80,23 @@
     $o->order_term_remark = escape($_POST['order_term_remark']);
     $o->generate_document_type = escape($_POST['generate_document_type']);
     $o->invoice_id = escape($_POST['invoice_id']);
-    
+
+
+    //edr variables to be used in orderfork table, using order class as base
+    $o->orderfork_brand = escape($_POST['orderfork_brand']);
+    $o->orderfork_model = escape($_POST['orderfork_model']);
+    $o->orderfork_capacity = escape($_POST['orderfork_capacity']);
+    $o->orderfork_height = escape($_POST['orderfork_height']);
+    $o->orderfork_mast = escape($_POST['orderfork_mast']);
+    $o->orderfork_length = escape($_POST['orderfork_length']);
+    $o->orderfork_attachment =escape($_POST['orderfork_attachment']);
+    $o->orderfork_acc = escape($_POST['orderfork_acc']);
+    $o->orderfork_serial =escape($_POST['orderfork_serial']);
+    $o->orderfork_battery = escape($_POST['orderfork_battery']);
+    $o->orderfork_bat_charger = escape($_POST['orderfork_bat_charger']);
+    $o->orderfork_snr = escape($_POST['orderfork_snr']);
+
+
     $o->order_attachment = $_FILES['order_attachment'];
     if($o->ordl_seqno == ""){
         $o->ordl_seqno = 10;
@@ -92,13 +113,14 @@
     if(!is_numeric($o->discount_amount)){
         $o->discount_amount = 0;
     }
-   //Generate Parameter
+   //Generate Paramet
    $o->generateordlid = $_POST['generateordlid'];
    $o->generatecheckbox = $_POST['generatecheckbox'];
    $o->generateqty = $_POST['generateqty'];
    $action = $_REQUEST['action'];
    switch($action){
        case "create":
+    //    print_r(gettype($o->order_doc_type));die();
                 if($o->createOrder()){
                     rediectUrl("$o->document_url?action=edit&order_id=$o->order_id",getSystemMsg(1,'Create data successfully'));
                 }else{
@@ -106,6 +128,9 @@
                 }
        break;
        case "edit":
+            //$test = $o->fetchOrderDetail(" AND order_id = '$o->order_id'","","",1);
+      //      echo '<pre>';
+          //  print_r($test);die();
                 if(($o->fetchOrderDetail(" AND order_id = '$o->order_id'","","",1))  && ($o->order_id > 0)){
                     $o->getInputForm("update");
                 }else{
@@ -129,7 +154,7 @@
                }
        break;
        case "saveline":
-       case "updateline":    
+       case "updateline":
             $o->calculateLineAmount();
 
             if($o->ordl_id > 0 && $action == 'updateline'){
@@ -205,8 +230,8 @@
        case "createForm":
             $o->getInputForm('create');
             exit();
-            break;  
-       default:   
+            break;
+       default:
             if($_SESSION['empl_group'] > 1){
                 $wherestring = " AND o.order_outlet = '{$_SESSION['empl_outlet']}'";
             }
@@ -214,7 +239,7 @@
 
             $o->getListing();
             exit();
-            break; 
+            break;
     }
-    
+
 ?>
