@@ -7,6 +7,7 @@
     include_once 'class/GeneralFunction.php';
     include_once 'class/SelectControl.php';
     include_once 'language.php';
+    include_once 'class/PHPExcel.php';
     $o->select = new SelectControl();
     $o = new Partner();
     $s = new SavehandlerApi();
@@ -437,11 +438,88 @@
                     }while($data = fgetcsv($handle,20000));
                 }else if($_FILES["import_file"]['type'] == 'application/vnd.ms-excel'){
                   //insert code here edrs
-                  print_r('test');
-                  die();
+
+                  try {
+                    $inputFileType = \PHPExcel_IOFactory::identify($file);
+                    $objReader = \PHPExcel_IOFactory::createReader($inputFileType);
+                    $objPHPExcel = $objReader->load($file);
+                  } catch (Exception $e) {
+                    die('Error');
+                  }
+                  //$hrow = 4;
+                  $test = [];
+                //  var_dump($test);die();
+                  $sheet = $objPHPExcel->getSheet(0);//sheet commodities
+                  $highestRow = $sheet->getHighestRow();
+                  $highestColumn = $sheet->getHighestColumn();
+                    $i = 0;
+                    $sd = 0;
+                  //var_dump($highestRow);die();
+                  for ($row=2; $row<=$highestRow ; $row++) {
+                      $i++;
+                      $rowData = $sheet->rangeToArray('A'.$row.':'.$highestColumn.$row,NULL,TRUE,FALSE);
+
+                      $partner_code = $rowData[$i][0];
+                      $sql_select= "SELECT partner_id FROM db_partner WHERE partner_code = '$partner_code'";
+                      $query_select = mysql_query($sql_select);
+                      $select = mysql_fetch_array($query_select);
+
+                      $country_code = $rowData[$i][4];
+                    //    $country_code = 'GER';
+                      $sql_country = "SELECT country_id FROM db_country WHERE country_code = '$country_code'";
+                      $country_select = mysql_query($sql_country);
+                      $country = mysql_fetch_array($country_select);
+                      if (!empty($country)) {
+                         $country_id = $country['country_id'];
+                      }else{
+                         $country_id = 0;
+                      }
+
+                      $o->partner_code = $rowData[$i][0];
+                      $o->partner_tel =  $rowData[$i][1];
+                      $o->partner_tel2 = $rowData[$i][2];
+                      $o->partner_suburb = $rowData[$i][3];
+                      $o->partner_country = $country_id;//4
+                      $o->partner_bill_address = $rowData[$i][5];
+                      $o->partner_name = $rowData[$i][6];
+                      $o->partner_email = $rowData[$i][7];
+                      $o->partner_fax = $rowData[$i][8];
+                      $o->partner_remark = $rowData[$i][9];
+                      $o->partner_status = 1;
+                      $o->partner_iscustomer = 1;
+                      $o->partner_address_type = 1;
+
+                      if (!empty($select) ) {
+                        $o->partner_id = $select['partner_id'];
+                        if($o->update()){
+                            $b = true;
+                        }else{
+                            $b = false;
+                        }
+                      }else{
+                        if ($o->create()) {
+                          $b = true;
+                        }else{
+                         $b = false;
+                        }
+
+                      }
+
+                      if($b){
+                         $sd++;
+                      }
+
+
+                    //  var_dump($country);die();
+                  }
+                //  echo '<pre>';
+                //  print_r($test);die();
+            //    print_r($test);
+            //    die();
+                  echo json_encode(array('status'=>1,'data'=>$sd));
                 }
 
-                echo json_encode(array('status'=>1,'data'=>$s));
+
            }else{
                echo json_encode(array('status'=>0,'data'=>0));
            }
