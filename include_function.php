@@ -24,13 +24,13 @@ if($_SESSION['customer_id'] > 0){
         $total = 0;
     }
     if($total != 1){
-       header ("Location: " . webroot . "404.php"); 
+       header ("Location: " . webroot . "404.php");
        session_destroy();
     }
 }
 
 
-//check permission 
+//check permission
     if($_SERVER['HTTP_X_REQUESTED_WITH'] != "XMLHttpRequest"){
         $_SESSION[$_SESSION['user_login_id']] = 0;
         $file_server_name = explode('/',$_SERVER["PHP_SELF"]);
@@ -42,12 +42,12 @@ if($_SESSION['customer_id'] > 0){
                 unset($_SESSION['empl_id']);
                 unset($_SESSION['empl_name']);
                 unset($_SESSION['empl_code']);
-                unset($_SESSION['empl_login_expiry']);  
+                unset($_SESSION['empl_login_expiry']);
                 unset($_SESSION['empl_group']);
                 unset($_SESSION['empl_department']);
-                unset($_SESSION['empl_outlet']);  
-                unset($_SESSION['empl_outlet_code']);  
-              rediectUrl("login.php",getSystemMsg(0,'Sorry,Permission Denied.</br>Please Contact With Your Administrator.'));  
+                unset($_SESSION['empl_outlet']);
+                unset($_SESSION['empl_outlet_code']);
+              rediectUrl("login.php",getSystemMsg(0,'Sorry,Permission Denied.</br>Please Contact With Your Administrator.'));
 
               exit();
             }
@@ -65,7 +65,7 @@ function getCompanyInfo(){
     $com_info = mysql_fetch_array($query);
 
     if($com_info['cprofile_contactemail'] == ""){
-       $com_info['cprofile_contactemail'] = $com_info['cprofile_email']; 
+       $com_info['cprofile_contactemail'] = $com_info['cprofile_email'];
     }
     return $com_info;
 }
@@ -114,22 +114,22 @@ function escape($sTemp){
     return $sTemp;
 }
 function rescape($sTemp){
-    return htmlentities($sTemp, ENT_COMPAT, 'UTF-8'); 
+    return htmlentities($sTemp, ENT_COMPAT, 'UTF-8');
 }
 function getData($table,$wherestring,$field_get){
     $sql = "SELECT $field_get FROM $table $wherestring ";
     $query = mysql_query($sql);
-    
+
     return $query;
 }
 function rediectUrl($url,$msg,$time=1){
     global $include_webroot;
-    
+
 
         header("Refresh: $time;url=$url");
         include_once 'css.php';
                echo <<<EOF
-    
+
 	<style type="text/css">
 	  body {
 		padding-bottom: 40px;
@@ -138,7 +138,7 @@ function rediectUrl($url,$msg,$time=1){
 		padding: 9px 0;
 	  }
 	</style>
-   	
+
 
 EOF;
         echo $msg;
@@ -164,32 +164,30 @@ function get_client_ip() {
 }
 function getSystemMsg($status,$type){
      global $include_webroot;
-     
+
     if($status == 1){
         $html .= <<<EOF
-              <div class="box-content">   
+              <div class="box-content">
                 <div align = 'center' class="alert alert-success">
                           <strong>$type .</strong>
-                </div>  
+                </div>
               </div>
 EOF;
-                
+
     }else if($status == 0){
         $html .= <<<EOF
-              <div class="box-content">   
+              <div class="box-content">
                 <div align = 'center' class="alert alert-error">
                           <strong>$type .</strong>
-                </div>  
+                </div>
               </div>
 EOF;
-        
+
     }
-    
+
     return $html;
 }
 function get_prefix_value($refn_name,$use = false,$document_date,$subprefix = ""){
-        
-        
 
         // get the current value first
         $sql = "SELECT * FROM db_refn WHERE refn_name = '$refn_name'";
@@ -218,7 +216,7 @@ function get_prefix_value($refn_name,$use = false,$document_date,$subprefix = ""
                    if($refn_name=="Quotation"){
                        // return $refn_prefix . $subprefix .  $return_value .'/'.date("y-m",strtotime($document_date)) . $refn_suffix; // <-- Remove Suffix by Ivan on 2017-11-01
                        return $refn_prefix . $subprefix .  $return_value .'/'.date("y-m",strtotime($document_date));
-                   }else if($refn_name=="Sales Invoice" || $refn_name=="Purchase Order"){
+                   }else if($refn_name=="Sales Invoice" || $refn_name=="Purchase Order" || $refn_name =="Maintenance"){
                         return $refn_prefix . date("ym",strtotime($document_date)) .  $return_value;
                    }else if($refn_name=="e-Sales Invoice"){
                         return $refn_prefix . date("ym",strtotime($document_date)) .  $return_value . $refn_suffix;
@@ -227,16 +225,16 @@ function get_prefix_value($refn_name,$use = false,$document_date,$subprefix = ""
                    }else{
                        return $refn_prefix . $subprefix .  $return_value . $refn_suffix;
                    }
-                    
+
                 }else{
                     return -1;
                 }
-            }else{ 
+            }else{
                     //display value only
                     // before returning value to user, applies padding (if required)
                    $return_value = str_pad($return_value,$refn_length, "0", STR_PAD_LEFT);
 //                   $return_value = $refn_prefix . $return_value;
-                   
+
                    if($refn_name == 'Order' || $refn_name == "Offer" || $refn_name == "Delivery Order" || $refn_name == "Tax Invoice" || $refn_name == "Purchase Order"){
                   //  $return_value = $refn_prefix . date("Y",strtotime($document_date)) . " - " . $return_value;
 
@@ -255,7 +253,7 @@ function get_prefix_value($refn_name,$use = false,$document_date,$subprefix = ""
                             return $refn_prefix . $return_value;
                         }
                 }
-                    
+
             }
         }else{
             return -1;
@@ -268,10 +266,10 @@ function get_prefix_value($refn_name,$use = false,$document_date,$subprefix = ""
             echo "<span class='label label-success'>Active</span>";
         break;
         case 0:
-            echo "<span class='label label-important'>In-Active</span>";   
+            echo "<span class='label label-important'>In-Active</span>";
         break;
         default:
-            echo "<span class='label label-warning'>Un-know status</span>";   
+            echo "<span class='label label-warning'>Un-know status</span>";
         break;
         }
     }
@@ -280,9 +278,9 @@ function get_prefix_value($refn_name,$use = false,$document_date,$subprefix = ""
     if($group_id == -1 && $_SESSION['empl_code'] == 'Webmaster' && $_SESSION['empl_id'] == 10000){
         return true;
     }
-    $sql1 = "SELECT COUNT(*) as total 
-                FROM db_menuprm 
-                WHERE menuprm_prmcode = '$status' AND 
+    $sql1 = "SELECT COUNT(*) as total
+                FROM db_menuprm
+                WHERE menuprm_prmcode = '$status' AND
                 menuprm_menu_id = '$menu_id' AND menuprm_group_id = '$group_id'";
     $query1 = mysql_query($sql1);
     $user_prm = array();
@@ -294,10 +292,10 @@ function get_prefix_value($refn_name,$use = false,$document_date,$subprefix = ""
     }
     $total1 = 1;
     if($status != 'access'){
-       $sql2 = "SELECT COUNT(*) as total 
-                FROM db_menuprm WHERE menuprm_prmcode = 'access' AND 
+       $sql2 = "SELECT COUNT(*) as total
+                FROM db_menuprm WHERE menuprm_prmcode = 'access' AND
                 menuprm_menu_id = '$menu_id' AND menuprm_group_id = '$group_id'";
-       $query2 = mysql_query($sql2); 
+       $query2 = mysql_query($sql2);
        $total1 = 0;
         if($row2 = mysql_fetch_array($query2)){
             $total1 = $row2['total'];
@@ -306,7 +304,7 @@ function get_prefix_value($refn_name,$use = false,$document_date,$subprefix = ""
         }
     }
     if($status == 'generate'){
-       $total1 = 1;//if is generate then we allow 
+       $total1 = 1;//if is generate then we allow
     }
     if($total > 0 && $total1 > 0){
         return true;
@@ -328,7 +326,7 @@ function generateTimeSheet($from,$to,$plus,$selectvalue){
         }else{
             $selected = " ";
         }
-        $html .= "<option value = '$newfrom' $selected>$newfrom</option>";  
+        $html .= "<option value = '$newfrom' $selected>$newfrom</option>";
     }
     return $html;
 }
@@ -370,7 +368,7 @@ function format_date_database($datetime){
    }else{
        return $new_date_format;
    }
-   
+
 }
 function get_timestamp($datetime){
     $arr_datetime = explode(" ", $datetime);
@@ -398,7 +396,7 @@ function get_timestamp($datetime){
 function translateToWords($number) {
 /*****
      * A recursive function to turn digits into words
-     * Numbers must be integers from -999,999,999,999 to 999,999,999,999 inclussive.    
+     * Numbers must be integers from -999,999,999,999 to 999,999,999,999 inclussive.
      *
      *  (C) 2010 Peter Ajtai
      *    This program is free software: you can redistribute it and/or modify
@@ -417,9 +415,9 @@ function translateToWords($number) {
     // zero is a special case, it cause problems even with typecasting if we don't deal with it here
     $max_size = pow(10,18);
     if (!$number) return "zero";
-    if (is_int($number) && $number < abs($max_size)) 
-    {            
-        switch ($number) 
+    if (is_int($number) && $number < abs($max_size))
+    {
+        switch ($number)
         {
             // set up some rules for converting digits to words
             case $number < 0:
@@ -436,7 +434,7 @@ function translateToWords($number) {
             case 3:
                 $string = "Three";
                 break;
-            case 4: 
+            case 4:
                 $string = "Four";
                 break;
             case 5:
@@ -453,66 +451,66 @@ function translateToWords($number) {
                 break;
             case 9:
                 $string = "Nine";
-                break;                
+                break;
             case 10:
                 $string = "Ten";
-                break;            
+                break;
             case 11:
                 $string = "Eleven";
-                break;            
+                break;
             case 12:
                 $string = "Twelve";
-                break;            
+                break;
             case 13:
                 $string = "Thirteen";
-                break;            
+                break;
             // fourteen handled later
             case 15:
                 $string = "Fifteen";
-                break;            
+                break;
             case $number < 20:
                 $string = translateToWords($number%10);
                 // eighteen only has one "t"
                 if ($number == 18)
                 {
                 $suffix = "Een";
-                } else 
+                } else
                 {
                 $suffix = "Teen";
                 }
                 $string .= $suffix;
-                break;            
+                break;
             case 20:
                 $string = "Twenty";
-                break;            
+                break;
             case 30:
                 $string = "Thirty";
-                break;            
+                break;
             case 40:
                 $string = "Forty";
-                break;            
+                break;
             case 50:
                 $string = "Fifty";
-                break;            
+                break;
             case 60:
                 $string = "Sixty";
-                break;            
+                break;
             case 70:
                 $string = "Seventy";
-                break;            
+                break;
             case 80:
                 $string = "Eighty";
-                break;            
+                break;
             case 90:
                 $string = "Ninety";
-                break;                
+                break;
             case $number < 100:
                 $prefix = translateToWords($number-$number%10);
                 $suffix = translateToWords($number%10);
                 $string = $prefix . "-" . $suffix;
                 break;
             // handles all number 100 to 999
-            case $number < pow(10,3):                    
+            case $number < pow(10,3):
                 // floor return a float not an integer
                 $prefix = translateToWords(intval(floor($number/pow(10,2)))) . " Hundred";
                 if ($number%pow(10,2)) $suffix = " and " . translateToWords($number%pow(10,2));
@@ -529,33 +527,31 @@ function translateToWords($number) {
                 $prefix = translateToWords(intval(floor($number/pow(10,6)))) . " Million";
                 if ($number%pow(10,6)) $suffix = translateToWords($number%pow(10,6));
                 $string = $prefix . " " . $suffix;
-                break;                    
+                break;
             case $number < pow(10,12):
                 // floor return a float not an integer
                 $prefix = translateToWords(intval(floor($number/pow(10,9)))) . " Billion";
                 if ($number%pow(10,9)) $suffix = translateToWords($number%pow(10,9));
-                $string = $prefix . " " . $suffix;    
+                $string = $prefix . " " . $suffix;
                 break;
             case $number < pow(10,15):
                 // floor return a float not an integer
                 $prefix = translateToWords(intval(floor($number/pow(10,12)))) . " Trillion";
                 if ($number%pow(10,12)) $suffix = translateToWords($number%pow(10,12));
-                $string = $prefix . " " . $suffix;    
-                break;        
+                $string = $prefix . " " . $suffix;
+                break;
             // Be careful not to pass default formatted numbers in the quadrillions+ into this function
             // Default formatting is float and causes errors
             case $number < pow(10,18):
                 // floor return a float not an integer
                 $prefix = translateToWords(intval(floor($number/pow(10,15)))) . " Quadrillion";
                 if ($number%pow(10,15)) $suffix = translateToWords($number%pow(10,15));
-                $string = $prefix . " " . $suffix;    
-                break;                    
+                $string = $prefix . " " . $suffix;
+                break;
         }
     } else
     {
         echo "ERROR with - $number<br/> Number must be an integer between -" . number_format($max_size, 0, ".", ",") . " and " . number_format($max_size, 0, ".", ",") . " exclussive.";
     }
-    return $string;    
+    return $string;
 }
-
-
