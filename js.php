@@ -16,32 +16,66 @@
     <!-- AdminLTE App -->
     <script src="dist/js/app.min.js"></script>
     <!-- AdminLTE for demo purposes -->
-    
+
     <script>
-  
+
       var system_gst_percent = "<?php  echo system_gst_percent;?>";
       $(function () {
         //Initialize Select2 Elements
         $(".select2").select2({
             width: '100%',
         });
-        
+
         $('.datepicker').datepicker({
             format: 'dd-M-yyyy',
             autoclose: true,
             pickerPosition: "bottom-left"
         });
 
+        //edr, on document code, QT, DO, SI and Order confirmation. Show forklift input if forklift is selected
+        //forklift id is 2, check table db_doctype
+      //  $('.forklifts').hide();
+        if($('#order_doc_type').val() == '2') {
+            $('.forklifts').show();
+        } else {
+            $('.forklifts').hide();
+        }
+        $('#order_doc_type').change(function(){
+
+            if($('#order_doc_type').val() == '2') {
+                $('.forklifts').show();
+            } else {
+                $('.forklifts').hide();
+            }
+        });
+        
+        //edr dependent dropdown for model. When a brand is selected, auto generate model list based on brand
+        $('#orderfork_brand').change(function(){
+
+          //  var data = "action=getForkModel&fork_id="+$(this).val()
+            var data = "action=getForkModel&fork_brand="+$(this).val();
+             $.ajax({
+                type: "POST",
+                url: "forklift.php",
+                data:data,
+                success: function(data) {
+                    var jsonObj = eval ("(" + data + ")");
+                    $('#orderfork_model').html(jsonObj.fork_model);
+                }
+             });
+        });
+
+
         $('.top_language').click(function(){
 
             var data = "action=switchLanguage&language="+$(this).attr('language');
              $.ajax({
                 type: "POST",
-                url: "langsetting.php",      
+                url: "langsetting.php",
                 data:data,
                 success: function(data) {
                     window.location.reload();
-                    
+
                 }
              });
         });
@@ -64,7 +98,7 @@
             }
             return x1 + x2;
        }
-      function RoundNum(num, length) { 
+      function RoundNum(num, length) {
             var number = parseFloat(Math.round(num * Math.pow(10, length)) / Math.pow(10, length)).toFixed(2);
             return number;
        }
