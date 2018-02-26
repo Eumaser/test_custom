@@ -32,9 +32,11 @@
             pickerPosition: "bottom-left"
         });
 
-        //edr, on document code, QT, DO, SI and Order confirmation. Show forklift input if forklift is selected
+        //For DO and QT
         //forklift id is 2, check table db_doctype
       //  $('.forklifts').hide();
+
+       var tests = $('#order_doc_type').val();
         if($('#order_doc_type').val() == '2') {
             $('.forklifts').show();
         } else {
@@ -50,6 +52,7 @@
         });
 
         //edr dependent dropdown for model. When a brand is selected, auto generate model list based on brand
+        //For DO and QT
         $('#orderfork_brand').change(function(){
           //  var data = "action=getForkModel&fork_id="+$(this).val()
             var data = "action=getForkModel&fork_brand="+$(this).val();
@@ -63,6 +66,37 @@
                 }
              });
         });
+        
+        //For Sales Invoice
+        if($('#invoice_doc_type').val() == '2') {
+          console.log('test');
+            $('.forklifts-inv').show();
+        } else {
+            $('.forklifts-inv').hide();
+        }
+        $('#invoice_doc_type').change(function(){
+
+            if($('#invoice_doc_type').val() == '2') {
+                $('.forklifts-inv').show();
+            } else {
+                $('.forklifts-inv').hide();
+            }
+        });
+
+        $('#invfork_brand').change(function(){
+          //  var data = "action=getForkModel&fork_id="+$(this).val()
+            var data = "action=getForkModel&fork_brand="+$(this).val();
+             $.ajax({
+                type: "POST",
+                url: "forklift.php",
+                data:data,
+                success: function(data) {
+                    var jsonObj = eval ("(" + data + ")");
+                    $('#invfork_model').html(jsonObj.fork_model);
+                }
+             });
+        });
+
 
 
         $('.top_language').click(function(){
