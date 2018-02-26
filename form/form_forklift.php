@@ -1,6 +1,8 @@
 
 <div class="forklifts">
   <div class="form-group">
+    <input type="hidden" class="form-control" id="orderfork_id" name="orderfork_id" value = "<?php echo $this->orderfork_id;?>" placeholder="Height" >
+
         <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Brand</label>
         <div class="<?php echo $field_col_sm;?>">
           <select class="form-control select2" id="orderfork_brand" name="orderfork_brand">
