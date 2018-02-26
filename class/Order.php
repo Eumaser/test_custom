@@ -161,6 +161,9 @@ class Order {
     //    echo '<pre>';
     //    print_r($this->order_fax);
     //    die();
+
+
+
         $remark = "Update $this->document_code.<br> Document No : $this->order_no";
         if(!$this->save->UpdateData($table_field,$table_value,'db_order','order_id',$remark,$this->order_id)){
            return false;
@@ -183,7 +186,7 @@ class Order {
                'orderfork_snr',
             ];
             $fork_value = [
-            //  $this->order_id,
+              $this->order_id,
               $this->orderfork_brand,
               $this->orderfork_model,
               $this->orderfork_capacity,
@@ -198,9 +201,15 @@ class Order {
               $this->orderfork_snr,
            ];
 
+      //     print_r($this->document_type);echo'<br>';
+      //     print_r($this->order_doc_type);die();
+
            if ($this->document_type == 'DO' && $this->order_doc_type == '2') {
+
                $remark = "Update to orderfork $this->document_code.<br> Document No : $this->order_no";
-               $this->save->SaveData($fork_field,$fork_value,'db_orderfork','orderfork_id',$remark);
+            //   $test = $this->save->UpdateData($fork_field,$fork_value,'db_orderfork','orderfork_id',$remark,$this->orderfork_id);
+            //   print_r($test);die();
+               $this->save->UpdateData($fork_field,$fork_value,'db_orderfork','orderfork_id',$remark,$this->orderfork_id);
            }else{
                unset($fork_value);
            }
@@ -370,28 +379,7 @@ class Order {
         return $total_taxamt;
     }
     public function fetchOrderDetail($wherestring,$orderstring,$wherelimit,$type){
-      /*  $sql = "SELECT o.*,de.delivery_desc as delivery_desc,
-                            co.country_desc as country_desc,
-                            fr.freightcharge_desc as freightcharge_desc,
-                            pd.pointofdelivery_desc as pointofdelivery_desc,
-                            pf.prefix_desc as prefix_desc,
-                            pr.price_desc as price_desc,
-                            rm.remarks_desc as remarks_desc,
-                            tt.transittime_desc as transittime_desc,
-                            va.validity_desc as validity_desc,
-                            pt.paymentterm_desc as paymentterm_desc
-                FROM db_order o
-                LEFT JOIN db_paymentterm pt ON pt.paymentterm_id = o.order_paymentterm_id
-                    LEFT JOIN db_delivery de ON de.delivery_id = o.order_delivery_id
-                    LEFT JOIN db_price pr ON pr.price_id = o.order_price_id
-                    LEFT JOIN db_validity va ON va.validity_id = o.order_validity_id
-                    LEFT JOIN db_transittime tt ON tt.transittime_id = o.order_transittime_id
-                    LEFT JOIN db_freightcharge fr ON fr.freightcharge_id = o.order_freightcharge_id
-                    LEFT JOIN db_pointofdelivery pd ON pd.pointofdelivery_id = o.order_pointofdelivery_id
-                    LEFT JOIN db_prefix pf ON pf.prefix_id = o.order_prefix_id
-                    LEFT JOIN db_remarks rm ON rm.remarks_id = o.order_remarks_id
-                    LEFT JOIN db_countryitem co ON co.country_id = o.order_country_id
-                WHERE o.order_id > 0  $wherestring $orderstring $wherelimit";*/
+
           $sql =  "SELECT o.*,f.*,de.delivery_desc as delivery_desc,
                                   co.country_desc as country_desc,
                                   fr.freightcharge_desc as freightcharge_desc,
@@ -897,7 +885,7 @@ class Order {
                             case "PU":
                                 $this->getPickupForm($label_col_sm,$field_col_sm,$disabled);
                                 break;
-                            default:''
+                            default:
 //                                $this->getPRFForm($label_col_sm,$field_col_sm,$disabled);
                                 $this->getOrderForm($label_col_sm,$field_col_sm,$disabled);
                                 break;
@@ -3773,8 +3761,10 @@ o               WHERE  $wherestring";
     <?php } ?>
 
 
-    <!--edr lift for DO-->
+    <!--edr lift-->
     <div class="forklifts">
+      <input type="hidden" class="form-control" id="orderfork_id" name="orderfork_id" value = "<?php echo $this->orderfork_id;?>" placeholder="Height" >
+
       <div class="form-group">
             <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Brand</label>
             <div class="<?php echo $field_col_sm;?>">
@@ -3906,6 +3896,8 @@ o               WHERE  $wherestring";
     <input type ="hidden" name = 'order_agc_requestby' value = '<?php echo $this->order_agc_requestby;?>'/>
     <input type ="hidden" name = 'order_delivery_date' value = '<?php echo $this->order_delivery_date;?>'/>
     <!--edr quotation , order confirm???-->
+
+   <!--edr q--->
     <div class="form-group">
         <label for="order_code" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->document_code;?> No.</label>
         <div class="<?php echo $field_col_sm;?>">
@@ -4157,6 +4149,13 @@ o               WHERE  $wherestring";
                <?php }?>
             </p>
         </div>
+    </div>
+    <!--workflifts-->
+    <div class="form-group">
+      <label for="order_attachment" class="<?php echo $label_col_sm;?> control-label">Test</label>
+      <div class="<?php echo $field_col_sm;?>">
+      <textarea class="form-control" rows="3" id="test" name="test" placeholder="Regards" <?php echo $disabled;?>><?php echo $this->order_regards;?></textarea>
+      </div >
     </div>
 
     <?php
