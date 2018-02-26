@@ -65,7 +65,7 @@ class SavehandlerApi {
        if(mysql_query($sql_insert)){
            $lastInsert_id = $update_id;
            $this->saveRecordInfo($table_field,$table_value,$table,$remark,$date_time,'Update',$lastInsert_id);
-           return true;            
+           return true;
        }else{
            return false;
        }
