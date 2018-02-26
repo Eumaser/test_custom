@@ -100,14 +100,14 @@ class Order {
             $this->orderfork_snr,
           ];
 
-
-          if ($this->document_type == 'DO' && $this->order_doc_type == '2') {
+          $dType =$this->document_type;
+        //  if ($dType == 'DO' && $this->order_doc_type == '2') {
+          if ( ($dType == 'DO' || $dType == 'QT') && $this->order_doc_type == '2') {
             $remark = "Insert to orderfork $this->document_code.<br> Document No : $this->order_no";
             $this->save->SaveData($fork_field,$fork_value,'db_orderfork','orderfork_id',$remark);
           }else{
             unset($fork_value);
           }
-
 
            $this->saveAttachment($this->order_id,$this->order_attachment);
            return true;
@@ -204,11 +204,10 @@ class Order {
       //     print_r($this->document_type);echo'<br>';
       //     print_r($this->order_doc_type);die();
 
-           if ($this->document_type == 'DO' && $this->order_doc_type == '2') {
-
+        //   if ($this->document_type == 'DO' && $this->order_doc_type == '2') {
+          $dType =$this->document_type;
+          if ( ($dType == 'DO' || $dType == 'QT') && $this->order_doc_type == '2') {
                $remark = "Update to orderfork $this->document_code.<br> Document No : $this->order_no";
-            //   $test = $this->save->UpdateData($fork_field,$fork_value,'db_orderfork','orderfork_id',$remark,$this->orderfork_id);
-            //   print_r($test);die();
                $this->save->UpdateData($fork_field,$fork_value,'db_orderfork','orderfork_id',$remark,$this->orderfork_id);
            }else{
                unset($fork_value);
@@ -776,8 +775,10 @@ class Order {
             //edr added brand ctrl selector and model ctrl selector
             $this->brandCrtl = $this->select->getBrandSelectCtrl($this->orderfork_brand,'Y');
             $this->modelCrtl = $this->select->getForkModelCtrl($this->orderfork_model,'Y');
+          //  $this->modelCrtl = $this->select->getForkModelCtrl($this->orderfork_brand,'Y');
+
        // }
-        //if(($this->document_type == 'PRF') || ($this->document_type == 'GRN') || ($this->document_type == 'PRF')){
+        //if(($this->document_type == 'PR F') || ($this->document_type == 'GRN') || ($this->document_type == 'PRF')){
         if($this->document_type == 'PO' || ($this->document_type == 'GRN')){
             $cust_wherestring = " AND partner_issupplier = 1";
             $empl_wherestring = " AND empl_group IN ('3')";
@@ -3764,7 +3765,7 @@ o               WHERE  $wherestring";
     <!--edr lift-->
     <div class="forklifts">
       <input type="hidden" class="form-control" id="orderfork_id" name="orderfork_id" value = "<?php echo $this->orderfork_id;?>" placeholder="Height" >
-
+    
       <div class="form-group">
             <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Brand</label>
             <div class="<?php echo $field_col_sm;?>">
@@ -3908,6 +3909,19 @@ o               WHERE  $wherestring";
             <input type="text" class="form-control datepicker" id="order_date" name="order_date" value = "<?php echo format_date($this->order_date);?>" placeholder=" <?php echo $this->document_code;?> Date" <?php echo $disabled;?>>
         </div>
     </div>
+
+    <?php $type =$this->document_type;  ?>
+        <?php if ($type =='QT'): ?>
+          <div class="form-group">
+            <label for="doc_type" class="<?php echo $label_col_sm;?> control-label">Doc Type</label>
+              <div class="<?php echo $field_col_sm;?>">
+                <select class="form-control select2" id="order_doc_type" name="order_doc_type" >
+                  <?php echo $this->docType ?>
+                </select>
+              </div>
+          </div>
+    <?php endif; ?>
+
     <div class="form-group">
         <label for="order_customer" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->custsupp_label;?> <?php echo $mandatory;?></label>
         <div class="<?php echo $field_col_sm;?>">
@@ -4151,12 +4165,8 @@ o               WHERE  $wherestring";
         </div>
     </div>
     <!--workflifts-->
-    <div class="form-group">
-      <label for="order_attachment" class="<?php echo $label_col_sm;?> control-label">Test</label>
-      <div class="<?php echo $field_col_sm;?>">
-      <textarea class="form-control" rows="3" id="test" name="test" placeholder="Regards" <?php echo $disabled;?>><?php echo $this->order_regards;?></textarea>
-      </div >
-    </div>
+    <?php include_once 'form/form_forklift.php' ?>
+
 
     <?php
     }
