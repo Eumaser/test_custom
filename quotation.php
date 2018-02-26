@@ -88,6 +88,9 @@
     $o->order_regards = escape($_POST['order_regards']);
     $o->history_type = escape($_POST['history_type']);
 
+    //edr document type in quotation
+    $o->order_doc_type = escape($_POST['order_doc_type']);
+
     $o->order_discheadertotal = str_replace(",", "",$_POST['order_discheadertotal']);
 
     $o->order_rev = escape($_POST['order_rev']);
@@ -125,6 +128,22 @@
     $o->generate_document_type = escape($_POST['generate_document_type']);
 
     $o->order_attachment = $_FILES['order_attachment'];
+
+    //edr variables to be used in orderfork table, using order class as base
+    $o->orderfork_id = escape($_POST['orderfork_id']);
+    $o->orderfork_brand = escape($_POST['orderfork_brand']);
+    $o->orderfork_model = escape($_POST['orderfork_model']);
+    $o->orderfork_capacity = escape($_POST['orderfork_capacity']);
+    $o->orderfork_height = escape($_POST['orderfork_height']);
+    $o->orderfork_mast = escape($_POST['orderfork_mast']);
+    $o->orderfork_length = escape($_POST['orderfork_length']);
+    $o->orderfork_attachment =escape($_POST['orderfork_attachment']);
+    $o->orderfork_acc = escape($_POST['orderfork_acc']);
+    $o->orderfork_serial =escape($_POST['orderfork_serial']);
+    $o->orderfork_battery = escape($_POST['orderfork_battery']);
+    $o->orderfork_bat_charger = escape($_POST['orderfork_bat_charger']);
+    $o->orderfork_snr = escape($_POST['orderfork_snr']);
+
 
     if($o->ordl_seqno == ""){
         $o->ordl_seqno = 10;
@@ -474,7 +493,7 @@
                 $wherestring = " AND o.order_outlet = '{$_SESSION['empl_outlet']}'";
             }
             $o->wherestring .= " AND o.order_prefix_type = '$o->document_type' $wherestring";
-          
+
             $o->getListing();
             exit();
             break;
