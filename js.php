@@ -48,10 +48,9 @@
                 $('.forklifts').hide();
             }
         });
-        
+
         //edr dependent dropdown for model. When a brand is selected, auto generate model list based on brand
         $('#orderfork_brand').change(function(){
-
           //  var data = "action=getForkModel&fork_id="+$(this).val()
             var data = "action=getForkModel&fork_brand="+$(this).val();
              $.ajax({
