@@ -1,5 +1,5 @@
 <?php
-/*
+/* old vworking
  * To change this tinvoiceate, choose Tools | Tinvoiceates
  * and open the tinvoiceate in the editor.
  */
@@ -14,7 +14,7 @@ class Invoice {
     public function Invoice(){
         include_once 'class/SelectControl.php';
         $this->select = new SelectControl();
-        
+
 
     }
     public function createInvoice(){
@@ -30,7 +30,7 @@ class Invoice {
                              'invoice_transittime_id','invoice_freightcharge_id','invoice_pointofdelivery_id','invoice_prefix_id',
                              'invoice_remarks_id','invoice_country_id','invoice_attentionto_email',
                              'invoice_attentionto_name','invoice_tnc','invoice_regards','invoice_payment',
-                             'invoice_notes','invoice_paymentdate','invoice_paymentremark'
+                             'invoice_notes','invoice_paymentdate','invoice_paymentremark','invoice_doc_type'
                              );
         $table_value = array($invoice_no,format_date_database($this->invoice_date),$this->invoice_customer,$this->invoice_salesperson,
                              $this->invoice_billaddress,$this->invoice_attentionto,$this->invoice_shipterm,$this->invoice_term,
@@ -42,13 +42,55 @@ class Invoice {
                              $this->invoice_transittime_id,$this->invoice_freightcharge_id,$this->invoice_pointofdelivery_id,$this->invoice_prefix_id,
                              $this->invoice_remarks_id,$this->invoice_country_id,$this->invoice_attentionto_email,
                              $this->invoice_attentionto_name,$this->invoice_term_remark,$this->invoice_regards,$this->invoice_payment,
-                             $this->invoice_notes,format_date_database($this->invoice_paymentdate),$this->invoice_paymentremark
+                             $this->invoice_notes,format_date_database($this->invoice_paymentdate),$this->invoice_paymentremark,$this->invoice_doc_type
                              );
         $remark = "Insert $this->document_code.<br> Document No : $invoice_no";
         if(!$this->save->SaveData($table_field,$table_value,'db_invoice','invoice_id',$remark)){
            return false;
         }else{
            $this->invoice_id = $this->save->lastInsert_id;
+
+           //insert invofrk create code here
+           $invfork_field = [
+              'invfork_inv_id',
+              'invfork_brand',
+              'invfork_model',
+              'invfork_capacity',
+              'invfork_height',
+              'invfork_mast',
+              'invfork_length',
+              'invfork_attachment',
+              'invfork_acc',
+              'invfork_serial',
+              'invfork_battery',
+              'invfork_bat_charger',
+              'invfork_snr',
+           ];
+           $invfork_value = [
+             $this->invoice_id,
+             $this->invfork_brand,
+             $this->invfork_model,
+             $this->invfork_capacity,
+             $this->invfork_height,
+             $this->invfork_mast,
+             $this->invfork_length,
+             $this->invfork_attachment,
+             $this->invfork_acc,
+             $this->invfork_serial,
+             $this->invfork_battery,
+             $this->invfork_bat_charger,
+             $this->invfork_snr,
+          ];
+
+          $dType =$this->document_type;
+        //  if ($dType == 'DO' && $this->order_doc_type == '2') {
+          if ( ($dType == 'SI' ) && $this->invoice_doc_type == '2') {
+            $remark = "Insert to invfork $this->document_code.<br> Document No : $this->order_no";
+            $this->save->SaveData($invfork_field,$invfork_value,'db_invfork','invfork_id',$remark);
+          }else{
+            unset($invfork_value);
+          }
+
            return true;
         }
     }
@@ -63,7 +105,7 @@ class Invoice {
                              'invoice_transittime_id','invoice_freightcharge_id','invoice_pointofdelivery_id','invoice_prefix_id',
                              'invoice_remarks_id','invoice_country_id','invoice_attentionto_email',
                              'invoice_attentionto_name','invoice_tnc','invoice_regards','invoice_payment',
-                             'invoice_notes','invoice_paymentdate','invoice_paymentremark');
+                             'invoice_notes','invoice_paymentdate','invoice_paymentremark','invoice_doc_type');
         $table_value = array(format_date_database($this->invoice_date),$this->invoice_customer,$this->invoice_salesperson,
                              $this->invoice_billaddress,$this->invoice_attentionto,$this->invoice_shipterm,$this->invoice_term,
                              $this->invoice_shipaddress,$this->invoice_customerref,$this->invoice_remark,$this->invoice_customerpo,
@@ -74,11 +116,55 @@ class Invoice {
                              $this->invoice_transittime_id,$this->invoice_freightcharge_id,$this->invoice_pointofdelivery_id,$this->invoice_prefix_id,
                              $this->invoice_remarks_id,$this->invoice_country_id,$this->invoice_attentionto_email,
                              $this->invoice_attentionto_name,$this->invoice_term_remark,$this->invoice_regards,$this->invoice_payment,
-                             $this->invoice_notes,format_date_database($this->invoice_paymentdate),$this->invoice_paymentremark);
+                             $this->invoice_notes,format_date_database($this->invoice_paymentdate),$this->invoice_paymentremark,$this->invoice_doc_type);
         $remark = "Update $this->document_code.<br> Document No : $this->order_no";
         if(!$this->save->UpdateData($table_field,$table_value,'db_invoice','invoice_id',$remark,$this->invoice_id)){
            return false;
         }else{
+
+          //insert invfork update code here
+          $invfork_field = [
+             'invfork_inv_id',
+             'invfork_brand',
+             'invfork_model',
+             'invfork_capacity',
+             'invfork_height',
+             'invfork_mast',
+             'invfork_length',
+             'invfork_attachment',
+             'invfork_acc',
+             'invfork_serial',
+             'invfork_battery',
+             'invfork_bat_charger',
+             'invfork_snr',
+          ];
+          $invfork_value = [
+            $this->invoice_id,
+            $this->invfork_brand,
+            $this->invfork_model,
+            $this->invfork_capacity,
+            $this->invfork_height,
+            $this->invfork_mast,
+            $this->invfork_length,
+            $this->invfork_attachment,
+            $this->invfork_acc,
+            $this->invfork_serial,
+            $this->invfork_battery,
+            $this->invfork_bat_charger,
+            $this->invfork_snr,
+         ];
+
+         $dType =$this->document_type;
+     //  if ($dType == 'DO' && $this->order_doc_type == '2') {
+         if ( ($dType == 'SI' ) && $this->invoice_doc_type == '2') {
+               $remark = "Update to invfork $this->document_code.<br> Document No : $this->order_no";
+               $this->save->UpdateData($invfork_field,$invfork_value,'db_invfork','invfork_id',$remark,$this->invfork_id);
+            //   ($table_field,$table_value,'db_invoice','invoice_id',$remark,$this->invoice_id)
+         }else{
+               unset($invfork_value);
+         }
+
+
            return true;
         }
     }
@@ -167,7 +253,7 @@ class Invoice {
                }
            }else{
                return true;
-           } 
+           }
         }
     }
     public function calculateLineAmount(){
@@ -175,20 +261,20 @@ class Invoice {
         if($this->invoice_currencyrate <= 0){
             $this->invoice_currencyrate = 1;
         }
-        
+
         //foreign amount
         $this->invl_fuprice = $this->invl_fuprice;
         $subtotal = $this->invl_qty * $this->invl_fuprice;
 
-        
+
         if($this->invl_disc > 0){
             $this->invl_fdiscamt = ROUND($subtotal * ($this->invl_disc/100),2);
             $this->invl_discamt = ROUND($this->invl_fdiscamt * $this->invoice_currencyrate,2);
         }else{
             $this->invl_discamt = 0;
         }
-        
-        $subtotal_afterdiscount = $subtotal - $this->invl_fdiscamt; 
+
+        $subtotal_afterdiscount = $subtotal - $this->invl_fdiscamt;
 
 //        if($this->invl_istax > 0){
 //            $this->invl_ftaxamt = ROUND($subtotal_afterdiscount * (system_gst_percent/100),2);
@@ -199,9 +285,9 @@ class Invoice {
         $this->invl_ftaxamt = 0;
         $this->invl_taxamt = 0;
         $this->invl_ftotal = $subtotal_afterdiscount + $this->invl_ftaxamt;
-        
-        
-        //base amount      
+
+
+        //base amount
         $this->invl_total = ROUND($this->invl_ftotal * $this->invoice_currencyrate,2);
     }
     public function getTotalDiscAmt(){
@@ -235,7 +321,9 @@ class Invoice {
         return $total_taxamt;
     }
     public function fetchInvoiceDetail($wherestring,$invoicestring,$wherelimit,$type){
-        $sql = "SELECT o.*,de.delivery_desc as delivery_desc, 
+
+        $sql =
+        "SELECT o.*,invf.*,de.delivery_desc as delivery_desc,
                             co.country_desc as country_desc,
                             fr.freightcharge_desc as freightcharge_desc,
                             pd.pointofdelivery_desc as pointofdelivery_desc,
@@ -245,7 +333,7 @@ class Invoice {
                             tt.transittime_desc as transittime_desc,
                             va.validity_desc as validity_desc,
                             pt.paymentterm_desc as paymentterm_desc
-                FROM db_invoice o 
+                FROM db_invoice o
                 LEFT JOIN db_paymentterm pt ON pt.paymentterm_id = o.invoice_paymentterm_id
                     LEFT JOIN db_delivery de ON de.delivery_id = o.invoice_delivery_id
                     LEFT JOIN db_price pr ON pr.price_id = o.invoice_price_id
@@ -256,8 +344,14 @@ class Invoice {
                     LEFT JOIN db_prefix pf ON pf.prefix_id = o.invoice_prefix_id
                     LEFT JOIN db_remarks rm ON rm.remarks_id = o.invoice_remarks_id
                     LEFT JOIN db_country co ON co.country_id = o.invoice_country_id
-                WHERE o.invoice_id > 0  $wherestring $invoicestring $wherelimit";
+                    LEFT JOIN db_invfork invf ON invf.invfork_inv_id  = o.invoice_id
+                  WHERE o.invoice_id > 0  $wherestring $invoicestring $wherelimit";
+
         $query = mysql_query($sql);
+
+          //edrs
+      //    $row = mysql_fetch_array($query);
+      //    return $row ;
         if($type > 0){
             $row = mysql_fetch_array($query);
 
@@ -290,7 +384,7 @@ class Invoice {
             $this->invoice_discheadertotal = $row['invoice_discheadertotal'];
             $this->invoice_shipping_id = $row['invoice_shipping_id'];
             $this->invoice_shipaddress = $row['invoice_shipaddress'];
-            
+
             $this->invoice_paymentterm_id = $row['invoice_paymentterm_id'];
             $this->invoice_delivery_id = $row['invoice_delivery_id'];
             $this->invoice_price_id = $row['invoice_price_id'];
@@ -320,7 +414,25 @@ class Invoice {
             $this->invoice_notes = $row['invoice_notes'];
             $this->invoice_paymentdate = $row['invoice_paymentdate'];
             $this->invoice_paymentremark = $row['invoice_paymentremark'];
-            
+
+            //edr added invoice doc type
+            $this->invoice_doc_type = $row['invoice_doc_type'];
+            //edr added invfork data here
+            $this->invfork_id = $row['invfork_id'];
+            $this->invfork_brand = $row['invfork_brand'];
+            $this->invfork_model = $row['invfork_model'];
+            $this->invfork_capacity = $row['invfork_capacity'];
+            $this->invfork_height = $row['invfork_height'];
+            $this->invfork_mast = $row['invfork_mast'];
+            $this->invfork_length = $row['invfork_length'];
+            $this->invfork_attachment = $row['invfork_attachment'];
+            $this->invfork_acc = $row['invfork_acc'];
+            $this->invfork_serial = $row['invfork_serial'];
+            $this->invfork_battery = $row['invfork_battery'];
+            $this->invfork_bat_charger = $row['invfork_bat_charger'];
+            $this->invfork_snr = $row['invfork_snr'];
+
+
             $this->invoice_generate_from_type = $row['invoice_generate_from_type'];
             $this->invoice_generate_from = $row['invoice_generate_from'];
         }
@@ -379,7 +491,7 @@ class Invoice {
         }
         return $query;
     }
-    
+
     public function delete(){
         $table_field = array('invoice_status');
         $table_value = array($this->invoice_status);
@@ -414,7 +526,7 @@ class Invoice {
              * find project detail for filter subcon
              */
             $p->project_id = $this->invoice_project_id;
-            $r = $p->getProjectDetailTransaction();    
+            $r = $p->getProjectDetailTransaction();
             $b = explode(',',$r['project_subcon']);
             for($i=0;$i<sizeof($b);$i++){
                 $project_subcon .= "'" . $b[$i] . "',";
@@ -423,7 +535,7 @@ class Invoice {
             $subcon_wherestring = " AND partner_issubcon = 1 AND partner_id IN ($project_subcon)";
             $this->subconCrtl = $this->select->getCustomerSelectCtrl($this->invoice_subcon,'Y',$subcon_wherestring);
         }
-        
+
         if($this->document_type == 'PCN'){
             $cust_wherestring = " AND partner_issupplier = 1";
             $empl_wherestring = " AND empl_group IN ('3')";
@@ -431,7 +543,7 @@ class Invoice {
             $cust_wherestring = " AND partner_iscustomer = 1 ";
             $empl_wherestring = " AND empl_group IN ('1')";
             if($_SESSION['empl_group'] >= 1){
-               $cust_wherestring .= " AND partner_outlet = '{$_SESSION['empl_outlet']}'"; 
+               $cust_wherestring .= " AND partner_outlet = '{$_SESSION['empl_outlet']}'";
             }
         }
         $this->projectCrtl = $this->select->getProjectSelectCtrl($this->invoice_project_id,'Y');
@@ -440,7 +552,7 @@ class Invoice {
         $this->currencyCrtl = $this->select->getCurrencySelectCtrl($this->invoice_currency,'N');
         $this->shiptermCrtl = $this->select->getShipTermSelectCtrl($this->invoice_shipterm,'N');
         $this->contactCrtl = $this->select->getContactSelectCtrl($this->invoice_attentionto,'Y'," AND contact_partner_id = '$this->invoice_customer'");
-        
+
         // Addedd by Ivan
         $this->deliveryCrtl = $this->select->getDeliverySelectCtrl($this->invoice_delivery_id,'Y');
         $this->priceCrtl = $this->select->getPriceSelectCtrl($this->invoice_price_id,'Y');
@@ -453,23 +565,28 @@ class Invoice {
         $this->remarksCrtl = $this->select->getRemarksSelectCtrl($this->invoice_remarks_id,'Y');
         $this->countryCrtl = $this->select->getCountrySelectCtrl($this->invoice_country_id,'Y');
         $this->prodCrtl = $this->select->getProductNameSelectCtrl("",'Y');
-        
+
         $this->shippingCrtl = $this->select->getShippingAddressSelectCtrl($this->invoice_shipping_id,'Y'," AND shipping_partner_id = '$this->invoice_customer'" );
         $this->uomCrtl = $this->select->getUomSelectCtrl("",'N');
         $label_col_sm = "col-sm-2";
         $field_col_sm = "col-sm-3";
-        
+
         //$this->invoice_currency_code = "SGD";
         //$this->invoice_currency_org = "SGD";
         $this->invoice_currency_code = "$";
         $this->invoice_currency_org = "$";
-        
+
+        //edr get document type list
+        $this->docType = $this->select->getDocType($this->invoice_doc_type,'Y');
+        $this->brandCrtl = $this->select->getBrandSelectCtrl($this->invfork_brand,'Y');
+        $this->modelCrtl = $this->select->getForkModelCtrl($this->invfork_model,'Y');
+
         if($this->document_type == 'SI'){
             $isgenerated = getDataCountBySql("db_order"," WHERE (order_generate_from = '$this->invoice_id' AND order_generate_from_type = '$this->document_type' ) AND order_status = 1 AND order_generate_from > 0");
         }
 
         if($isgenerated > 0){
-            $disabled = " DISABLED"; 
+            $disabled = " DISABLED";
         }
     ?>
    <html>
@@ -479,8 +596,8 @@ class Invoice {
     <title><?php echo $this->document_name;?></title>
     <?php
     include_once 'css.php';
-    
-    ?>    
+
+    ?>
   </head>
   <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
   <body class="hold-transition skin-blue layout-top-nav">
@@ -493,6 +610,7 @@ class Invoice {
           <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1><?php echo $this->document_name;?></h1>
+            <!--edr form--->
         </section>
           <!-- Main content -->
           <section class="content">
@@ -506,8 +624,8 @@ class Invoice {
                 <?php }?>
 
               </div>
-                
-                
+
+
                   <div class="box-body col-sm-9">
                         <div class="form-group">
                             <label for="invoice_no" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->document_code;?> No.</label>
@@ -518,21 +636,18 @@ class Invoice {
                             <div class="<?php echo $field_col_sm;?>">
                                 <input type="text" class="form-control datepicker" id="invoice_date" name="invoice_date" value = "<?php echo format_date($this->invoice_date);?>" placeholder=" <?php echo $this->document_code;?> Date" <?php echo $disabled;?>>
                             </div>
-                        </div>  
-                        <!--
-                        <div class="form-group">
-                          <label for="invoice_project_id" class="<?php echo $label_col_sm;?> control-label">Project Name</label>
-                          <div class="<?php echo $field_col_sm;?>">
-                               <select class="form-control select2" id="invoice_project_id" name="invoice_project_id" <?php echo $disabled;?> >
-                                   <?php echo $this->projectCrtl;?>
-                               </select>
-                          </div> 
-                          <label for="invoice_customerpo" class="<?php echo $label_col_sm;?> control-label">Job No.</label>
-                          <div class="<?php echo $field_col_sm;?>">
-                            <input type="text" class="form-control" id="invoice_customerpo" name="invoice_customerpo" value = "<?php echo $this->invoice_customerpo;?>" placeholder="Job No.">
-                          </div>
                         </div>
-                        -->
+
+                        <div class="form-group">
+                            <label for="invoice_customer" class="<?php echo $label_col_sm;?> control-label">Document Type</label>
+                            <div class="<?php echo $field_col_sm;?>">
+                                 <select class="form-control select2" id="invoice_doc_type" name="invoice_doc_type" <?php echo $disabled;?>>
+                                     <?php echo $this->docType?>
+                                 </select>
+                            </div>
+
+                        </div>
+
                         <div class="form-group">
                             <label for="invoice_customer" class="<?php echo $label_col_sm;?> control-label"><?php echo $this->custsupp_label;?><?php echo $mandatory;?></label>
                             <div class="<?php echo $field_col_sm;?>">
@@ -547,7 +662,7 @@ class Invoice {
                                 </select>
                                 <p></p>
                                 <input type="text" class="form-control" id="invoice_attentionto_name" name="invoice_attentionto_name" value = "<?php echo $this->invoice_attentionto_name;?>" placeholder="Attention Name"  <?php echo $disabled;?>>
-                            </div> 
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="invoice_billaddress" class="<?php echo $label_col_sm;?> control-label">Billing Address</label>
@@ -564,17 +679,11 @@ class Invoice {
                             <div class="<?php echo $field_col_sm;?>">
                                 <input type="text" class="form-control" id="invoice_attentionto_phone" name="invoice_attentionto_phone" value = "<?php echo $this->invoice_attentionto_phone;?>" placeholder="Attention Phone No." <?php echo $disabled;?>>
                             </div>
-                        <!--<label for="invoice_shipping_id" class="<?php echo $label_col_sm;?> control-label" >Shipping Address Multi</label>
-                              <div class="col-sm-3">
-                                <select class="form-control select2" id="invoice_shipping_id" name="invoice_shipping_id" <?php echo $disabled;?>>
-                                   <?php echo $this->shippingCrtl;?>
-                                </select>
-                              </div>-->
                             <label for="invoice_fax" class="<?php echo $label_col_sm;?> control-label">Fax No.</label>
                             <div class="<?php echo $field_col_sm;?>">
                               <input type="text" class="form-control" id="invoice_fax" name="invoice_fax" value = "<?php echo $this->invoice_fax;?>" placeholder="Attention Fax No." <?php echo $disabled;?>>
-                            </div>  
-                        </div> 
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="invoice_attentionto_email" class="<?php echo $label_col_sm;?> control-label" >Email </label>
                             <div class="<?php echo $field_col_sm;?>">
@@ -587,110 +696,8 @@ class Invoice {
                                 </select>
                             </div>
                         </div>
-                        <!--
+
                         <div class="form-group">
-                            <label for="invoice_transittime" class="<?php echo $label_col_sm;?> control-label">Transit Time (notes) </label>
-                            <div class="<?php echo $field_col_sm;?>">
-                                <select class="form-control select2" id="invoice_transittime_id" name="invoice_transittime_id" <?php echo $disabled;?> >
-                                    <?php echo $this->transittimeCrtl;?>
-                                </select>
-                                <p></p>
-                                <textarea class="form-control" rows="2" id="invoice_transittime_remark" name="invoice_transittime_remark" placeholder="Transit Time remark" <?php echo $disabled;?>><?php echo $this->invoice_transittime_remark;?></textarea>
-                            </div>
-                            <label for="invoice_freightcharge" class="<?php echo $label_col_sm;?> control-label"> Freight Charges (notes) </label>
-                            <div class="<?php echo $field_col_sm;?>">
-                                <select class="form-control select2" id="invoice_freightcharge_id" name="invoice_freightcharge_id" <?php echo $disabled;?> >
-                                    <?php echo $this->freightchargeCrtl;?>
-                                </select>
-                              <p></p>
-                              <textarea class="form-control" rows="2" id="invoice_freightcharge_remark" name="invoice_freightcharge_remark" placeholder="Freight Charges remark" <?php echo $disabled;?>><?php echo $this->invoice_freightcharge_remark;?></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="invoice_delivery" class="<?php echo $label_col_sm;?> control-label"> Delivery (notes) </label>
-                            <div class="<?php echo $field_col_sm;?>">
-                                <select class="form-control select2" id="invoice_delivery_id" name="invoice_delivery_id" <?php echo $disabled;?> >
-                                    <?php echo $this->deliveryCrtl;?>
-                                </select>
-                                <p></p>
-                                <textarea class="form-control" rows="2" id="invoice_delivery_remark" name="invoice_delivery_remark" placeholder="Delivery remark" <?php echo $disabled;?>><?php echo $this->invoice_delivery_remark;?></textarea>
-                            </div>
-                            <label for="invoice_price" class="<?php echo $label_col_sm;?> control-label"> Price (notes) </label>
-                            <div class="<?php echo $field_col_sm;?>">
-                                <select class="form-control select2" id="invoice_price_id" name="invoice_price_id" <?php echo $disabled;?> >
-                                    <?php echo $this->priceCrtl;?>
-                                </select>
-                              <p></p>
-                              <textarea class="form-control" rows="2" id="invoice_price_remark" name="invoice_price_remark" placeholder="Price remark" <?php echo $disabled;?>><?php echo $this->invoice_price_remark;?></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="invoice_paymentterm" class="<?php echo $label_col_sm;?> control-label"> Payment Terms </label>
-                            <div class="<?php echo $field_col_sm;?>">
-                                <select class="form-control select2" id="invoice_paymentterm_id" name="invoice_paymentterm_id" <?php echo $disabled;?> >
-                                    <?php echo $this->paymenttermCrtl;?>
-                                </select>
-                               <p></p>
-                               <textarea class="form-control" rows="2" id="invoice_paymentterm_remark" name="invoice_paymentterm_remark" placeholder="Payment Term remark" <?php echo $disabled;?>><?php echo $this->invoice_paymentterm_remark;?></textarea>
-                            </div>
-                            <label for="invoice_validity" class="<?php echo $label_col_sm;?> control-label"> Validity (notes) </label>
-                            <div class="<?php echo $field_col_sm;?>">
-                                 <select class="form-control select2" id="invoice_validity_id" name="invoice_validity_id" <?php echo $disabled;?> >
-                                     <?php echo $this->validityCrtl;?>
-                                 </select>
-                                <p></p>
-                                <textarea class="form-control" rows="2" id="invoice_validity_remark" name="invoice_validity_remark" placeholder="Validity remark" <?php echo $disabled;?>><?php echo $this->invoice_validity_remark;?></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="invoice_pointofdelivery" class="<?php echo $label_col_sm;?> control-label">Point of Delivery (notes) </label>
-                            <div class="<?php echo $field_col_sm;?>">
-                                <select class="form-control select2" id="invoice_pointofdelivery_id" name="invoice_pointofdelivery_id" <?php echo $disabled;?> >
-                                    <?php echo $this->pointofdeliveryCrtl;?>
-                                </select>
-                                <p></p>
-                                <textarea class="form-control" rows="2" id="invoice_pointofdelivery_remark" name="invoice_pointofdelivery_remark" placeholder="Point of Delivery remark" <?php echo $disabled;?>><?php echo $this->invoice_pointofdelivery_remark;?></textarea>
-                            </div>
-                            <label for="invoice_prefix" class="<?php echo $label_col_sm;?> control-label"> Prefix (notes) </label>
-                            <div class="<?php echo $field_col_sm;?>">
-                                <select class="form-control select2" id="invoice_prefix_id" name="invoice_prefix_id" <?php echo $disabled;?> >
-                                    <?php echo $this->prefixCrtl;?>
-                                </select>
-                              <p></p>
-                              <textarea class="form-control" rows="2" id="invoice_prefix_remark" name="invoice_prefix_remark" placeholder="Prefix remark" <?php echo $disabled;?>><?php echo $this->invoice_prefix_remark;?></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="invoice_country" class="<?php echo $label_col_sm;?> control-label">Country </label>
-                            <div class="<?php echo $field_col_sm;?>">
-                                <select class="form-control select2" id="invoice_country_id" name="invoice_country_id" <?php echo $disabled;?> >
-                                    <?php echo $this->countryCrtl;?>
-                                </select>
-                                <p></p>
-                                <textarea class="form-control" rows="2" id="invoice_country_remark" name="invoice_country_remark" placeholder="Country remark" <?php echo $disabled;?>><?php echo $this->invoice_country_remark;?></textarea>
-                            </div>
-                            <label for="invoice_remarks" class="<?php echo $label_col_sm;?> control-label"> Remarks </label>
-                            <div class="<?php echo $field_col_sm;?>">
-                                <select class="form-control select2" id="invoice_remarks_id" name="invoice_remarks_id" <?php echo $disabled;?> >
-                                    <?php echo $this->remarksCrtl;?>
-                                </select>
-                              <p></p>
-                              <textarea class="form-control" rows="2" id="invoice_remarks_remark" name="invoice_remarks_remark" placeholder="Remarks" <?php echo $disabled;?>>
-                                  <?php //if($this->invoice_prefix_type == 'eSI'){
-                                        //    echo $this->invoice_remark;
-                                        //}else{
-                                            echo $this->invoice_remarks_remark;
-                                        //}
-                                      ?>
-                              </textarea>
-                            </div>
-                        </div>
-                        -->
-                        <div class="form-group">
-                            <!--<label for="invoice_term_remark" class="<?php echo $label_col_sm;?> control-label">T & C</label>
-                            <div class="<?php echo $field_col_sm;?>">
-                                <textarea class="form-control" rows="3" id="invoice_term_remark" name="invoice_term_remark" placeholder="T & C" <?php echo $disabled;?>><?php echo $this->invoice_term_remark;?></textarea>
-                            </div> -->
                             <label for="invoice_currency" class="<?php echo $label_col_sm;?> control-label"> Currency </label>
                             <div class="<?php echo $field_col_sm;?>">
                                 <select class="form-control select2" id="invoice_currency" name="invoice_currency" <?php echo $disabled;?> >
@@ -702,6 +709,7 @@ class Invoice {
                                 <textarea class="form-control" rows="3" id="invoice_notes" name="invoice_notes" placeholder="Initial Remark" <?php echo $readonly;?>><?php echo $this->invoice_notes;?></textarea>
                             </div>
                         </div>
+
                         <?php if($this->document_type == 'SI'){?>
                         <div class="form-group">
                             <label for="invoice_payment" class="<?php echo $label_col_sm;?> control-label"> Payment Status</label>
@@ -710,8 +718,8 @@ class Invoice {
                                     <option value="0" <?php if($this->invoice_payment == '0'){ echo "SELECTED"; } ?> > Unpaid </option>
                                     <option value="1" <?php if($this->invoice_payment == '1'){ echo "SELECTED"; } ?> > Paid </option>
                                 </select>
-                                
-                            </div> 
+
+                            </div>
                             <div class="col-sm-1">
                                 <button type="button" data-loading-text="Loading..." id='show_btn' class="btn btn-primary payment-show" autocomplete="off">Show</button>
                             </div>
@@ -720,82 +728,119 @@ class Invoice {
                                 <input type="text" class="form-control" id="invoice_customerpo" name="invoice_customerpo" value = "<?php echo $this->invoice_customerpo;?>" placeholder="Purchase Order No." <?php //echo $disabled;?>>
                             </div>
                         </div>
+
                         <div class="form-group toggle-payment">
                             <label for="invoice_paymentdate" class="<?php echo $label_col_sm;?> control-label"> Date of Payment</label>
                            <div class="<?php echo $field_col_sm;?>">
                                 <input type="text" class="form-control datepicker" id="invoice_paymentdate" name="invoice_paymentdate" value = "<?php echo format_date($this->invoice_paymentdate);?>" placeholder=" <?php echo $this->document_code;?> Payment Date" <?php //echo $disabled;?>>
-                            </div> 
+                            </div>
                             <label for="invoice_paymentremark" class="<?php echo $label_col_sm;?> control-label">Payment Remark</label>
                             <div class="<?php echo $field_col_sm;?>">
                                 <textarea class="form-control" rows="3" id="invoice_paymentremark" name="invoice_paymentremark" placeholder="Payment Remark" <?php echo $readonly;?>><?php echo $this->invoice_paymentremark;?></textarea>
-                                
+
                             </div>
                         </div>
+
+                        <!--forklifts--->
+                        <div class="forklifts-inv">
+                          <div class="form-group">
+                              <input type="hidden" class="form-control" id="invfork_id" name="invfork_id" value = "<?php echo $this->invfork_id;?>" placeholder="Brand" >
+                              <label for="invoice_currency" class="<?php echo $label_col_sm;?> control-label"> Brand </label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                  <select class="form-control select2" id="invfork_brand" name="invfork_brand" <?php echo $disabled;?> >
+                                      <?php echo $this->brandCrtl;?>
+                                  </select>
+                              </div>
+                              <label for="invoice_notes" class="<?php echo $label_col_sm;?> control-label">Model </label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                <select class="form-control select2" id="invfork_model" name="invfork_model" <?php echo $disabled;?> >
+                                    <?php echo $this->modelCrtl;?>
+                                </select>
+                              </div>
+                          </div>
+
+                          <div class="form-group">
+                              <label for="invoice_currency" class="<?php echo $label_col_sm;?> control-label">Capacity </label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                <input type="text" class="form-control" id="invfork_capacity" name="invfork_capacity" value = "<?php echo $this->invfork_capacity;?>" placeholder="Capacity" >
+
+                              </div>
+                              <label for="invoice_notes" class="<?php echo $label_col_sm;?> control-label">Height</label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                <input type="text" class="form-control" id="invfork_height" name="invfork_height" value = "<?php echo $this->invfork_height;?>" placeholder="Height" >
+
+                              </div>
+                          </div>
+
+                          <div class="form-group">
+                              <label for="invoice_currency" class="<?php echo $label_col_sm;?> control-label">Mast </label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                <input type="text" class="form-control" id="invfork_mast" name="invfork_mast" value = "<?php echo $this->invfork_mast;?>" placeholder="Mast" >
+
+                              </div>
+                              <label for="invoice_notes" class="<?php echo $label_col_sm;?> control-label">Length </label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                <input type="text" class="form-control" id="invfork_length" name="invfork_length" value = "<?php echo $this->invfork_length;?>" placeholder="Length" >
+
+                              </div>
+                          </div>
+
+                          <div class="form-group">
+                              <label for="invoice_currency" class="<?php echo $label_col_sm;?> control-label">Attachment </label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                <input type="text" class="form-control" id="invfork_attachment" name="invfork_attachment" value = "<?php echo $this->invfork_attachment;?>" placeholder="Attachment" >
+
+                              </div>
+                              <label for="invoice_notes" class="<?php echo $label_col_sm;?> control-label">Accessories</label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                <input type="text" class="form-control" id="invfork_acc" name="invfork_acc" value = "<?php echo $this->invfork_acc;?>" placeholder="Accesories" >
+
+                              </div>
+                          </div>
+
+                          <div class="form-group">
+                              <label for="invoice_currency" class="<?php echo $label_col_sm;?> control-label">Serial</label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                <input type="text" class="form-control" id="invfork_serial" name="invfork_serial" value = "<?php echo $this->invfork_serial;?>" placeholder="Serial" >
+
+                              </div>
+                              <label for="invoice_notes" class="<?php echo $label_col_sm;?> control-label">Battery</label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                <input type="text" class="form-control" id="invfork_battery" name="invfork_battery" value = "<?php echo $this->invfork_battery;?>" placeholder="Battery" >
+
+                              </div>
+                          </div>
+
+                          <div class="form-group">
+                              <label for="invoice_currency" class="<?php echo $label_col_sm;?> control-label">Battery Charger</label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                <input type="text" class="form-control" id="invfork_bat_charger" name="invfork_bat_charger" value = "<?php echo $this->invfork_bat_charger;?>" placeholder="Battery Charger" >
+
+                              </div>
+                              <label for="invoice_notes" class="<?php echo $label_col_sm;?> control-label">Charger S/Nr</label>
+                              <div class="<?php echo $field_col_sm;?>">
+                                <input type="text" class="form-control" id="invfork_snr" name="invfork_snr" value = "<?php echo $this->invfork_snr;?>" placeholder="Charger S/Nr" <?php //echo $disabled;?>>
+
+                              </div>
+                          </div>
+                        </div>
+
+
+                        <!---end of forklifts-->
+
                         <?php } ?>
                       <!-- Customer don have muti currency , so we hide it.-->
                         <!--<input type = 'hidden' id="invoice_currency" name="invoice_currency" value = '<?php echo $this->invoice_currency_org;?>'/>-->
                         <input type="hidden" class="form-control" id="invoice_currencyrate" name="invoice_currencyrate" value = "<?php echo $this->invoice_currencyrate;?>" placeholder="Currency Rate" READONLY>
-                        <!--<div class="form-group">
-                          <label for="invoice_currency" class="<?php echo $label_col_sm;?> control-label" >Currency</label>
-                          <div class="<?php echo $field_col_sm;?>">
-                               
-                               <select class="form-control select2" id="invoice_currency_org" name="invoice_currency_org" disabled>
-                                   <?php echo $this->currencyCrtl;?>
-                               </select>
-                          </div>
-                          <label for="invoice_currencyrate" class="<?php echo $label_col_sm;?> control-label" >Currency Rate <?php echo $mandatory;?></label>
-                          <div class="<?php echo $field_col_sm;?>">
-                            
-                          </div>
-                        </div>
-                        
-                    <div class="form-group">
-                          <label for="invoice_customerref" class="<?php echo $label_col_sm;?> control-label" >Our Ref. </label>
-                          <div class="<?php echo $field_col_sm;?>">
-                                <input type="text" class="form-control" id="invoice_customerref" name="invoice_customerref" value = "<?php echo $this->invoice_customerref;?>" placeholder="Our Ref">
-                          </div>
-                    </div> 
-<!--                  <div class="form-group">
-                          <label for="invoice_term" class="<?php echo $label_col_sm;?> control-label" >Payment Term </label>
-                          <div class="<?php echo $field_col_sm;?>">
-                            <input type="text" class="form-control" id="invoice_term" name="invoice_term" value = "<?php echo $this->invoice_term;?>" placeholder="Term">
-                          </div>
-                  </div>--> 
+
                   </div><!-- /.box-body -->
                   <div class="box-body col-sm-3">
-                      <!--
-                    <div class="form-group">
-                        <label for="invoice_subtotal" class="col-sm-5 control-label">Total (<span class = 'base_currency_span'><?php echo $this->invoice_currency_code;?></span>)</label>
-                        <div class="col-sm-7">
-                            <input type="text" class="form-control text-align-right" id="invoice_subtotal" name="invoice_subtotal" value = "<?php echo num_format($this->invoice_subtotal - $this->invoice_disctotal);?>" disabled>
-                        </div>
-                    </div> 
-                    <div class="form-group">
-                        <label for="invoice_discheadertotal" class="col-sm-5 control-label">Disc (<span class = 'base_currency_span'><?php echo $this->invoice_currency_code;?></span>)</label>
-                        <div class="col-sm-7">
-                              <input type="text" class="form-control text-align-right" id="invoice_discheadertotal" name="invoice_discheadertotal" value = "<?php echo num_format($this->invoice_discheadertotal);?>" >
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="invoice_finalsubtotal" class="col-sm-5 control-label">Sub Total (<span class = 'base_currency_span'><?php echo $this->invoice_currency_code;?></span>)</label>
-                        <div class="col-sm-7">
-                              <input type="text" class="form-control text-align-right"  id = 'invoice_finalsubtotal' name = 'invoice_finalsubtotal' value = "<?php echo num_format(($this->invoice_subtotal - $this->invoice_disctotal) - $this->invoice_discheadertotal);?>" disabled>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="invoice_taxtotal" class="col-sm-5 control-label">Tax Amount (<span class = 'base_currency_span'><?php echo $this->invoice_currency_code;?></span>)</label>
-                        <div class="col-sm-7">
-                              <input type="text" class="form-control text-align-right" id="invoice_taxtotal" name="invoice_taxtotal" value = "<?php echo num_format($this->invoice_taxtotal);?>" disabled>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="invoice_grandtotal" class="col-sm-5 control-label">Grand Total (<span class = 'base_currency_span'><?php echo $this->invoice_currency_code;?></span>)</label>
-                        <div class="col-sm-7">
-                              <input type="text" class="form-control text-align-right" id="invoice_grandtotal" name="invoice_grandtotal" value = "<?php echo num_format($this->invoice_grandtotal);?>" disabled>
-                        </div>
-                    </div>
-                      -->
-                  </div>    
+                      <!---extra right space???-->
+                  </div>
+
+
+
+
                   <div class="box-footer" style = 'clear:both'>
                     &nbsp;&nbsp;&nbsp;
                     <input type = "hidden" value = "<?php echo $action;?>" name = "action"/>
@@ -817,16 +862,16 @@ class Invoice {
                     <button type = "button" class="btn btn-primary"  onclick = "window.open('<?php echo $this->document_print_url;?>?action=<?php echo $this->document_type;?>&report_id=<?php echo $this->invoice_id;?>&matrix=0')">Print</button>
                     &nbsp;&nbsp;&nbsp;
                     <!--<button type = "button" class="btn btn-primary"  onclick = "window.open('<?php echo $this->document_print_url;?>?action=<?php echo $this->document_type;?>&report_id=<?php echo $this->invoice_id;?>&matrix=1')">Print (Matrix)</button>-->
-                   
+
                     <?php }?>
-                    <?php 
+                    <?php
                     if($isgenerated > 0 ){
                         echo "<span style = 'margin-left:30px;color:red' ><b>This $this->document_code transaction already generated.</b></span>";
                     }
-                   ?> 
+                   ?>
                   </div><!-- /.box-footer -->
-                
-                
+
+
             </div><!-- /.box -->
             <?php if($this->invoice_id > 0){?>
             <div class="box box-success">
@@ -842,7 +887,7 @@ class Invoice {
                     <div class="tab-content">
                         <div class="tab-pane <?php if($_REQUEST['tab'] == "" || $_REQUEST['tab'] == 'detail_tab'){ echo 'active';}?>" id="detail_tab">
                             <?php echo $this->getAddItemDetailForm();?>
-                        </div> 
+                        </div>
                         <div class="tab-pane <?php if($_REQUEST['tab'] == 'sodo_order_tab'){ echo 'active';}?>" id="sodo_order_tab">
                             <?php echo $this->getOrderGenerateTabTable();?>
                         </div>
@@ -852,7 +897,7 @@ class Invoice {
                     </div>
                 </div>
             </div><!-- /.box -->
-            <?php }?> 
+            <?php }?>
             </form>
           </section><!-- /.content -->
         </div><!-- /.container -->
@@ -865,10 +910,10 @@ class Invoice {
     <script>
 
     var line_copy = '<tr id = "line_@i" class="tbl_grid_odd" line = "@i">' +
-                    '<td style = "width:30px;padding-left:5px">@i</td>' + 
+                    '<td style = "width:30px;padding-left:5px">@i</td>' +
 //                    '<td style = "width:60px;"><input type = "text" id = "invl_seqno_@i" class="form-control" value=""/></td>'+
                     <?php if($this->document_type != 'PCN'){?>
-                    '<td style = "width:100px;"><select style = "width:100px" line = "@i" id = "invl_pro_type_@i" class="form-control invoice-type-item"><option value="product">Product</option><option value="package">Package</option></select>' + 
+                    '<td style = "width:100px;"><select style = "width:100px" line = "@i" id = "invl_pro_type_@i" class="form-control invoice-type-item"><option value="product">Product</option><option value="package">Package</option></select>' +
                     <?php } ?>
                     '<td style = "width:350px;"><select style = "width:350px" line = "@i" id = "invl_pro_id_@i" class="form-control invoice-item-list "><?php echo $this->prodCrtl;?></select></td>'+
                     '<td style="max-width:280px;width:280px;"><textarea style="max-width:280px;width:280px;" id = "invl_pro_desc_@i" class="form-control"></textarea></td>'+
@@ -881,23 +926,23 @@ class Invoice {
                     '<td style = "width:100px;"><input readonly type = "text" id = "invl_total_@i" class="form-control text-align-right"/></td>'+
                     '<td style = "width:120px;"><textarea rows="1" id = "invl_pro_remark_@i" class="form-control"></textarea></td>'+
                     '<td align = "center" class = "" style ="vertical-align:top;width:80px;padding-right:10px;padding-left:5px">' +
-                    '<img id = "save_line_@i" invl_id = "" class = "save_line" line = "@i" src = "dist/img/add.png" style = "cursor:pointer" alt = "Add New"/>' + 
-                    '<img id = "delete_line_@i" invl_id = "" class = "delete_line" line = "@i" src = "dist/img/delete_icon.png" style = "cursor:pointer" alt = "Delete"/>' + 
+                    '<img id = "save_line_@i" invl_id = "" class = "save_line" line = "@i" src = "dist/img/add.png" style = "cursor:pointer" alt = "Add New"/>' +
+                    '<img id = "delete_line_@i" invl_id = "" class = "delete_line" line = "@i" src = "dist/img/delete_icon.png" style = "cursor:pointer" alt = "Delete"/>' +
                     '<input type="hidden" id = "invl_product_location_@i" class="form-control"/>' +
                     '</td>'+
                     '</tr>';
-        
+
     $(document).ready(function() {
-        <?php 
-            if($this->document_type == 'SI' && $this->document_type != 'SCN' && $this->document_type != 'PCN' && $isgenerated != 1){                 
-        ?>                
-            addline(); 
-        <?php          
+        <?php
+            if($this->document_type == 'SI' && $this->document_type != 'SCN' && $this->document_type != 'PCN' && $isgenerated != 1){
+        ?>
+            addline();
+        <?php
             }else if($this->document_type == 'SI' || $this->document_type == 'PCN' || $this->document_type == 'SCN'){
-                if($this->invoice_generate_from == 0 && $this->invoice_generate_from_type == null && $isgenerated != 1){                        
-        ?> 
+                if($this->invoice_generate_from == 0 && $this->invoice_generate_from_type == null && $isgenerated != 1){
+        ?>
                 addline();
-        <?php       
+        <?php
                 }
             }
         ?>
@@ -908,7 +953,7 @@ class Invoice {
 
 
         itemCodeAutoComplete();
-        $('.invt_autocomplete').on("change", function(e) { 
+        $('.invt_autocomplete').on("change", function(e) {
            getProductDetail($(this).val(),$(this).closest("tr").attr('line'));
         });
         $('.save_line').on('click',function(){
@@ -926,14 +971,14 @@ class Invoice {
         $('.generate_btn').on('click',function(){
             generateDocument($(this).attr('generateto'));
         });
-        $('#invoice_project_id').on("change", function(e) { 
+        $('#invoice_project_id').on("change", function(e) {
             getProjectDetail($(this).val());
         });
         $('#invoice_currency').on('change',function(){
             var data = "action=getCurrencyRateDetail&crate_tcurrency_id="+$(this).val()
              $.ajax({
                 type: "POST",
-                url: "crate.php",      
+                url: "crate.php",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -945,7 +990,7 @@ class Invoice {
             var data = "action=getContactJson&contact_id="+$(this).val()
              $.ajax({
                 type: "POST",
-                url: "partner.php",      
+                url: "partner.php",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -958,7 +1003,7 @@ class Invoice {
             var data = "action=getPartnerDetailTransaction&partner_id="+$(this).val()
              $.ajax({
                 type: "POST",
-                url: "partner.php",      
+                url: "partner.php",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -976,7 +1021,7 @@ class Invoice {
                     //$('#invoice_attentionto').select2("val", "");
                     $('#invoice_attentionto').val(0);
                     //$('#invoice_shipping_id').html(jsonObj.shipping_option);
-                    
+
                     //$('#order_attentionto').html(jsonObj.contact_option);
                     //$('#order_attentionto').select2("val", "");
                     //$('#order_billaddress').val(jsonObj.partner_name + "\n" + jsonObj.partner_bill_address).text();
@@ -984,12 +1029,12 @@ class Invoice {
                 }
              });
         });
-        
+
         $('#invoice_shipping_id').change(function(){
             var data = "action=getShippingAddress&shipping_id="+$(this).val()
              $.ajax({
                 type: "POST",
-                url: "partner.php",      
+                url: "partner.php",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -997,12 +1042,12 @@ class Invoice {
                 }
              });
         });
-        
+
         $('#invoice_attentionto').change(function(){
             var data = "action=getContactJson&contact_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "partner.php",      
+                url: "partner.php",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1022,7 +1067,7 @@ class Invoice {
             var data = "action=getPriceJson&invoice_price_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1034,7 +1079,7 @@ class Invoice {
             var data = "action=getDeliveryJson&invoice_delivery_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1046,7 +1091,7 @@ class Invoice {
             var data = "action=getPaymenttermJson&invoice_paymentterm_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1058,7 +1103,7 @@ class Invoice {
             var data = "action=getValidityJson&invoice_validity_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1070,7 +1115,7 @@ class Invoice {
             var data = "action=getTransittimeJson&invoice_transittime_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1082,7 +1127,7 @@ class Invoice {
             var data = "action=getFreightchargeJson&invoice_freightcharge_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1094,7 +1139,7 @@ class Invoice {
             var data = "action=getPointofdeliveryJson&invoice_pointofdelivery_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1106,7 +1151,7 @@ class Invoice {
             var data = "action=getPrefixJson&invoice_prefix_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1118,7 +1163,7 @@ class Invoice {
             var data = "action=getRemarksJson&invoice_remarks_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1130,7 +1175,7 @@ class Invoice {
             var data = "action=getCountryJson&invoice_country_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1143,7 +1188,7 @@ class Invoice {
             var data = "action=getItemListJson&invoice_type_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1158,7 +1203,7 @@ class Invoice {
             var data = "action=getItemDescJson&qt_type=" + qtype + "&invoice_item_id="+$(this).val();
              $.ajax({
                 type: "POST",
-                url: "<?php echo $this->document_url;?>",      
+                url: "<?php echo $this->document_url;?>",
                 data:data,
                 success: function(data) {
                     var jsonObj = eval ("(" + data + ")");
@@ -1175,15 +1220,15 @@ class Invoice {
                 }
              });
         });
-        
+
         //iCheck for checkbox and radio inputs
         $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
           checkboxClass: 'icheckbox_minimal-blue',
           radioClass: 'iradio_minimal-blue'
         });
-    
+
         $("#invoice_form").validate({
-              rules: 
+              rules:
               {
                   invoice_name:
                   {
@@ -1198,11 +1243,11 @@ class Invoice {
                   }
               }
         });
-        
-        
+
+
         $('#invoice_discheadertotal').keyup(function(){
                 //calculate header discount
-       
+
                 var invoice_discheadertotal = parseFloat($('#invoice_discheadertotal').val().replace(/,/gi, ""));
                 console.log(invoice_discheadertotal)
                 if(isNaN(invoice_discheadertotal)){
@@ -1217,26 +1262,26 @@ class Invoice {
                 var invoice_finalsubtotal = parseFloat(invoice_subtotal) - parseFloat(invoice_discheadertotal);
 
                 $('#invoice_finalsubtotal').val(changeNumberFormat(RoundNum(invoice_finalsubtotal,2)));
-                
+
                 var invoice_taxtotal = parseFloat(invoice_finalsubtotal) * (parseFloat(system_gst_percent)/100);
                 $('#invoice_taxtotal').val(changeNumberFormat(RoundNum(invoice_taxtotal,2)));
-                
+
                 var invoice_grandtotal = parseFloat(invoice_finalsubtotal) + parseFloat(invoice_taxtotal);
                 $('#invoice_grandtotal').val(changeNumberFormat(RoundNum(invoice_grandtotal,2)));
-                
-                
+
+
         });
-        
-        $(".toggle-payment").hide(); 
+
+        $(".toggle-payment").hide();
         $("button.payment-show").click(function(){
             if($(this).text()=== "Show"){
-                $(this).text("Hide"); 
+                $(this).text("Hide");
             }else{
-                $(this).text("Show");           
+                $(this).text("Show");
             }
-            $(".toggle-payment").toggle();  
+            $(".toggle-payment").toggle();
         });
-        
+
     });
     var issend = false;
     function saveline(line,invl_id){
@@ -1245,7 +1290,7 @@ class Invoice {
             return false;
         }
 
-        // Uncheck check 
+        // Uncheck check
         /*if($('#invl_istax_'+line).is(':checked')){
            var invl_istax = 1;
         }else{
@@ -1276,7 +1321,7 @@ class Invoice {
             data += "&invl_id="+invl_id;
             data += "&invoice_id=<?php echo $_REQUEST['invoice_id'];?>";
 
-        $.ajax({ 
+        $.ajax({
             type: 'POST',
             url: '<?php echo $this->document_url;?>',
             cache: false,
@@ -1293,13 +1338,13 @@ class Invoice {
                    alert("<?php echo $language[$lang]['addeditline_error'];?>");
                }
                issend = false;
-            }		
+            }
          });
          return false;
     }
     function deleteline(invl_id){
         var data = "action=deleteline&invoice_id=<?php echo $this->invoice_id;?>&invl_id="+invl_id;
-        $.ajax({ 
+        $.ajax({
             type: 'POST',
             url: '<?php echo $this->document_url;?>',
             cache: false,
@@ -1316,7 +1361,7 @@ class Invoice {
                    alert("<?php echo $language[$lang]['deleteline_error'];?>");
                }
                issend = false;
-            }		
+            }
          });
          return false;
     }
@@ -1336,15 +1381,15 @@ class Invoice {
         }
 
         var subtotal = parseFloat(qty) * parseFloat(unit_price);
-        
+
         if(discount > 0){
             var disc_amt = RoundNum(parseFloat(subtotal) * (parseFloat(discount)/100),2);
         }else{
             var disc_amt = 0;
         }
-        
+
         var subtotal_afterdiscount = parseFloat(subtotal) - parseFloat(disc_amt);
-        
+
 //        if($('#invl_istax_'+line).is(':checked')){
 //           var gst_amt = RoundNum(parseFloat(subtotal_afterdiscount) * (parseFloat(system_gst_percent)/100),2);
 //        }else{
@@ -1360,9 +1405,9 @@ class Invoice {
          var data = "action=getProductDetail&product_id="+product_id;
          $.ajax({
             type: "POST",
-            url: "product.php",      
+            url: "product.php",
             data:data,
-            success: function(data) { 
+            success: function(data) {
                 var jsonObj = eval ("(" + data + ")");
 
                 $('#invl_pro_desc_'+line).html(jsonObj.product_desc);
@@ -1376,7 +1421,7 @@ class Invoice {
         $(".invt_autocomplete").select2({
               placeholder: "Search for a Item",
 //              minimumInputLength: 2,
-              ajax: { 
+              ajax: {
                   url: 'autocomplete.php?action=item&document_type=<?php echo $this->document_type;?>',
                   dataType: 'json',
                   cache: true,
@@ -1417,9 +1462,9 @@ class Invoice {
          }
         $.ajax({
             type: "POST",
-            url: url,      
+            url: url,
             data:data,
-            success: function(data) { 
+            success: function(data) {
                 var jsonObj = eval ("(" + data + ")");
                 if(jsonObj.status == 1){
                     alert("<?php echo $language[$lang]['generate_success'];?>");
@@ -1443,9 +1488,9 @@ class Invoice {
          var data = "action=getProjectDetail&project_id="+project_id;
          $.ajax({
             type: "POST",
-            url: "project.php",      
+            url: "project.php",
             data:data,
-            success: function(data) { 
+            success: function(data) {
                 var jsonObj = eval ("(" + data + ")");
                 $('#invoice_subcon').select2('val', 'All');
                 $('#invoice_subcon').html(jsonObj.subcon_option);
@@ -1457,7 +1502,7 @@ class Invoice {
   </body>
 </html>
         <?php
-        
+
     }
     public function getListing(){
     ?>
@@ -1468,7 +1513,7 @@ class Invoice {
     <title><?php echo $this->document_code;?> Management</title>
     <?php
     include_once 'css.php';
-    
+
     ?>
   </head>
   <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
@@ -1498,7 +1543,7 @@ class Invoice {
                   <table id="invoice_table" class="table table-bordered table-hover">
                     <thead>
                       <tr>
-                        <th style = 'width:5%'>Doc.No</th>                        
+                        <th style = 'width:5%'>Doc.No</th>
                         <?php if($this->document_type == 'PCN' || $this->document_type == 'SCN'){?>
                         <th style = 'width:12%'>Supplier</th>
                         <?php }else{?>
@@ -1525,10 +1570,10 @@ class Invoice {
                       </tr>
                     </thead>
                     <tbody>
-                    <?php   
+                    <?php
                       $sql = "SELECT o.*,pr.partner_id,
-                              CONCAT(pr.partner_code,' - ',pr.partner_name) as partner_name,empl.empl_name as sales_person,pro.project_code,pro.project_name 
-                              FROM db_invoice o 
+                              CONCAT(pr.partner_code,' - ',pr.partner_name) as partner_name,empl.empl_name as sales_person,pro.project_code,pro.project_name
+                              FROM db_invoice o
                               INNER JOIN db_partner pr ON pr.partner_id = o.invoice_customer
                               LEFT JOIN db_empl empl ON empl.empl_id = o.invoice_salesperson
                               LEFT JOIN db_project pro ON pro.project_id = o.invoice_project_id
@@ -1538,7 +1583,7 @@ class Invoice {
                       while($row = mysql_fetch_array($query)){
                     ?>
                         <tr>
-                            <td><?php echo $row['invoice_no'];?></td>                            
+                            <td><?php echo $row['invoice_no'];?></td>
                             <td><?php echo "<a href = 'partner.php?action=edit&tab=$this->document_type&partner_id={$row['partner_id']}'>" . $row['partner_name'] . "</a>";?></td>
                             <td><?php echo format_date($row['invoice_date']);?></td>
                             <?php if($this->document_type != 'SI' && $this->document_type != 'PCN' && $this->document_type != 'SCN'){?>
@@ -1547,7 +1592,7 @@ class Invoice {
                             <td><?php echo $row['invoice_customerpo'];?></td>
                             <?php } if($this->document_type == 'PI'){?>
                             <td>
-                                <?php 
+                                <?php
                                    $qt_query = getDataBySql("order_no,order_id","db_order"," WHERE order_id = '{$row['invoice_generate_from']}' AND order_status = '1'");
                                    $qt_no = "";
                                    while($r_qt = mysql_fetch_array($qt_query)){
@@ -1558,24 +1603,24 @@ class Invoice {
                             </td>
                             <?php }} ?>
                             <td style="text-align:right;">
-                                <?php 
+                                <?php
                                 $this->invoice_id = $row['invoice_id'];
                                 echo num_format($this->getSubTotalAmt() + $this->getTotalGstAmt());
                                 ?>
                             </td>
                             <td style="text-align:right;">
-                                <?php 
+                                <?php
                                 echo num_format($row['invoice_taxtotal']);
                                 ?>
                             </td>
                             <td style="text-align:right;">
-                                <?php 
+                                <?php
                                     echo num_format($row['invoice_grandtotal']);
                                 ?>
                             </td>
                             <?php if($this->document_type != 'PCN' && $this->document_type != 'SCN'){?>
                             <td>
-                                <?php 
+                                <?php
                                     $orderNoLink = $this->fetchOrderNoDetail($this->document_type,$row['invoice_id']);
                                     $orderNoLink = str_replace(",", ",<br>", $orderNoLink);
                                     echo "<b>".$orderNoLink."</b>";
@@ -1585,26 +1630,26 @@ class Invoice {
                             <td><?php if($row['invoice_payment'] == 1){ echo 'Paid';}else{ echo 'Unpaid';}?></td>
                             <!--<td><?php if($row['invoice_status'] == 1){ echo 'Active';}else{ echo 'In-Active';}?></td>-->
                             <td class = "text-align-right">
-                                <?php 
+                                <?php
                                 if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'update')){
                                 ?>
                                 <button type="button" class="btn btn-primary btn-info " onclick = "location.href = '<?php echo $this->document_url;?>?action=edit&invoice_id=<?php echo $row['invoice_id'];?>'">Edit</button>
                                 <?php }?>
-                                <?php 
+                                <?php
                                 if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'delete')){
                                 ?>
                                 <button type="button" class="btn btn-primary btn-danger " onclick = "confirmAlertHref('<?php echo $this->document_url;?>?action=delete&invoice_id=<?php echo $row['invoice_id'];?>','Confirm Delete?')">Delete</button>
                                 <?php }?>
                             </td>
                         </tr>
-                    <?php    
+                    <?php
                         $i++;
                       }
                     ?>
                     </tbody>
                     <tfoot>
                       <tr>
-                        <th style = 'width:5%'>Doc.No</th>                        
+                        <th style = 'width:5%'>Doc.No</th>
                         <?php if($this->document_type == 'PCN' || $this->document_type == 'SCN'){?>
                         <th style = 'width:12%'>Supplier</th>
                         <?php }else{?>
@@ -1659,11 +1704,11 @@ class Invoice {
     <?php
     }
     public function getAddItemDetailForm(){
-    $line = 0;  
+    $line = 0;
         if($this->document_type == 'SI'){
             $isgenerated = getDataCountBySql("db_order"," WHERE order_generate_from = '$this->invoice_id' AND order_generate_from_type = '$this->document_type' AND order_status = 1 AND order_generate_from > 0");
         }
-    ?>    
+    ?>
     <table id="detail_table" class="table transaction-detail">
         <thead>
           <tr>
@@ -1731,7 +1776,7 @@ class Invoice {
                     <td style="width:80px;"><select style = 'width:100%' id = "invl_uom_<?php echo $line;?>" class="form-control select2" <?php echo $disabled;?>><?php echo $this->uomCrtl;?></select></td>
                     <td style="width:60px;"><input type = "text" id = "invl_fuprice_<?php echo $line;?>" class="form-control calculate text-align-right" value = "<?php echo num_format($row['invl_fuprice']);?>" <?php echo $readonly;?>/></td>
                     <!--<td style="width:60px;"><input type = "text" id = "invl_uprice_<?php echo $line;?>" class="form-control calculate text-align-right" value = "<?php echo num_format($row['invl_uprice']);?>" <?php echo $readonly;?>/></td>-->
-                    
+
                     <td style="width:60px;"><input type = "text" id = "invl_disc_<?php echo $line;?>" class="form-control calculate text-align-right" value = "<?php echo $row['invl_disc'];?>" <?php echo $readonly;?>/></td>
                     <!--<td style="width:20px;"><input type = "checkbox" id = "invl_istax_<?php echo $line;?>" class = "minimal isincludetax" <?php if($row['invl_istax'] == 1){ echo 'CHECKED';}?> <?php echo $disabled;?>/></td>
                     <td style = "width:80px;"><input type = "text" id = "invl_taxamt_<?php echo $line;?>" class="form-control text-align-right" readonly value = "<?php echo num_format($row['invl_taxamt']);?>"/></td>-->
@@ -1746,14 +1791,14 @@ class Invoice {
                         <img id = "save_line_<?php echo $line;?>" invl_id = "<?php echo $row['invl_id'];?>" class = "save_line" line = "<?php echo $line;?>" src = "dist/img/add.png" style = "cursor:pointer" alt = "Add New"/>
                         <?php }
                             }
-                            if($disabled == ""){ 
+                            if($disabled == ""){
                         ?>
                         <img id = "delete_line_<?php echo $line;?>" invl_id = "<?php echo $row['invl_id'];?>" class = "delete_line" line = "<?php echo $line;?>" src = "dist/img/delete_icon.png" style = "cursor:pointer" alt = "Delete"/>
                         <?php }?>
                         <input type="hidden" line = "<?php echo $line;?>" id = "invl_product_location_<?php echo $line;?>" class="form-control text-align-left" value = "<?php echo num_format($row['invl_product_location']);?>" <?php echo $readonly;?>/>
                     </td>
                 </tr>
-            
+
             <?php
             }
             ?>
@@ -1770,7 +1815,7 @@ class Invoice {
                 <td class="invoice-discheadertotal text-align-right" style="width: 100px;"><input type="text" class="form-control text-align-right" id="invoice_discheadertotal" name="invoice_discheadertotal" value = "<?php echo num_format($this->invoice_discheadertotal);?>" <?php echo $disabled; ?> ></td>
                 <!--<td class="invoice-discheadertotal text-align-right"><label for="invoice_discheadertotal" class="invl-invoice-price invoice-discheadertotal"><?php echo num_format($this->invoice_discheadertotal);?></label></td>-->
                 <td colspan="2"></td>
-            </tr>            
+            </tr>
             <tr id="invoice_subtotal_price">
                 <td colspan="8" align="right">Sub Total (<span class = 'base_currency_span'><?php echo $this->invoice_currency_code;?></span>):</td>
                 <td class="invoice-fin-subtotal text-align-right" style="width: 100px;"><input type="text" class="form-control invoice-fin-subtotal text-align-right"  id = 'invoice_finalsubtotal' name = 'invoice_finalsubtotal' value = "<?php echo num_format(($this->invoice_subtotal - $this->invoice_disctotal) - $this->invoice_discheadertotal);?>" disabled></td>
@@ -1793,11 +1838,11 @@ class Invoice {
         </tbody>
     </table>
     <input type = 'hidden' id = 'total_line' name = 'total_line' value = '<?php echo $line;?>'/>
-    <?php    
+    <?php
     }
     public function getOrderGenerateTabTable(){
-      include_once 'Order.php';  
-      if($this->document_type == 'SI'){ 
+      include_once 'Order.php';
+      if($this->document_type == 'SI'){
           /*$document_type = 'Progress Claim';
           $generate_to = 'SO';
           $partner_field = 'Customer';
@@ -1816,7 +1861,7 @@ class Invoice {
         <div class="box-header">
           <div class = "pull-left"><h3 class="box-title"><?php echo $document_type;?> Table</h3></div>
           <div class = "pull-right">
-            <?php 
+            <?php
             if((getWindowPermission($menu_id,'generate'))){
                 $allow = false;
                 if(($this->document_type == 'SO') && ($this->generated['do_id'] <= 0) && ($this->generated['inv_id'] <= 0)){
@@ -1830,11 +1875,11 @@ class Invoice {
                 }else{
                     $allow = true;
                 }
-                
+
                 if($allow){
             ?>
                <button type = 'button' class = "btn btn-primary generate_btn" generateto = "<?php echo $generate_to;?>">Generate <?php echo $document_type;?></button>
-            <?php 
+            <?php
                   }
                 }?>
           </div>
@@ -1846,7 +1891,7 @@ class Invoice {
                 <th style = 'width:3%'>No</th>
                 <th style = 'width:15%'>Document No</th>
                 <th style = 'width:10%'>Date</th>
-                <th style = 'width:15%'><?php echo $partner_field;?></th>                
+                <th style = 'width:15%'><?php echo $partner_field;?></th>
                 <th style = 'width:15%'>Sub Total</th>
                 <th style = 'width:10%'>Tax</th>
                 <th style = 'width:10%'>Grand Total</th>
@@ -1854,9 +1899,9 @@ class Invoice {
               </tr>
             </thead>
             <tbody>
-            <?php   
-              $sql = "SELECT o.*,partner.partner_name,empl.empl_name 
-                      FROM db_order o 
+            <?php
+              $sql = "SELECT o.*,partner.partner_name,empl.empl_name
+                      FROM db_order o
                       INNER JOIN db_partner partner ON partner.partner_id = o.order_customer
                       LEFT JOIN db_empl empl ON empl.empl_id = o.order_salesperson
                       WHERE o.order_generate_from = '$this->invoice_id' AND order_generate_from_type = '$this->document_type' AND o.order_status = '1'";
@@ -1871,19 +1916,19 @@ class Invoice {
                     <td><?php echo $i;?></td>
                     <td><?php echo $row['order_no'];?></td>
                     <td><?php echo $row['order_date'];?></td>
-                    <td><?php echo $row['partner_name'];?></td>                    
+                    <td><?php echo $row['partner_name'];?></td>
                     <td><?php echo num_format($subtotal);?></td>
                     <td><?php echo num_format($gst);?></td>
                     <td><?php echo num_format($total);?></td>
                     <td class = "text-align-right">
-                        <?php 
+                        <?php
                         if(getWindowPermission($_SESSION['m'][$_SESSION['empl_id']],'update')){
                         ?>
                         <button type="button" class="btn btn-primary btn-info " onclick = "location.href = '<?php echo $document_url;?>?action=edit&order_id=<?php echo $row['order_id'];?>'">View</button>
                         <?php }?>
                     </td>
                 </tr>
-            <?php    
+            <?php
                 $i++;
               }
             ?>
@@ -1894,8 +1939,8 @@ class Invoice {
     <?php
     }
     public function getInvoiceGenerateTabTable(){
-        
-      if($this->document_type == 'QT'){ 
+
+      if($this->document_type == 'QT'){
           $document_type = 'Sales Invoice';
           $generate_to = 'SO';
           $partner_field = 'Customer';
@@ -1919,7 +1964,7 @@ class Invoice {
         <div class="box-header">
           <div class = "pull-left"><h3 class="box-title"><?php echo $document_type;?> Table</h3></div>
           <div class = "pull-right">
-            <?php 
+            <?php
             if(getWindowPermission($menu_id,'generate')){
             ?>
                <button type = 'button' class = "btn btn-primary generate_btn" generateto = "<?php echo $generate_to;?>">Generate <?php echo $document_type;?></button>
@@ -1942,9 +1987,9 @@ class Invoice {
               </tr>
             </thead>
             <tbody>
-            <?php   
-              $sql = "SELECT o.*,partner.partner_name,empl.empl_name 
-                      FROM db_invoice o 
+            <?php
+              $sql = "SELECT o.*,partner.partner_name,empl.empl_name
+                      FROM db_invoice o
                       INNER JOIN db_partner partner ON partner.partner_id = o.invoice_customer
                       LEFT JOIN db_empl empl ON empl.empl_id = o.invoice_salesperson
                       WHERE o.invoice_generate_from = '$this->invoice_id' AND o.invoice_status = '1'";
@@ -1962,14 +2007,14 @@ class Invoice {
                     <td><?php echo $this->getTotalGstAmt();?></td>
                     <td><?php echo num_format(($this->getSubTotalAmt() - $this->getTotalDiscAmt()) + $this->getTotalGstAmt());?></td>
                     <td class = "text-align-right">
-                        <?php 
+                        <?php
                         if(getWindowPermission($_SESSION['m'][$_SESSION['partner_id']],'update')){
                         ?>
                         <button type="button" class="btn btn-primary btn-info " onclick = "location.href = '<?php echo $document_url;?>?action=edit&invoice_id=<?php echo $row['invoice_id'];?>'">View</button>
                         <?php }?>
                     </td>
                 </tr>
-            <?php    
+            <?php
                 $i++;
               }
             ?>
@@ -1981,7 +2026,7 @@ class Invoice {
     }
     public function generateDocument(){
       include_once 'class/Order.php';
-      $order = new Order();  
+      $order = new Order();
       if($this->document_type == 'SI'){
             $this->document_code = "Sales Invoice";
             $this->newurl = 'sales_invoice.php';
@@ -2009,7 +2054,7 @@ class Invoice {
                     return true;
                 }else{
                     return false;
-                } 
+                }
           }else{
               return false;
           }
@@ -2040,14 +2085,14 @@ class Invoice {
                     return true;
                 }else{
                     return false;
-                } 
+                }
           }else{
               return false;
           }
       }else if($this->generate_document_type == 'SCN'){
             $this->document_code = "Sales Credit Note";
             $this->newurl = 'sales_cn.php';
-            
+
             $query = $this->fetchInvoiceDetail(" AND invoice_id = '$this->invoice_id'","","",0);
             $inv_id = $this->invoice_id;
             if($query){
@@ -2074,11 +2119,11 @@ class Invoice {
                     return true;
                 }else{
                     return false;
-                } 
+                }
             }
       }else if($this->document_type == 'eSI'){
                 include_once 'Partner.php';
-                include_once 'Product.php'; 
+                include_once 'Product.php';
                 $b      = new Partner();
                 $pro    = new Product();
                 $this->document_code = "e-Sales Invoice";
@@ -2087,8 +2132,8 @@ class Invoice {
                 $invoice = array();
                 $invoiceline=array();
                 $m = 0;
-                /* 
-                 * Fetch and Insert Customer Detail 
+                /*
+                 * Fetch and Insert Customer Detail
                  */
                 $custCode = "CE-Z001";
                 $b->fetchPartnerDetail(" AND partner_code = '".$custCode."'","","",1);
@@ -2101,8 +2146,8 @@ class Invoice {
                     'invoice_shipaddress'       => $this->e_invoice_payment_address_1[$m] .' '. $this->e_invoice_payment_address_2[$m] .' \n'. $this->e_invoice_payment_postcode[$m] .' '. $this->e_invoice_payment_city[$m] .' '. $this->e_invoice_payment_country[$m],
                     'invoice_remark'            => 'e-SO ' . $this->e_invoice_order_id[$m] .', customer from e-commerce: \n' . $this->e_invoice_firstname[$m] .' '. $this->e_invoice_lastname[$m] .' \n'. $this->e_invoice_email[$m] .' \n'. $this->e_invoice_telephone[$m]  .' \n'. $this->e_invoice_payment_address_1[$m] .' '. $this->e_invoice_payment_address_2[$m] .' \n'. $this->e_invoice_payment_postcode[$m] .' '. $this->e_invoice_payment_city[$m] .' '. $this->e_invoice_payment_country[$m]
                 );
-                /* 
-                 * Generate Invoice 
+                /*
+                 * Generate Invoice
                  */
                 if($this->generateInvoice($invoice)){
                     $this->newinvoice_id = $this->invoice_id;
@@ -2118,8 +2163,8 @@ class Invoice {
                             'invl_ftotal'       => $this->e_invoice_price[$m] * $this->e_invoice_quantity[$m],
                             'invl_item_type'    => "product"
                         );
-                        /* 
-                        * Generate Invoiceline 
+                        /*
+                        * Generate Invoiceline
                         */
                         if($invoiceline){
                             $this->generateInvoiceLine($invoiceline,$this->newinvoice_id);
@@ -2142,8 +2187,8 @@ class Invoice {
                             'invl_ftotal'       => $pro->product_sale_price * 1,
                             'invl_item_type'    => "product"
                         );
-                        /* 
-                        * Generate Invoiceline 
+                        /*
+                        * Generate Invoiceline
                         */
                         if($invoiceline){
                             $this->generateInvoiceLine($invoiceline,$this->newinvoice_id);
@@ -2152,8 +2197,8 @@ class Invoice {
                         }
                         $this->invlSql      .= $this->invl_sql;
                     }
-                    /* 
-                    * Update Total for Invoice 
+                    /*
+                    * Update Total for Invoice
                     */
                     $this->invoice_disctotal = $this->getTotalDiscAmt();
                     $this->invoice_subtotal = $this->getSubTotalAmt();
@@ -2183,7 +2228,7 @@ class Invoice {
         }
         //$subprefix = getDataCodeBySql("project_code","db_project"," WHERE project_id = '{$r['order_project_id']}'","");
         //$subprefix = "/" . $subprefix . "/" . getDataCodeBySql("partner_code","db_partner"," WHERE partner_id = '{$r['order_customer']}'","") . "/";
-        
+
         $table_field = array('invoice_no','invoice_date','invoice_customer','invoice_salesperson',
                              'invoice_billaddress','invoice_attentionto','invoice_shipterm','invoice_term',
                              'invoice_shipaddress','invoice_customerref','invoice_remark','invoice_customerpo',
@@ -2258,22 +2303,22 @@ class Invoice {
     public function generateStockTransaction($invl_id,$action){
         include_once 'Product.php';
         include_once 'Package.php';
-        $p = new Product();   
-        $g = new Package();   
+        $p = new Product();
+        $g = new Package();
         $product_qty = 0;
         $this->fetchInvoiceLine2Detail(" AND il.invl_id = '$invl_id'","","",1);
         if($this->invl_item_type == 'product'){
             $p->fetchProductDetail(" AND product_id = '$this->invl_pro_id'","","",1);
             $product_qty = $this->invl_qty;
-            if($action=='out'){            
+            if($action=='out'){
                 $stock_balance = $p->product_stock - $product_qty;
                 $stock_desc = 'OUT';
-                $pro_table_field = array('product_stock');        
+                $pro_table_field = array('product_stock');
                 $pro_table_value = array($stock_balance);
             }else if($action=='in'){
                 $stock_balance = $p->product_stock + $product_qty;
                 $stock_desc = 'IN';
-                $pro_table_field = array('product_stock');        
+                $pro_table_field = array('product_stock');
                 $pro_table_value = array($stock_balance);
             }
             $st_table_field = array('documentline_id','ref_id','quantity','type',
@@ -2299,16 +2344,16 @@ class Invoice {
             $query = $g->fetchPackageDetail(" AND package_id = '$this->invl_pro_id'","","",0);
             while($row = mysql_fetch_array($query)){
                 $p->fetchProductDetail(" AND product_id = '".$row['package_product_id']."'","","",1);
-                $product_qty = $this->invl_qty * $row['package_product_qty'];                
-                if($action=='out'){            
+                $product_qty = $this->invl_qty * $row['package_product_qty'];
+                if($action=='out'){
                     $stock_balance = $p->product_stock - $product_qty;
                     $stock_desc = 'OUT';
-                    $pro_table_field = array('product_stock');        
+                    $pro_table_field = array('product_stock');
                     $pro_table_value = array($stock_balance);
                 }else if($action=='in'){
                     $stock_balance = $p->product_stock + $product_qty;
                     $stock_desc = 'IN';
-                    $pro_table_field = array('product_stock');        
+                    $pro_table_field = array('product_stock');
                     $pro_table_value = array($stock_balance);
                 }
                 $st_table_field = array('documentline_id','ref_id','quantity','type',
@@ -2332,11 +2377,11 @@ class Invoice {
             return true;
         }else{
             return false;
-        } 
+        }
     }
     public function generateMultiLineItems(){
         include_once 'class/Order.php';
-        $order = new Order();  
+        $order = new Order();
         $query = $order->fetchOrderDetail(" AND order_id = '$this->order_id'","","",0);
         $order->order_id = $this->order_id;
         if($query){
@@ -2352,11 +2397,11 @@ class Invoice {
             $r = mysql_fetch_array($query);
             if($this->generateInvoice($r)){
                 $this->newinvoice_id = $this->invoice_id;
-                
+
                 for($i=0;$i<sizeof($this->generateqty);$i++){
                     $invl_ordl_id = escape($this->generateordlid[$i]);
                     $generate_quantity = escape($this->generateqty[$i]);
-                    
+
                     if($generate_quantity <=0){
                         $generate_quantity = 0;
                     }
@@ -2375,7 +2420,7 @@ class Invoice {
                     while($row = mysql_fetch_array($query1)){
                         $row['ordl_qty'] = $allow_generate_quantity;
                         $row['ordl_ftotal'] = $row['ordl_qty'] * $row['ordl_fuprice'];
-                        $row['ordl_total'] = $row['ordl_ftotal']; 
+                        $row['ordl_total'] = $row['ordl_ftotal'];
                         $row['ordl_fdiscamt'] = ROUND($row['ordl_ftotal'] * ($row['ordl_disc']/100),2);
                         $row['ordl_discamt'] = $row['ordl_fdiscamt'];
                         if($row['ordl_istax'] == 1){
@@ -2385,7 +2430,7 @@ class Invoice {
                         $this->generateInvoiceLine($row,$this->newinvoice_id);
                     }
                 }
-                
+
                 $this->invoice_id = $this->newinvoice_id;
                 $this->invoice_disctotal = $this->getTotalDiscAmt();
                 $this->invoice_subtotal = $this->getSubTotalAmt();
@@ -2528,7 +2573,7 @@ class Invoice {
         return $query;
     }
     public function fetchOrderNoDetail($docType,$orderNo){
-        
+
         if($docType == 'QT'){
             $selectSql = " qt.order_id as QT_ID, qt.order_no as QT_No, si.invoice_id as SI_ID, si.invoice_no as SI_No, do.order_id as DO_ID, do.order_no as DO_No, pu.order_id as PU_ID, pu.order_no as PU_No " ;
             $fromSql = " db_order qt LEFT JOIN db_invoice si ON si.invoice_generate_from = qt.order_id AND si.invoice_generate_from_type = qt.order_prefix_type
@@ -2562,14 +2607,14 @@ WHERE qt.order_id = 110
     AND pu.order_status = 1";
          */
         //$sql = "SELECT " . $selectSql . " FROM " . $fromSql . " WHERE " . $whereSql;
-        
+
         $query2 = getDataBySql($selectSql,$fromSql,$whereSql);
         $generated = "";
         while($row2 = mysql_fetch_array($query2)){
             if($docType != 'SI'){
                if(isset($row2['SI_ID']) && $row2['SI_ID'] > 0){
                     $generated .= "<a href = 'sales_invoice.php?action=edit&invoice_id=".$row2['SI_ID']."'>".$row2['SI_No']."</a>,";
-                } 
+                }
             }
             if($docType != 'DO'){
                 if(isset($row2['DO_ID']) && $row2['DO_ID'] > 0){
@@ -2579,8 +2624,8 @@ WHERE qt.order_id = 110
             if($docType != 'PU'){
                if(isset($row2['PU_ID']) && $row2['PU_ID'] > 0){
                     $generated .= "<a href = 'pickup.php?action=edit&order_id=".$row2['PU_ID']."'>".$row2['PU_No']."</a>,";
-                } 
-            }      
+                }
+            }
         }
         return rtrim($generated,',');
     }
