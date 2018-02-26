@@ -83,6 +83,7 @@
 
 
     //edr variables to be used in orderfork table, using order class as base
+    $o->orderfork_id = escape($_POST['orderfork_id']);
     $o->orderfork_brand = escape($_POST['orderfork_brand']);
     $o->orderfork_model = escape($_POST['orderfork_model']);
     $o->orderfork_capacity = escape($_POST['orderfork_capacity']);
@@ -138,6 +139,8 @@
                 }
        break;
        case "update":
+       //edr figure out why orderfork id no being retrieve
+       // die( $o->orderfork_id);
                $o->status = 0;
                if($o->updateOrder()){
                    rediectUrl("$o->document_url?action=edit&order_id=$o->order_id",getSystemMsg(1,'Update data successfully'));
