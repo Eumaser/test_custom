@@ -42,6 +42,8 @@
     $o->order_attentionto_name = escape($_POST['order_attentionto_name']);
     $o->order_attentionto = escape($_POST['order_attentionto']);
     $o->order_attentionto_email = escape($_POST['order_attentionto_email']);
+
+    //edr document type in delivery order
     $o->order_doc_type = escape($_POST['order_doc_type']);
 
     $o->order_delivery_date = escape($_POST['order_delivery_date']);
