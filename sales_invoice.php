@@ -2,7 +2,7 @@
     include_once 'connect.php';
     include_once 'config.php';
     include_once 'include_function.php';
-    include_once 'class/Invoice.php'; 
+    include_once 'class/Invoice.php';
     include_once 'class/Partner.php';
     include_once 'class/SavehandlerApi.php';
     include_once 'class/GeneralFunction.php';
@@ -73,8 +73,26 @@
     $o->invoice_regards = escape($_POST['invoice_regards']);
     $o->invoice_payment = escape($_POST['invoice_payment']);
     $o->invoice_notes = escape($_POST['invoice_notes']);
-    $o->invoice_paymentdate = escape($_POST['invoice_paymentdate']);
-    
+
+    //edr added doc type for invoice
+    $o->invoice_doc_type = escape($_POST['invoice_doc_type']);
+
+
+    //edr added input for invfork table
+    $o->invfork_id = escape($_POST['invfork_id']);
+    $o->invfork_brand = escape($_POST['invfork_brand']);
+    $o->invfork_model = escape($_POST['invfork_model']);
+    $o->invfork_capacity = escape($_POST['invfork_capacity']);
+    $o->invfork_height = escape($_POST['invfork_height']);
+    $o->invfork_mast = escape($_POST['invfork_mast']);
+    $o->invfork_length = escape($_POST['invfork_length']);
+    $o->invfork_attachment =escape($_POST['invfork_attachment']);
+    $o->invfork_acc = escape($_POST['invfork_acc']);
+    $o->invfork_serial =escape($_POST['invfork_serial']);
+    $o->invfork_battery = escape($_POST['invfork_battery']);
+    $o->invfork_bat_charger = escape($_POST['invfork_bat_charger']);
+    $o->invfork_snr = escape($_POST['invfork_snr']);
+
     $o->invoice_paymentremark = escape($_POST['invoice_paymentremark']);
 
     $o->invoice_currency = escape($_POST['invoice_currency']);
@@ -101,23 +119,23 @@
     $o->invl_markup = str_replace(",", "",$_POST['invl_markup']);
     $o->invl_pro_type = escape($_POST['invl_pro_type']);
     $o->invl_product_location = escape($_POST['invl_product_location']);
-    
+
     $o->e_invoice_order_id  = escape($_POST['e_order_id']);
     $o->e_invoice_firstname = escape($_POST['e_firstname']);
     $o->e_invoice_lastname  = escape($_POST['e_lastname']);
     $o->e_invoice_email     = escape($_POST['e_email']);
-    $o->e_invoice_telephone = escape($_POST['e_telephone']); 
+    $o->e_invoice_telephone = escape($_POST['e_telephone']);
     $o->e_invoice_payment_address_1 = escape($_POST['e_payment_address_1']);
     $o->e_invoice_payment_address_2 = escape($_POST['e_payment_address_2']);
     $o->e_invoice_payment_city      = escape($_POST['e_payment_city']);
     $o->e_invoice_payment_postcode  = escape($_POST['e_payment_postcode']);
     $o->e_invoice_payment_country   = escape($_POST['e_payment_country']);
-    $o->e_invoice_total     = escape($_POST['e_total']); 
-    $o->e_invoice_product_id        = escape($_POST['e_product_id']); 
+    $o->e_invoice_total     = escape($_POST['e_total']);
+    $o->e_invoice_product_id        = escape($_POST['e_product_id']);
     $o->e_invoice_model     = escape($_POST['e_model']);
-    $o->e_invoice_quantity  = escape($_POST['e_quantity']); 
-    $o->e_invoice_price     = escape($_POST['e_price']); 
-    
+    $o->e_invoice_quantity  = escape($_POST['e_quantity']);
+    $o->e_invoice_price     = escape($_POST['e_price']);
+
     $o->generate_document_type = escape($_POST['generate_document_type']);
     $o->order_id = escape($_POST['order_id']);
     //var_dump($_POST); die;
@@ -150,6 +168,9 @@
                 }
        break;
        case "edit":
+        //  $test = $o->fetchInvoiceDetail(" AND invoice_id = '$o->invoice_id'","","",1);
+        //  echo '<pre>';
+        //  print_r($test);die();
                 if($o->fetchInvoiceDetail(" AND invoice_id = '$o->invoice_id'","","",1)){
                     $o->getInputForm("update");
                 }else{
@@ -178,7 +199,7 @@
                }
        break;
        case "saveline":
-       case "updateline":   
+       case "updateline":
             $o->calculateLineAmount();
 
             if($o->invl_id > 0 && $action == 'updateline'){
@@ -328,7 +349,7 @@
             }
             exit();
             break;
-        case "getItemListJson":      
+        case "getItemListJson":
             if ($o->invoice_type_id == 1 || $o->invoice_type_id == "product"){
                 $product_option = $o->select->getProductNameSelectCtrl("","Y","");
                 echo json_encode(array('status'=>1,
@@ -343,7 +364,7 @@
             }
             exit();
             break;
-        case "getItemDescJson":      
+        case "getItemDescJson":
             if ($o->qt_type == "product"){
                 if($pro->fetchProductDetail(" AND product_id = '$o->invoice_item_id'","","",1)){
                     echo json_encode(array('status'=>1,
@@ -362,14 +383,14 @@
                    echo json_encode(array('status'=>0));
                 }
             }
-            
+
             exit();
             break;
        case "createForm":
             $o->getInputForm('create');
             exit();
-            break;  
-       default: 
+            break;
+       default:
             if($_SESSION['empl_group'] > 1){
                 $wherestring = " AND o.invoice_outlet = '{$_SESSION['empl_outlet']}'";
             }
@@ -377,7 +398,7 @@
 
             $o->getListing();
             exit();
-            break; 
+            break;
     }
-    
+
 ?>
