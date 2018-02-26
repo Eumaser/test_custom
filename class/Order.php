@@ -3765,7 +3765,7 @@ o               WHERE  $wherestring";
     <!--edr lift-->
     <div class="forklifts">
       <input type="hidden" class="form-control" id="orderfork_id" name="orderfork_id" value = "<?php echo $this->orderfork_id;?>" placeholder="Height" >
-    
+
       <div class="form-group">
             <label for="order_customerpo" class="<?php echo $label_col_sm;?> control-label">Brand</label>
             <div class="<?php echo $field_col_sm;?>">
