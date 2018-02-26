@@ -74,10 +74,18 @@ class SelectControl {
 
     public function getForkModelCtrl($pid,$shownull="Y",$wherestring=''){
       //add where fork_brand == brand at DO??
-      $sql = "SELECT fork_id, fork_model from db_forklift WHERE (fork_id>0 or fork_id='$pid') $wherestring ORDER BY fork_id";
+  //    $sql = "SELECT fork_id, fork_model from db_forklift WHERE (fork_id>0 or fork_id='$pid') $wherestring ORDER BY fork_id";
+    //  $sql = "SELECT fork_id, fork_model from db_forklift WHERE (fork_brand='$pid') $wherestring ORDER BY fork_id";
+  //    $sql = "SELECT fork_id, fork_model from db_forklift WHERE (fork_id>0 or fork_brand='1') ";
+      if ($wherestring == '') {
+        $sql = "SELECT fork_id, fork_model from db_forklift WHERE (fork_id='$pid')  ORDER BY fork_id";
+      }else{
+         $sql = "SELECT fork_id, fork_model from db_forklift WHERE (fork_id>0 or fork_id='$pid') $wherestring ORDER BY fork_id";
+      }
+
       if($shownull =="Y"){
           $selectctrl .="<option value = '' SELECTED='SELECTED'>Select One</option>";
-      //    $selectctrl .="<option value = '0' SELECTED='SELECTED'>Select One</option>";
+      //    $selectctrl .="<option v  alue = '0' SELECTED='SELECTED'>Select One</option>";
       }
       $query = mysql_query($sql);
       while($row = mysql_fetch_array($query)){
